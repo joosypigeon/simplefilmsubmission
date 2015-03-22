@@ -1,7 +1,5 @@
 var sfss = (function () {
-    'use strict';
-
-    var FILM_SUBMISSION = "Film Submission",
+    var interface, FILM_SUBMISSION = "Film Submission",
         ID = "ID",
 
         // the 3 spreadsheet sheets
@@ -299,10 +297,39 @@ var sfss = (function () {
         CACHE = {},
 
         //map = Array.prototype.map,
-        TESTING = false,
 
         // For Tesing
-        TEMPLATES_TESTING = 'Templates Testing';
+        TEMPLATES_TESTING = 'Templates Testing',
+
+        PROPERTIES = {},
+
+        logDoc, scriptProperties = PropertiesService.getScriptProperties(),
+        logId = scriptProperties.getProperty(normalizeHeader(LOG_FILE)),
+        
+        TESTING = false;
+
+    if (logId) {
+        logDoc = DocumentApp.openById(logId);
+    }
+
+    function setTesting(b) {
+        TESTING = b;
+    }
+
+    // used in testing template emails
+    function getProperty(p) {
+        return PROPERTIES[p];
+    }
+
+    // used in testing template emails
+    function setProperty(p, v) {
+        PROPERTIES[p] = v;
+    }
+
+    // used in testing template emails
+    function deleteProperty(p) {
+        delete PROPERTIES[p];
+    }
 
     function flatten(array) {
         var result = [],
@@ -318,7 +345,8 @@ var sfss = (function () {
     function onOpen() {
         try {
             var ss = SpreadsheetApp.getActiveSpreadsheet(),
-                initialised = ScriptProperties.getProperty("initialised");
+                scriptProperties = PropertiesService.getScriptProperties(),
+                initialised = scriptProperties.getProperty("initialised");
 
             if (initialised) {
                 ss.addMenu(FILM_SUBMISSION, MENU_ENTRIES);
@@ -367,7 +395,8 @@ var sfss = (function () {
     }
 
     function statusDialog(status, confirmation, selection, height, title, html) {
-        var value = ScriptProperties.getProperty(normalizeHeader(status + ' ' + confirmation));
+        var scriptProperties = PropertiesService.getScriptProperties(),
+            value = scriptProperties.getProperty(normalizeHeader(status + ' ' + confirmation));
         if (value && value === 'true') {
             setStatus(status, confirmation, selection);
         } else {
@@ -476,9 +505,10 @@ var sfss = (function () {
 
     function buttonAction(e) {
         var app = UiApp.getActiveApplication(),
-            ss = SpreadsheetApp.getActiveSpreadsheet();
+            ss = SpreadsheetApp.getActiveSpreadsheet(),
+            scriptProperties = PropertiesService.getScriptProperties();
 
-        ScriptProperties.setProperty(normalizeHeader(e.parameter[STATUS] + ' ' + e.parameter[CONFIRMATION]), e.parameter.check);
+        scriptProperties.setProperty(normalizeHeader(e.parameter[STATUS] + ' ' + e.parameter[CONFIRMATION]), e.parameter.check);
 
         if (e.parameter.source === OK) {
             setStatus(e.parameter[STATUS], e.parameter[CONFIRMATION], e.parameter[SELECTION]);
@@ -1553,9 +1583,10 @@ var sfss = (function () {
 
     function setup() {
         try {
-            if (TESTING || !ScriptProperties.getProperty("initialised")) {
+            var scriptProperties = PropertiesService.getScriptProperties();
+            if (TESTING || !scriptProperties.getProperty("initialised")) {
                 if (!TESTING) {
-                    ScriptProperties.setProperty("initialised", "initialised");
+                    scriptProperties.setProperty("initialised", "initialised");
                 }
 
                 log("setup start.");
@@ -1719,15 +1750,15 @@ var sfss = (function () {
                     formId = form.getId();
 
                 // find parent folder of spreadsheet and move form to that folder
-                var ssParentFolder = DocsList.getFileById(ssId).getParents()[0],
-                    formFile = DocsList.getFileById(formId),
-                    creationFolder = formFile.getParents()[0],
-                    // expect this to be ROOT and the same as the folder that formFolder is created into
-                    formFolder = DocsList.createFolder(FORM_FOLDER);
-                formFolder.addToFolder(ssParentFolder);
-                formFolder.removeFromFolder(creationFolder);
-                formFile.addToFolder(formFolder);
-                formFile.removeFromFolder(creationFolder);
+                var ssParentFolder = DriveApp.getFileById(ssId).getParents().next(),
+                    formFile = DriveApp.getFileById(formId),
+                    formFolder = DriveApp.createFolder(FORM_FOLDER);
+
+                DriveApp.removeFolder(formFolder); // remove from root
+                DriveApp.removeFile(formFile); // remove from root
+                ssParentFolder.addFolder(formFolder);
+                formFolder.addFile(formFile);
+
                 log('Built online submission form.');
 
                 // initialise spreadsheet and set spreadsheet as the destination of the form
@@ -1829,29 +1860,27 @@ var sfss = (function () {
 
     function log(info) {
         try {
-            var logFileId = ScriptProperties.getProperty(normalizeHeader(LOG_FILE)),
-                logFile;
-
-            if (logFileId) {
-                logFile = DocumentApp.openById(logFileId);
-            }
-
-            if (!logFile) {
-                logFile = DocumentApp.create(LOG_FILE);
+            if (!logDoc) {
+                logDoc = DocumentApp.create(LOG_FILE), logId = logDoc.getId();
+                var logFile = DriveApp.getFileById(logId);
+                DriveApp.removeFile(logFile); // remove from root
                 var ss = SpreadsheetApp.getActiveSpreadsheet(),
-                    ssParentFolder = DocsList.getFileById(ss.getId()).getParents()[0],
-                    logFileFile = DocsList.getFileById(logFile.getId()),
-                    creationFolder = logFileFile.getParents()[0],
-                    // expect this to be ROOT and the same as the folder that logFolder is created into
-                    logFolder = DocsList.createFolder(LOG_FOLDER);
-                logFolder.addToFolder(ssParentFolder);
-                logFolder.removeFromFolder(creationFolder);
-                logFileFile.addToFolder(logFolder);
-                logFileFile.removeFromFolder(creationFolder);
-                ScriptProperties.setProperty(normalizeHeader(LOG_FILE), logFile.getId());
-                logFile.getBody().appendParagraph('Created log file!');
+                    ssParentFolder = DriveApp.getFileById(ss.getId()).getParents().next(),
+                    logFolder = DriveApp.createFolder(LOG_FOLDER);
+                Logger.log('ssParentFolder: ' + ssParentFolder);
+                Logger.log('logFolder: ' + logFolder);
+                DriveApp.removeFolder(logFolder); // remove from root
+                ssParentFolder.addFolder(logFolder);
+                logFolder.addFile(logFile);
+
+                logDoc.getBody().appendParagraph((new Date()) + ":Created log file!");
+
+
+                var scriptProperties = PropertiesService.getScriptProperties();
+                scriptProperties.setProperty(normalizeHeader(LOG_FILE), logId);
+
             }
-            logFile.getBody().appendParagraph((new Date()) + ": " + info);
+            logDoc.getBody().appendParagraph((new Date()) + ": " + info);
         } catch (e) {
             log('log:error:' + catchToString(e));
         }
@@ -1884,13 +1913,13 @@ var sfss = (function () {
                 MailApp.sendEmail(submission[normalizeHeader(EMAIL)], fillInTemplateFromObject(subjectTemplate, submission), fillInTemplateFromObject(bodyTemplate, submission));
                 emailQuotaRemaining -= 1;
                 if (TESTING) {
-                    var templatesTesting = ScriptProperties.getProperty(normalizeHeader(TEMPLATES_TESTING));
+                    var templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
                     if (templatesTesting) {
                         templatesTesting += ',' + templateName;
                     } else {
                         templatesTesting = templateName;
                     }
-                    ScriptProperties.setProperty(normalizeHeader(TEMPLATES_TESTING), templatesTesting);
+                    setProperty(normalizeHeader(TEMPLATES_TESTING), templatesTesting);
                 }
                 log('mergeAndSend:email sent');
             } else {
@@ -2065,6 +2094,11 @@ var sfss = (function () {
         } else {
             return ("\\d\\d\\d\\d\\d\\d").slice(-2 * PAD_NUMBER);
         }
+    }
+
+    // for testing
+    function setPadNumber(n) {
+        PAD_NUMBER = n;
     }
 
     function setNamedValueInCache(name, value) {
@@ -2617,8 +2651,103 @@ var sfss = (function () {
         return char >= '0' && char <= '9';
     }
 
+    test_interface = {
+        normaliseAndValidateDuration: normaliseAndValidateDuration,
+        pad: pad,
+        setPadNumber: setPadNumber,
+        diffDays: diffDays,
+        setNamedValue: setNamedValue,
+        getNamedValue: getNamedValue,
+        saveData: saveData,
+        loadData: loadData,
+        findMinMaxColumns: findMinMaxColumns,
+        normalizeHeader: normalizeHeader,
+        log: log,
+        findStatusColor: findStatusColor,
+        getProperty: getProperty,
+        setProperty: setProperty,
+        deleteProperty: deleteProperty,
+        setTesting: setTesting,
 
-    return {
+        FILM_SUBMISSION: FILM_SUBMISSION,
+        ID: ID,
+
+        // the 3 spreadsheet sheets
+        FILM_SUBMISSIONS_SHEET: FILM_SUBMISSIONS_SHEET,
+        TEMPLATE_SHEET: TEMPLATE_SHEET,
+        OPTIONS_SETTINGS_SHEET: OPTIONS_SETTINGS_SHEET,
+
+        CLOSE_OF_SUBMISSION: CLOSE_OF_SUBMISSION,
+        DAYS_BEFORE_REMINDER: DAYS_BEFORE_REMINDER,
+
+        SUBMISSION_CONFIRMATION: SUBMISSION_CONFIRMATION,
+        RECEIPT_CONFIMATION: RECEIPT_CONFIMATION,
+        REMINDER: REMINDER,
+        NOT_ACCEPTED: NOT_ACCEPTED,
+        ACCEPTED: ACCEPTED,
+        AD_HOC_EMAIL: AD_HOC_EMAIL,
+
+        CURRENT_AD_HOC_EMAIL: CURRENT_AD_HOC_EMAIL,
+        CURRENT_SELECTION_NOTIFICATION: CURRENT_SELECTION_NOTIFICATION,
+
+        //values for CURRENT_SELECTION_NOTIFICATION, CURRENT_AD_HOC_EMAIL
+        NOT_STARTED: NOT_STARTED,
+        PENDING: PENDING,
+
+        //states
+        NO_MEDIA: NO_MEDIA,
+        MEDIA_PRESENT: MEDIA_PRESENT,
+        PROBLEM: PROBLEM,
+        SELECTED: SELECTED,
+        NOT_SELECTED: NOT_SELECTED,
+        CONFIRMED: CONFIRMED,
+        NOT_CONFIRMED: NOT_CONFIRMED,
+
+        DO_NOT_CHANGE: DO_NOT_CHANGE,
+
+        LENGTH: LENGTH,
+        YEAR: YEAR,
+
+        CONFIRM: CONFIRM,
+
+        TIMESTAMP: TIMESTAMP,
+
+        // Additional FILM_SUBMISSIONS_SHEET Columns
+        COMMENTS: COMMENTS,
+        FILM_ID: FILM_ID,
+        SCORE: SCORE,
+        CONFIRMATION: CONFIRMATION,
+        SELECTION: SELECTION,
+        STATUS: STATUS,
+        LAST_CONTACT: LAST_CONTACT,
+
+        FORM_DATA: FORM_DATA,
+
+        // Sets number of numerical places on film ID so an example of a film ID were the PAD_NUMBER were set to 3 would be ID029.
+        // Legal values are 3,4,5,6
+        // NOTE: PAD_NUMBER puts an upper bound on the number of film submissions the system can cope with
+        PAD_NUMBER: PAD_NUMBER,
+
+        // Will stop sending emails for the day when email quota is reported as less than or equal to MIN_QUOTA.
+        // Will attempt to send unsent emails the next day.
+        MIN_QUOTA: MIN_QUOTA,
+        REMAINING_EMAIL_QUOTA: REMAINING_EMAIL_QUOTA,
+
+        // one contact value
+        NO_CONTACT: NO_CONTACT,
+
+        // name of log file
+        LOG_FILE: LOG_FILE,
+        LOG_FOLDER: LOG_FOLDER,
+        FORM_FOLDER: FORM_FOLDER,
+
+        TEMPLATES_TESTING: TEMPLATES_TESTING
+    };
+
+
+
+
+    interface = {
         onOpen: onOpen,
         setup: setup,
 
@@ -2642,8 +2771,13 @@ var sfss = (function () {
         templatesButtonAction: templatesButtonAction,
         settingsOptionsButtonAction: settingsOptionsButtonAction,
         selectionNotificationButtonAction: selectionNotificationButtonAction,
-        adHocEmailButtonAction: adHocEmailButtonAction
+        adHocEmailButtonAction: adHocEmailButtonAction,
+
+        // testing
+        test_interface: test_interface
     };
+
+    return interface;
 })();
 
 //////////////////////////////////////
@@ -2668,7 +2802,7 @@ function hProcessSubmission(e) {
 }
 
 function hReminderConfirmation(e) {
-    ssfs.hReminderConfirmation(e);
+    sfss.hReminderConfirmation(e);
 }
 //////////////////////////////////////
 // end of system triggers
