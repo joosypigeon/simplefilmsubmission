@@ -1,5 +1,9 @@
+/*global Session, LockService, PropertiesService, MailApp, UiApp, SpreadsheetApp, Logger */
+
 var sfss = (function () {
-    var interface, FILM_SUBMISSION = "Film Submission",
+    'use strict';
+
+    var sfss_interface, FILM_SUBMISSION = "Film Submission",
         ID = "ID",
 
         // the 3 spreadsheet sheets
@@ -305,13 +309,14 @@ var sfss = (function () {
 
         logDoc, scriptProperties = PropertiesService.getScriptProperties(),
         logId = scriptProperties.getProperty(normalizeHeader(LOG_FILE)),
-        
+
         TESTING = false;
 
     if (logId) {
         logDoc = DocumentApp.openById(logId);
     }
 
+    // set TESTING to true when running unit tests
     function setTesting(b) {
         TESTING = b;
     }
@@ -362,7 +367,7 @@ var sfss = (function () {
     }
 
     //////////////////////////////////////
-    // spreadshet menue items
+    // spreadsheet menue items
     // ///////////////////////////////////
     // mediaPresentNotConfirmed,
     // problem,
@@ -374,26 +379,6 @@ var sfss = (function () {
     // adHocEmail,
     // selectionNotification,
     // ///////////////////////////////////
-    function mediaPresentNotConfirmed() {
-        var ss = SpreadsheetApp.getActiveSpreadsheet();
-        statusDialog(MEDIA_PRESENT, NOT_CONFIRMED, DO_NOT_CHANGE, 450, 'Set selection to Media Present, Not Confirmed', '<p>The state of a submission is given by the value of three fields, <b>' + STATUS + '</b>, <b>' + CONFIRMATION + '</b> and <b>' + SELECTION + '</b>.</p><p>Setting a submission to ' + STATUS + ': <b>' + MEDIA_PRESENT + '</b>, ' + CONFIRMATION + ': <b>' + NOT_CONFIRMED + '</b> (and leaving ' + SELECTION + ' unchanged) means the filmmaker will be automatically emailed after midnight to confirm the receipt of the Physical Media and the Permission Slip at the festival office, provided that:<ul><li>close of submission on ' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + ' has not been reached at the time that the email confirmation is attempted</li><li>and that confirmations are currently enabled.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, ENABLE_CONFIRMATION) + '.</p><p>If you re-set the submission to a new different state before midnight, the receipt confirmation email will not be sent.</p><p>After the receipt confirmation email is sent the state of the submission will be set to ' + STATUS + ': <b>' + MEDIA_PRESENT + '</b>, ' + CONFIRMATION + ': <b>' + CONFIRMED + '</b>.</p><p>To continue with setting the submission state to ' + STATUS + ': <b>' + MEDIA_PRESENT + '</b>, ' + CONFIRMATION + ': <b>' + NOT_CONFIRMED + '</b> press OK, to not do this press CANCEL.</p><br/>');
-    }
-
-    function problem() {
-        var ss = SpreadsheetApp.getActiveSpreadsheet();
-        statusDialog(PROBLEM, DO_NOT_CHANGE, DO_NOT_CHANGE, 400, 'Set selection to Problem', '<p>The state of a submission is given by the value of three fields, <b>' + STATUS + '</b>, <b>' + CONFIRMATION + '</b> and <b>' + SELECTION + '</b>.</p><p>Setting a submission to ' + STATUS + ': <b>' + PROBLEM + '</b> (and leaving ' + CONFIRMATION + ' and ' + SELECTION + ' unchanged) means the filmmaker will be sent no reminder or receipt confirmation emails from now on. They will however, receive the final selection advisory email after close of submissions(' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + '), when it is sent.</p><p>If you set a submission to ' + STATUS + ': <b>' + PROBLEM + '</b>, please update the submission comment field with the details of the problem.</p><p>To continue with setting the submission state to ' + STATUS + ': <b>' + PROBLEM + '</b> press OK, to not do this press CANCEL.</p><br/>');
-    }
-
-    function selected() {
-        var ss = SpreadsheetApp.getActiveSpreadsheet();
-        statusDialog(DO_NOT_CHANGE, DO_NOT_CHANGE, SELECTED, 480, 'Set selection to Selected', '<p>The state of a submission is given by the value of three fields, <b>' + STATUS + '</b>, <b>' + CONFIRMATION + '</b> and <b>' + SELECTION + '</b>.</p><p>A submission set to ' + SELECTION + ': <b>' + SELECTED + '</b> (and leaving ' + STATUS + ' and ' + CONFIRMATION + ' unchanged) will still receive reminder and receipt confirmation emails dependent on its <b>' + STATUS + '</b> and <b>' + CONFIRMATION + '</b> provided that:<ul><li>it is at least ' + getNamedValue(ss, DAYS_BEFORE_REMINDER) + ' days before the close of submission on ' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + ' at the time that the email is attempted</li><li>and that receipt confirmations are currently enabled for receipt confirmation,</li><li>and that reminders are currently enabled for reminders.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, ENABLE_CONFIRMATION) + '.</p><p>Note: reminders are currently ' + getNamedValue(ss, ENABLE_REMINDER) + '.</p><p>Submissions set to ' + SELECTION + ': <b>' + SELECTED + '</b> will receive the festival submission acceptance email after close of submissions(' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + '), when it is sent.</p><p>You will usually only set this state after the close of submissions.</p><p>To continue with setting the submission state to ' + SELECTION + ': <b>' + SELECTED + '</b> press OK, to not do this press CANCEL.</p><br/>');
-    }
-
-    function notSelected() {
-        var ss = SpreadsheetApp.getActiveSpreadsheet();
-        statusDialog(DO_NOT_CHANGE, DO_NOT_CHANGE, NOT_SELECTED, 480, 'Set selection to Not Selected', '<p>The state of a submission is given by the value of three fields, <b>' + STATUS + '</b>, <b>' + CONFIRMATION + '</b> and <b>' + SELECTION + '</b>.</p><p>A submission set to ' + SELECTION + ': <b>' + NOT_SELECTED + '</b> (and leaving ' + STATUS + ' and ' + CONFIRMATION + ' unchanged) will still receive reminder and receipt confirmation emails dependent on its <b>' + STATUS + '</b> and <b>' + CONFIRMATION + '</b> provided that:<ul><li>it is at least ' + getNamedValue(ss, DAYS_BEFORE_REMINDER) + ' days before the close of submission on ' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + ' at the time that the email is attempted</li><li>and that receipt confirmations are currently enabled for receipt confirmation,</li><li>and that reminders are currently enabled for reminders.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, ENABLE_CONFIRMATION) + '.</p><p>Note: reminders are currently ' + getNamedValue(ss, ENABLE_REMINDER) + '.</p><p>Submissions set to ' + SELECTION + ': <b>' + NOT_SELECTED + '</b> will receive the festival submission not acceptanced email after close of submissions(' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + '), when it is sent.</p><p>You will usually only set this state after the close of submissions.</p><p>To continue with setting the submission state to ' + SELECTION + ': <b>' + NOT_SELECTED + '</b> press OK, to not do this press CANCEL.</p><br/>');
-    }
-
     function statusDialog(status, confirmation, selection, height, title, html) {
         var scriptProperties = PropertiesService.getScriptProperties(),
             value = scriptProperties.getProperty(normalizeHeader(status + ' ' + confirmation));
@@ -449,6 +434,28 @@ var sfss = (function () {
             ss.show(app);
         }
     }
+
+    function mediaPresentNotConfirmed() {
+        var ss = SpreadsheetApp.getActiveSpreadsheet();
+        statusDialog(MEDIA_PRESENT, NOT_CONFIRMED, DO_NOT_CHANGE, 450, 'Set selection to Media Present, Not Confirmed', '<p>The state of a submission is given by the value of three fields, <b>' + STATUS + '</b>, <b>' + CONFIRMATION + '</b> and <b>' + SELECTION + '</b>.</p><p>Setting a submission to ' + STATUS + ': <b>' + MEDIA_PRESENT + '</b>, ' + CONFIRMATION + ': <b>' + NOT_CONFIRMED + '</b> (and leaving ' + SELECTION + ' unchanged) means the filmmaker will be automatically emailed after midnight to confirm the receipt of the Physical Media and the Permission Slip at the festival office, provided that:<ul><li>close of submission on ' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + ' has not been reached at the time that the email confirmation is attempted</li><li>and that confirmations are currently enabled.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, ENABLE_CONFIRMATION) + '.</p><p>If you re-set the submission to a new different state before midnight, the receipt confirmation email will not be sent.</p><p>After the receipt confirmation email is sent the state of the submission will be set to ' + STATUS + ': <b>' + MEDIA_PRESENT + '</b>, ' + CONFIRMATION + ': <b>' + CONFIRMED + '</b>.</p><p>To continue with setting the submission state to ' + STATUS + ': <b>' + MEDIA_PRESENT + '</b>, ' + CONFIRMATION + ': <b>' + NOT_CONFIRMED + '</b> press OK, to not do this press CANCEL.</p><br/>');
+    }
+
+    function problem() {
+        var ss = SpreadsheetApp.getActiveSpreadsheet();
+        statusDialog(PROBLEM, DO_NOT_CHANGE, DO_NOT_CHANGE, 400, 'Set selection to Problem', '<p>The state of a submission is given by the value of three fields, <b>' + STATUS + '</b>, <b>' + CONFIRMATION + '</b> and <b>' + SELECTION + '</b>.</p><p>Setting a submission to ' + STATUS + ': <b>' + PROBLEM + '</b> (and leaving ' + CONFIRMATION + ' and ' + SELECTION + ' unchanged) means the filmmaker will be sent no reminder or receipt confirmation emails from now on. They will however, receive the final selection advisory email after close of submissions(' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + '), when it is sent.</p><p>If you set a submission to ' + STATUS + ': <b>' + PROBLEM + '</b>, please update the submission comment field with the details of the problem.</p><p>To continue with setting the submission state to ' + STATUS + ': <b>' + PROBLEM + '</b> press OK, to not do this press CANCEL.</p><br/>');
+    }
+
+    function selected() {
+        var ss = SpreadsheetApp.getActiveSpreadsheet();
+        statusDialog(DO_NOT_CHANGE, DO_NOT_CHANGE, SELECTED, 480, 'Set selection to Selected', '<p>The state of a submission is given by the value of three fields, <b>' + STATUS + '</b>, <b>' + CONFIRMATION + '</b> and <b>' + SELECTION + '</b>.</p><p>A submission set to ' + SELECTION + ': <b>' + SELECTED + '</b> (and leaving ' + STATUS + ' and ' + CONFIRMATION + ' unchanged) will still receive reminder and receipt confirmation emails dependent on its <b>' + STATUS + '</b> and <b>' + CONFIRMATION + '</b> provided that:<ul><li>it is at least ' + getNamedValue(ss, DAYS_BEFORE_REMINDER) + ' days before the close of submission on ' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + ' at the time that the email is attempted</li><li>and that receipt confirmations are currently enabled for receipt confirmation,</li><li>and that reminders are currently enabled for reminders.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, ENABLE_CONFIRMATION) + '.</p><p>Note: reminders are currently ' + getNamedValue(ss, ENABLE_REMINDER) + '.</p><p>Submissions set to ' + SELECTION + ': <b>' + SELECTED + '</b> will receive the festival submission acceptance email after close of submissions(' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + '), when it is sent.</p><p>You will usually only set this state after the close of submissions.</p><p>To continue with setting the submission state to ' + SELECTION + ': <b>' + SELECTED + '</b> press OK, to not do this press CANCEL.</p><br/>');
+    }
+
+    function notSelected() {
+        var ss = SpreadsheetApp.getActiveSpreadsheet();
+        statusDialog(DO_NOT_CHANGE, DO_NOT_CHANGE, NOT_SELECTED, 480, 'Set selection to Not Selected', '<p>The state of a submission is given by the value of three fields, <b>' + STATUS + '</b>, <b>' + CONFIRMATION + '</b> and <b>' + SELECTION + '</b>.</p><p>A submission set to ' + SELECTION + ': <b>' + NOT_SELECTED + '</b> (and leaving ' + STATUS + ' and ' + CONFIRMATION + ' unchanged) will still receive reminder and receipt confirmation emails dependent on its <b>' + STATUS + '</b> and <b>' + CONFIRMATION + '</b> provided that:<ul><li>it is at least ' + getNamedValue(ss, DAYS_BEFORE_REMINDER) + ' days before the close of submission on ' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + ' at the time that the email is attempted</li><li>and that receipt confirmations are currently enabled for receipt confirmation,</li><li>and that reminders are currently enabled for reminders.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, ENABLE_CONFIRMATION) + '.</p><p>Note: reminders are currently ' + getNamedValue(ss, ENABLE_REMINDER) + '.</p><p>Submissions set to ' + SELECTION + ': <b>' + NOT_SELECTED + '</b> will receive the festival submission not acceptanced email after close of submissions(' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + '), when it is sent.</p><p>You will usually only set this state after the close of submissions.</p><p>To continue with setting the submission state to ' + SELECTION + ': <b>' + NOT_SELECTED + '</b> press OK, to not do this press CANCEL.</p><br/>');
+    }
+
+
 
     function manual() {
         var ss = SpreadsheetApp.getActiveSpreadsheet(),
@@ -1933,6 +1940,8 @@ var sfss = (function () {
         return emailQuotaRemaining;
     }
 
+    // This trigger function processes form submissions. Due to the fact that
+    // On Form Submit event occationally does not fire
     function hProcessSubmission(event) {
         log('hProcessSubmission start');
         var lock = LockService.getPublicLock();
@@ -1948,14 +1957,8 @@ var sfss = (function () {
 
             var filmSheet = ss.getSheetByName(FILM_SUBMISSIONS_SHEET),
                 eventRow = event.range.getRow(),
-                currentFilmID = -1,
                 emailQuotaRemaining = MailApp.getRemainingDailyQuota(),
-                filmSubmission, filmSubmissionData, rows, length, headersOfInterest, minColumn, maxColumn, minMaxColumns, lastContact, sendEmail, confirmation, color;
-
-            sendEmail = MIN_QUOTA < emailQuotaRemaining;
-            if (!sendEmail) {
-                log('hProcessSubmission:ran out of email quota, (MIN_QUOTA, emailQuotaRemaining):(' + MIN_QUOTA + ',' + emailQuotaRemaining + ')');
-            }
+                headersOfInterest, minMaxColumns, lastContact, rowIndex;
 
             // Insert LAST_CONTACT,FILM_ID and STATUS into film submission. Also make sure LENGTH has correct form
             // Use smallest range that will work with one call to getRowsData and setRowsData
@@ -1967,67 +1970,94 @@ var sfss = (function () {
             var lastContactCell = filmSheet.getRange(eventRow, lastContactIndex, 1, 1);
             lastContact = lastContactCell.getValue();
 
-            if (lastContact instanceof Date) {
+            if (lastContact instanceof Date || lastContact === NO_CONTACT) {
                 throw {
                     message: 'ERROR: this submission has already been processed!'
                 };
             }
 
+            // check that previous submissions have been processed
+            var lastUnprocessedIndex = eventRow;
+            if (eventRow > 2) { //NOTE: row 2 should contain the first submission
+                // We know that we have least one previous row.
+                // Count backward until we encounter a processed row.
+                log('There are more than 2 submissions counting this one.');
+                for (rowIndex = eventRow - 1; rowIndex > 1; rowIndex -= 1) {
+                    log('rowIndex:' + rowIndex);
+                    lastContact = filmSheet.getRange(rowIndex, lastContactIndex, 1, 1).getValue();
+                    log('lastContact:' + lastContact);
+                    if (lastContact instanceof Date || lastContact === NO_CONTACT) {
+                        break;
+                    } else {
+                        lastUnprocessedIndex = rowIndex;
+                    }
+                }
+            }
+            log('(eventRow,lastUnprocessedIndex):(' + eventRow + ',' + lastUnprocessedIndex + ')');
+
+            // assert 1 < lastUnprocessedIndex <= eventRow
+            maxColumn = minMaxColumns.max;
+            minColumn = minMaxColumns.min;
+            unprocessedRange = filmSheet.getRange(lastUnprocessedIndex, minColumn, eventRow - lastUnprocessedIndex + 1, maxColumn - minColumn + 1);
+
+            var rows = getRowsData(filmSheet, unprocessedRange, 1);
+
+            var index, currentFilmID = -1,
+                filmSubmissionData, length, confirmation, color, color_CONFIRMED, color_NOT_CONFIRMED, date = event.namedValues[TIMESTAMP][0];
+
             // Update Find and update Film ID for current submission
             if (eventRow === 2) {
                 // first submission
-                currentFilmID = getNamedValue(ss, FIRST_FILM_ID);
+                currentFilmID = getNamedValue(ss, FIRST_FILM_ID) - 1;
             } else {
                 currentFilmID = getNamedValue(ss, CURRENT_FILM_ID);
+
+            }
+
+            for (index = 0; index < rows.length; index += 1) {
                 currentFilmID = currentFilmID + 1;
-            }
-            setNamedValue(ss, CURRENT_FILM_ID, currentFilmID);
-            currentFilmID = ID + pad(currentFilmID);
-            log('hProcessSubmission:processing film submission ' + currentFilmID);
+                log('processSubmission:processing film submission ' + ID + pad(currentFilmID));
+                filmSubmissionData = rows[index];
 
-            maxColumn = minMaxColumns.max;
-            minColumn = minMaxColumns.min;
-            filmSubmission = event.range;
-            filmSubmissionData = {};
-
-            var properties = [];
-            for (var property in event.namedValues) {
-                if (event.namedValues.hasOwnProperty(property)) {
-                    properties.push(property);
-                    filmSubmissionData[normalizeHeader(property)] = event.namedValues[property][0]; // Suprise . . . the value is an array of length 1!!!
+                length = normaliseAndValidateDuration(filmSubmissionData[normalizeHeader(LENGTH)]);
+                if (length) {
+                    filmSubmissionData[normalizeHeader(LENGTH)] = length;
                 }
+                filmSubmissionData[normalizeHeader(STATUS)] = NO_MEDIA;
+                filmSubmissionData[normalizeHeader(FILM_ID)] = ID + pad(currentFilmID);
+                if (MIN_QUOTA < emailQuotaRemaining) {
+                    lastContact = date;
+                    confirmation = CONFIRMED;
+                } else {
+                    lastContact = NO_CONTACT;
+                    confirmation = NOT_CONFIRMED;
+                }
+                emailQuotaRemaining -= 1;
+                filmSubmissionData[normalizeHeader(CONFIRMATION)] = confirmation;
+                filmSubmissionData[normalizeHeader(SELECTION)] = NOT_SELECTED;
+                filmSubmissionData[normalizeHeader(LAST_CONTACT)] = lastContact;
+                filmSubmissionData[normalizeHeader(SCORE)] = -1;
             }
 
-            length = normaliseAndValidateDuration(filmSubmissionData[normalizeHeader(LENGTH)]);
-            if (length) {
-                filmSubmissionData[normalizeHeader(LENGTH)] = length;
-            }
-            filmSubmissionData[normalizeHeader(STATUS)] = NO_MEDIA;
-            filmSubmissionData[normalizeHeader(FILM_ID)] = currentFilmID;
-            if (sendEmail) {
-                lastContact = filmSubmissionData[normalizeHeader(TIMESTAMP)];
-                confirmation = CONFIRMED;
-            } else {
-                lastContact = NO_CONTACT;
-                confirmation = NOT_CONFIRMED;
-            }
-            filmSubmissionData[normalizeHeader(CONFIRMATION)] = confirmation;
-            filmSubmissionData[normalizeHeader(SELECTION)] = NOT_SELECTED;
-            filmSubmissionData[normalizeHeader(LAST_CONTACT)] = lastContact;
-            filmSubmissionData[normalizeHeader(SCORE)] = -1;
+            setNamedValue(ss, CURRENT_FILM_ID, currentFilmID);
 
-
-            rows = [];
-            rows[0] = filmSubmissionData;
-            setRowsData(filmSheet, rows, filmSheet.getRange(1, minColumn, 1, maxColumn - minColumn + 1), eventRow);
+            setRowsData(filmSheet, rows, filmSheet.getRange(1, minColumn, 1, maxColumn - minColumn + 1), lastUnprocessedIndex);
 
             //set status color on film submission
-            color = findStatusColor(ss, NO_MEDIA, confirmation, NOT_SELECTED);
-            filmSheet.getRange(eventRow, 1, 1, filmSheet.getDataRange().getLastColumn()).setBackground(color);
+            color_CONFIRMED = findStatusColor(ss, NO_MEDIA, CONFIRMED, NOT_SELECTED);
+            color_NOT_CONFIRMED = findStatusColor(ss, NO_MEDIA, NOT_CONFIRMED, NOT_SELECTED);
 
-            if (sendEmail) {
-                // send confirmation email
-                mergeAndSend(ss, filmSubmissionData, SUBMISSION_CONFIRMATION);
+
+            // send confirmation email
+            for (index = 0; index < rows.length; index += 1) {
+                filmSubmissionData = rows[index];
+                if (filmSubmissionData[normalizeHeader(LAST_CONTACT)] !== NO_CONTACT) {
+                    mergeAndSend(ss, filmSubmissionData, SUBMISSION_CONFIRMATION);
+                    color = color_CONFIRMED;
+                } else {
+                    color = color_NOT_CONFIRMED;
+                }
+                filmSheet.getRange(lastUnprocessedIndex + index, 1, 1, filmSheet.getDataRange().getLastColumn()).setBackground(color);
             }
         } catch (e) {
             log('hProcessSubmission:error:' + catchToString(e));
@@ -2056,7 +2086,7 @@ var sfss = (function () {
         }
         var returnLength, mymatch;
         try {
-            var hours = '0'
+            var hours = '0';
             minutes = '0', seconds = '0', myregexp = /^[^\d]*([\d]+)[^\d]*$|^[^\d]*([\d]+)[^\d]+([\d]+)[^\d]*$|^[^\d]*([\d]+)[^\d]+([\d]+)[^\d]+([\d]+)[^\d]*$/i;
 
             mymatch = myregexp.exec(length);
@@ -2152,7 +2182,8 @@ var sfss = (function () {
         }
     }
 
-    // Load data into CACHE so that getNamedRange will later get it from CACHE and not have to make an individual getValue on a spreadsheet cell
+    // Load data into CACHE so that getNamedRange will later get it from CACHE and
+    // not have to make an individual getValue on a spreadsheet cell
     function loadData(ss, name) {
         var items = [];
         try {
@@ -2651,7 +2682,7 @@ var sfss = (function () {
         return char >= '0' && char <= '9';
     }
 
-    test_interface = {
+    test_sfss_interface = {
         normaliseAndValidateDuration: normaliseAndValidateDuration,
         pad: pad,
         setPadNumber: setPadNumber,
@@ -2744,10 +2775,7 @@ var sfss = (function () {
         TEMPLATES_TESTING: TEMPLATES_TESTING
     };
 
-
-
-
-    interface = {
+    sfss_interface = {
         onOpen: onOpen,
         setup: setup,
 
@@ -2774,10 +2802,10 @@ var sfss = (function () {
         adHocEmailButtonAction: adHocEmailButtonAction,
 
         // testing
-        test_interface: test_interface
+        test_sfss_interface: test_sfss_interface
     };
 
-    return interface;
+    return sfss_interface;
 })();
 
 //////////////////////////////////////

@@ -1,3 +1,5 @@
+/*global DriveApp, PropertiesService, MailApp, UiApp, SpreadsheetApp, Logger, QUnit, sfss, module, test */
+
 ///////////////////////////////////////////////////////////////////////////////
 // A collection of not very unity Unit Tests
 // These tests use a fork of QUnit.
@@ -20,83 +22,82 @@ QUnit.helpers(this);
 
 function myTests() {
     Logger.log('start:myTests');
-    var pad = sfss.test_interface.pad,
-        setPadNumber = sfss.test_interface.setPadNumber,
-        diffDays = sfss.test_interface.diffDays,
-        normaliseAndValidateDuration = sfss.test_interface.normaliseAndValidateDuration,
-        normalizeHeader = sfss.test_interface.normalizeHeader,
-        setNamedValue = sfss.test_interface.setNamedValue,
-        getNamedValue = sfss.test_interface.getNamedValue,
-        saveData = sfss.test_interface.saveData,
-        loadData = sfss.test_interface.loadData,
-        findMinMaxColumns = sfss.test_interface.findMinMaxColumns,
-        log = sfss.test_interface.log,
-        findStatusColor = sfss.test_interface.findStatusColor,
-        getProperty = sfss.test_interface.getProperty,
-        setProperty = sfss.test_interface.setProperty,
-        deleteProperty = sfss.test_interface.deleteProperty,
-        setTesting = sfss.test_interface.setTesting,
+    var pad = sfss.test_sfss_interface.pad,
+        setPadNumber = sfss.test_sfss_interface.setPadNumber,
+        diffDays = sfss.test_sfss_interface.diffDays,
+        normaliseAndValidateDuration = sfss.test_sfss_interface.normaliseAndValidateDuration,
+        normalizeHeader = sfss.test_sfss_interface.normalizeHeader,
+        setNamedValue = sfss.test_sfss_interface.setNamedValue,
+        getNamedValue = sfss.test_sfss_interface.getNamedValue,
+        saveData = sfss.test_sfss_interface.saveData,
+        loadData = sfss.test_sfss_interface.loadData,
+        findMinMaxColumns = sfss.test_sfss_interface.findMinMaxColumns,
+        log = sfss.test_sfss_interface.log,
+        findStatusColor = sfss.test_sfss_interface.findStatusColor,
+        getProperty = sfss.test_sfss_interface.getProperty,
+        setProperty = sfss.test_sfss_interface.setProperty,
+        deleteProperty = sfss.test_sfss_interface.deleteProperty,
+        setTesting = sfss.test_sfss_interface.setTesting,
 
         // the 3 spreadsheet sheets
-        FILM_SUBMISSIONS_SHEET = sfss.test_interface.FILM_SUBMISSIONS_SHEET,
+        FILM_SUBMISSIONS_SHEET = sfss.test_sfss_interface.FILM_SUBMISSIONS_SHEET,
 
-        CLOSE_OF_SUBMISSION = sfss.test_interface.CLOSE_OF_SUBMISSION,
-        DAYS_BEFORE_REMINDER = sfss.test_interface.DAYS_BEFORE_REMINDER,
+        CLOSE_OF_SUBMISSION = sfss.test_sfss_interface.CLOSE_OF_SUBMISSION,
+        DAYS_BEFORE_REMINDER = sfss.test_sfss_interface.DAYS_BEFORE_REMINDER,
 
 
-        SUBMISSION_CONFIRMATION = sfss.test_interface.SUBMISSION_CONFIRMATION,
-        RECEIPT_CONFIMATION = sfss.test_interface.RECEIPT_CONFIMATION,
-        REMINDER = sfss.test_interface.REMINDER,
-        NOT_ACCEPTED = sfss.test_interface.NOT_ACCEPTED,
-        ACCEPTED = sfss.test_interface.ACCEPTED,
-        AD_HOC_EMAIL = sfss.test_interface.AD_HOC_EMAIL,
+        SUBMISSION_CONFIRMATION = sfss.test_sfss_interface.SUBMISSION_CONFIRMATION,
+        RECEIPT_CONFIMATION = sfss.test_sfss_interface.RECEIPT_CONFIMATION,
+        REMINDER = sfss.test_sfss_interface.REMINDER,
+        NOT_ACCEPTED = sfss.test_sfss_interface.NOT_ACCEPTED,
+        ACCEPTED = sfss.test_sfss_interface.ACCEPTED,
+        AD_HOC_EMAIL = sfss.test_sfss_interface.AD_HOC_EMAIL,
 
-        CURRENT_AD_HOC_EMAIL = sfss.test_interface.CURRENT_AD_HOC_EMAIL,
-        CURRENT_SELECTION_NOTIFICATION = sfss.test_interface.CURRENT_SELECTION_NOTIFICATION,
+        CURRENT_AD_HOC_EMAIL = sfss.test_sfss_interface.CURRENT_AD_HOC_EMAIL,
+        CURRENT_SELECTION_NOTIFICATION = sfss.test_sfss_interface.CURRENT_SELECTION_NOTIFICATION,
 
         //values for CURRENT_SELECTION_NOTIFICATION, CURRENT_AD_HOC_EMAIL
-        NOT_STARTED = sfss.test_interface.NOT_STARTED,
-        PENDING = sfss.test_interface.PENDING,
+        NOT_STARTED = sfss.test_sfss_interface.NOT_STARTED,
+        PENDING = sfss.test_sfss_interface.PENDING,
 
         //states
-        NO_MEDIA = sfss.test_interface.NO_MEDIA,
-        MEDIA_PRESENT = sfss.test_interface.MEDIA_PRESENT,
-        PROBLEM = sfss.test_interface.PROBLEM,
-        SELECTED = sfss.test_interface.SELECTED,
-        NOT_SELECTED = sfss.test_interface.NOT_SELECTED,
-        CONFIRMED = sfss.test_interface.CONFIRMED,
-        NOT_CONFIRMED = sfss.test_interface.NOT_CONFIRMED,
+        NO_MEDIA = sfss.test_sfss_interface.NO_MEDIA,
+        MEDIA_PRESENT = sfss.test_sfss_interface.MEDIA_PRESENT,
+        PROBLEM = sfss.test_sfss_interface.PROBLEM,
+        SELECTED = sfss.test_sfss_interface.SELECTED,
+        NOT_SELECTED = sfss.test_sfss_interface.NOT_SELECTED,
+        CONFIRMED = sfss.test_sfss_interface.CONFIRMED,
+        NOT_CONFIRMED = sfss.test_sfss_interface.NOT_CONFIRMED,
 
-        LENGTH = sfss.test_interface.LENGTH,
-        YEAR = sfss.test_interface.YEAR,
+        LENGTH = sfss.test_sfss_interface.LENGTH,
+        YEAR = sfss.test_sfss_interface.YEAR,
 
-        CONFIRM = sfss.test_interface.CONFIRM,
+        CONFIRM = sfss.test_sfss_interface.CONFIRM,
 
-        TIMESTAMP = sfss.test_interface.TIMESTAMP,
+        TIMESTAMP = sfss.test_sfss_interface.TIMESTAMP,
 
-        COMMENTS = sfss.test_interface.COMMENTS,
-        FILM_ID = sfss.test_interface.FILM_ID,
-        SCORE = sfss.test_interface.SCORE,
-        CONFIRMATION = sfss.test_interface.CONFIRMATION,
-        SELECTION = sfss.test_interface.SELECTION,
-        STATUS = sfss.test_interface.STATUS,
-        LAST_CONTACT = sfss.test_interface.LAST_CONTACT,
-
-        FORM_DATA = sfss.test_interface.FORM_DATA,
+        //COMMENTS = sfss.test_sfss_interface.COMMENTS,
+        FILM_ID = sfss.test_sfss_interface.FILM_ID,
+        SCORE = sfss.test_sfss_interface.SCORE,
+        CONFIRMATION = sfss.test_sfss_interface.CONFIRMATION,
+        SELECTION = sfss.test_sfss_interface.SELECTION,
+        STATUS = sfss.test_sfss_interface.STATUS,
+        LAST_CONTACT = sfss.test_sfss_interface.LAST_CONTACT,
+        FORM_DATA = sfss.test_sfss_interface.FORM_DATA,
 
         // Sets number of numerical places on film ID so an example of a film ID were the PAD_NUMBER were set to 3 would be ID029.
         // Legal values are 3,4,5,6
         // NOTE: PAD_NUMBER puts an upper bound on the number of film submissions the system can cope with
-        PAD_NUMBER = sfss.test_interface.PAD_NUMBER,
+        PAD_NUMBER = sfss.test_sfss_interface.PAD_NUMBER,
 
         // Will stop sending emails for the day when email quota is reported as less than or equal to MIN_QUOTA.
         // Will attempt to send unsent emails the next day.
-        MIN_QUOTA = sfss.test_interface.MIN_QUOTA,
+        MIN_QUOTA = sfss.test_sfss_interface.MIN_QUOTA,
 
         // name of log file
-        LOG_FILE = sfss.test_interface.LOG_FILE,
+        LOG_FILE = sfss.test_sfss_interface.LOG_FILE,
 
-        TEMPLATES_TESTING = sfss.test_interface.TEMPLATES_TESTING;
+        TEMPLATES_TESTING = sfss.test_sfss_interface.TEMPLATES_TESTING;
 
     setTesting(true);
 
@@ -471,7 +472,6 @@ function myTests() {
             DriveApp.removeFile(ssFile);
             testFolder.addFile(ssFile);
 
-            //deleteProperty(normalizeHeader(LOG_FILE));
             ss.setSpreadsheetTimeZone('GMT');
             SpreadsheetApp.setActiveSpreadsheet(ss);
 
@@ -684,15 +684,16 @@ function myTests() {
                     formSubmissionValues = [];
 
                 function cellValue(x) {
-                    return o[x] ? o[x] : '???';
+                    return o[x] ? o[x] : '';
                 }
 
                 function submissionValue(x) {
                     return o[x];
                 }
+                var n, o;
                 for (i = 0; i < 10; i++) {
-                    var n = ('0' + i).slice(-2),
-                        o = {};
+                    n = ('0' + i).slice(-2);
+                    o = {};
 
                     for (j = 0; j < formColumns.length; j++) {
                         column = formColumns[j];
@@ -733,7 +734,6 @@ function myTests() {
                     deleteProperty(normalizeHeader(TEMPLATES_TESTING));
 
                     hProcessSubmission(spreadsheetFormSubmitEvent); //Call the spreadsheet form submission trigget with the event object
-                    ////Utilities.sleep(3000);
 
                     // Check that the emails we expected to be sent have been sent.
                     templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
@@ -883,7 +883,7 @@ function myTests() {
                 popDate(); // reset date
                 templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
                 templates = templatesTesting ? templatesTesting.split(',') : null;
-                ok(templatesTesting && templates.length == overQuota && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION && templates[2] === SUBMISSION_CONFIRMATION, 'Three ' + SUBMISSION_CONFIRMATION + ' emails sent:' + templates.length);
+                ok(templatesTesting && templates.length === overQuota && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION && templates[2] === SUBMISSION_CONFIRMATION, 'Three ' + SUBMISSION_CONFIRMATION + ' emails sent:' + templates.length);
                 for (var ii = 0; ii < templates.length; ii++) {
                     log('templates[' + i + ']:' + templates[i]);
                 }
@@ -910,7 +910,7 @@ function myTests() {
                 popDate(); //reset date
                 templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
                 templates = templatesTesting ? templatesTesting.split(',') : null;
-                ok(templatesTesting && templates.length == 2 && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION, 'Two ' + SUBMISSION_CONFIRMATION + ' emails sent');
+                ok(templatesTesting && templates.length === 2 && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION, 'Two ' + SUBMISSION_CONFIRMATION + ' emails sent');
                 expectedConfirmation = [
                     [CONFIRMED],
                     [CONFIRMED],
@@ -962,7 +962,7 @@ function myTests() {
                 popDate(); //reset date
                 templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
                 templates = templatesTesting ? templatesTesting.split(',') : null;
-                ok(templatesTesting && templates.length == 3 && templates[0] === REMINDER && templates[1] === REMINDER && templates[2] === REMINDER, 'Expect 3 ' + REMINDER + ' emails sent');
+                ok(templatesTesting && templates.length === 3 && templates[0] === REMINDER && templates[1] === REMINDER && templates[2] === REMINDER, 'Expect 3 ' + REMINDER + ' emails sent');
                 deleteProperty(normalizeHeader(TEMPLATES_TESTING));
 
                 //Utilities.sleep(3000);
@@ -975,7 +975,7 @@ function myTests() {
                 popDate(); //reset date
                 templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
                 templates = templatesTesting ? templatesTesting.split(',') : null;
-                ok(templatesTesting && templates.length == 2 && templates[0] === REMINDER && templates[1] === REMINDER, 'Expect 2 ' + REMINDER + ' emails sent');
+                ok(templatesTesting && templates.length === 2 && templates[0] === REMINDER && templates[1] === REMINDER, 'Expect 2 ' + REMINDER + ' emails sent');
                 deleteProperty(normalizeHeader(TEMPLATES_TESTING));
 
                 //Utilities.sleep(3000);
@@ -996,7 +996,8 @@ function myTests() {
                     [NO_MEDIA],
                     [MEDIA_PRESENT],
                     [NO_MEDIA],
-                    [MEDIA_PRESENT], ];
+                    [MEDIA_PRESENT]
+                ];
                 filmSheet.getRange(2, statusColumn, 10, 1).setValues(statusColumnData);
                 var confirmationColumnData = [
                     [CONFIRMED],
@@ -1025,7 +1026,7 @@ function myTests() {
                 popDate(); //reset date
                 templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
                 templates = templatesTesting ? templatesTesting.split(',') : null;
-                ok(templatesTesting && templates.length == 3 && templates[0] === RECEIPT_CONFIMATION && templates[1] === RECEIPT_CONFIMATION && templates[2] === RECEIPT_CONFIMATION, 'Expect 3 ' + RECEIPT_CONFIMATION + ' emails sent');
+                ok(templatesTesting && templates.length === 3 && templates[0] === RECEIPT_CONFIMATION && templates[1] === RECEIPT_CONFIMATION && templates[2] === RECEIPT_CONFIMATION, 'Expect 3 ' + RECEIPT_CONFIMATION + ' emails sent');
                 deleteProperty(normalizeHeader(TEMPLATES_TESTING));
 
                 expectedConfirmation = [
@@ -1051,7 +1052,7 @@ function myTests() {
                 popDate(); //reset date
                 templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
                 templates = templatesTesting ? templatesTesting.split(',') : null;
-                ok(templatesTesting && templates.length == 2 && templates[0] === RECEIPT_CONFIMATION && templates[1] === RECEIPT_CONFIMATION, 'Expect 2 ' + RECEIPT_CONFIMATION + ' emails sent');
+                ok(templatesTesting && templates.length === 2 && templates[0] === RECEIPT_CONFIMATION && templates[1] === RECEIPT_CONFIMATION, 'Expect 2 ' + RECEIPT_CONFIMATION + ' emails sent');
                 deleteProperty(normalizeHeader(TEMPLATES_TESTING));
 
                 expectedConfirmation = [
@@ -1099,7 +1100,7 @@ function myTests() {
                 for (var ii = 0; ii < templates.length; ii++) {
                     log('templates[' + ii + ']:' + templates[ii]);
                 }
-                ok(templatesTesting && templates.length == 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
+                ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
                 deleteProperty(normalizeHeader(TEMPLATES_TESTING));
                 equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), FILM_ID + pad(4), 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + FILM_ID + pad(4));
 
@@ -1110,7 +1111,7 @@ function myTests() {
                 popDate(); //reset date
                 templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
                 templates = templatesTesting ? templatesTesting.split(',') : null;
-                ok(templatesTesting && templates.length == 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
+                ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
                 deleteProperty(normalizeHeader(TEMPLATES_TESTING));
                 equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), FILM_ID + pad(7), 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + FILM_ID + pad(7));
 
@@ -1121,7 +1122,7 @@ function myTests() {
                 popDate(); //reset date
                 templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
                 templates = templatesTesting ? templatesTesting.split(',') : null;
-                ok(templatesTesting && templates.length == 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
+                ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
                 deleteProperty(normalizeHeader(TEMPLATES_TESTING));
                 equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), NOT_STARTED, 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + NOT_STARTED);
 
@@ -1153,7 +1154,7 @@ function myTests() {
                 for (var ii = 0; ii < templates.length; ii++) {
                     log('templates[' + ii + ']:' + templates[ii]);
                 }
-                ok(templatesTesting && templates.length == 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
+                ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
                 deleteProperty(normalizeHeader(TEMPLATES_TESTING));
                 equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), FILM_ID + pad(4), 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + FILM_ID + pad(4));
 
@@ -1164,7 +1165,7 @@ function myTests() {
                 popDate(); //reset date
                 templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
                 templates = templatesTesting ? templatesTesting.split(',') : null;
-                ok(templatesTesting && templates.length == 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
+                ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
                 deleteProperty(normalizeHeader(TEMPLATES_TESTING));
                 equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), FILM_ID + pad(7), 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + FILM_ID + pad(7));
 
@@ -1175,7 +1176,7 @@ function myTests() {
                 popDate(); //reset date
                 templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
                 templates = templatesTesting ? templatesTesting.split(',') : null;
-                ok(templatesTesting && templates.length == 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
+                ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
                 deleteProperty(normalizeHeader(TEMPLATES_TESTING));
                 equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), NOT_STARTED, 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + NOT_STARTED);
 
@@ -1207,7 +1208,7 @@ function myTests() {
                 popDate(); //reset date
                 templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
                 templates = templatesTesting ? templatesTesting.split(',') : null;
-                ok(templatesTesting && templates.length == 3 && templates[0] === ACCEPTED && templates[1] === NOT_ACCEPTED && templates[2] === NOT_ACCEPTED, 'Expect ' + ACCEPTED + ' followed by 2 ' + NOT_ACCEPTED);
+                ok(templatesTesting && templates.length === 3 && templates[0] === ACCEPTED && templates[1] === NOT_ACCEPTED && templates[2] === NOT_ACCEPTED, 'Expect ' + ACCEPTED + ' followed by 2 ' + NOT_ACCEPTED);
                 deleteProperty(normalizeHeader(TEMPLATES_TESTING));
                 equal(getNamedValue(ss, CURRENT_SELECTION_NOTIFICATION), FILM_ID + pad(4), 'Expect ' + CURRENT_SELECTION_NOTIFICATION + ' to be ' + FILM_ID + pad(4));
 
@@ -1218,7 +1219,7 @@ function myTests() {
                 popDate(); //reset date
                 templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
                 templates = templatesTesting ? templatesTesting.split(',') : null;
-                ok(templatesTesting && templates.length == 3 && templates[0] === NOT_ACCEPTED && templates[1] === ACCEPTED && templates[2] === NOT_ACCEPTED, 'Expect ' + NOT_ACCEPTED + ' followed by ' + ACCEPTED + ' followed by ' + NOT_ACCEPTED);
+                ok(templatesTesting && templates.length === 3 && templates[0] === NOT_ACCEPTED && templates[1] === ACCEPTED && templates[2] === NOT_ACCEPTED, 'Expect ' + NOT_ACCEPTED + ' followed by ' + ACCEPTED + ' followed by ' + NOT_ACCEPTED);
                 deleteProperty(normalizeHeader(TEMPLATES_TESTING));
                 equal(getNamedValue(ss, CURRENT_SELECTION_NOTIFICATION), FILM_ID + pad(7), 'Expect ' + CURRENT_SELECTION_NOTIFICATION + ' to be ' + FILM_ID + pad(7));
 
@@ -1229,7 +1230,7 @@ function myTests() {
                 popDate(); //reset date
                 templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
                 templates = templatesTesting ? templatesTesting.split(',') : null;
-                ok(templatesTesting && templates.length == 3 && templates[0] === ACCEPTED && templates[1] === NOT_ACCEPTED && templates[2] === ACCEPTED, 'Expect ' + ACCEPTED + ' follwed by ' + NOT_ACCEPTED + ' follwed by ' + ACCEPTED);
+                ok(templatesTesting && templates.length === 3 && templates[0] === ACCEPTED && templates[1] === NOT_ACCEPTED && templates[2] === ACCEPTED, 'Expect ' + ACCEPTED + ' follwed by ' + NOT_ACCEPTED + ' follwed by ' + ACCEPTED);
                 deleteProperty(normalizeHeader(TEMPLATES_TESTING));
                 equal(getNamedValue(ss, CURRENT_SELECTION_NOTIFICATION), NOT_STARTED, 'Expect ' + CURRENT_SELECTION_NOTIFICATION + ' to be ' + NOT_STARTED);
 
@@ -1330,7 +1331,7 @@ function myTests() {
             formSubmissionValues = [];
 
         function cellValue(x) {
-            return o[x] ? o[x] : '???';
+            return o[x] ? o[x] : '';
         }
 
         function submissionValue(x) {
@@ -1529,7 +1530,7 @@ function myTests() {
         popDate(); // reset date
         templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length == overQuota && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION && templates[2] === SUBMISSION_CONFIRMATION, 'Three ' + SUBMISSION_CONFIRMATION + ' emails sent:' + templates.length);
+        ok(templatesTesting && templates.length === overQuota && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION && templates[2] === SUBMISSION_CONFIRMATION, 'Three ' + SUBMISSION_CONFIRMATION + ' emails sent:' + templates.length);
         for (var ii = 0; ii < templates.length; ii++) {
             log('templates[' + i + ']:' + templates[i]);
         }
@@ -1556,7 +1557,7 @@ function myTests() {
         popDate(); //reset date
         templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length == 2 && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION, 'Two ' + SUBMISSION_CONFIRMATION + ' emails sent');
+        ok(templatesTesting && templates.length === 2 && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION, 'Two ' + SUBMISSION_CONFIRMATION + ' emails sent');
         expectedConfirmation = [
             [CONFIRMED],
             [CONFIRMED],
@@ -1608,7 +1609,7 @@ function myTests() {
         popDate(); //reset date
         templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length == 3 && templates[0] === REMINDER && templates[1] === REMINDER && templates[2] === REMINDER, 'Expect 3 ' + REMINDER + ' emails sent');
+        ok(templatesTesting && templates.length === 3 && templates[0] === REMINDER && templates[1] === REMINDER && templates[2] === REMINDER, 'Expect 3 ' + REMINDER + ' emails sent');
         deleteProperty(normalizeHeader(TEMPLATES_TESTING));
 
         //Utilities.sleep(3000);
@@ -1621,7 +1622,7 @@ function myTests() {
         popDate(); //reset date
         templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length == 2 && templates[0] === REMINDER && templates[1] === REMINDER, 'Expect 2 ' + REMINDER + ' emails sent');
+        ok(templatesTesting && templates.length === 2 && templates[0] === REMINDER && templates[1] === REMINDER, 'Expect 2 ' + REMINDER + ' emails sent');
         deleteProperty(normalizeHeader(TEMPLATES_TESTING));
 
         //Utilities.sleep(3000);
@@ -1642,7 +1643,8 @@ function myTests() {
             [NO_MEDIA],
             [MEDIA_PRESENT],
             [NO_MEDIA],
-            [MEDIA_PRESENT], ];
+            [MEDIA_PRESENT]
+        ];
         filmSheet.getRange(2, statusColumn, 10, 1).setValues(statusColumnData);
         var confirmationColumnData = [
             [CONFIRMED],
@@ -1671,7 +1673,7 @@ function myTests() {
         popDate(); //reset date
         templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length == 3 && templates[0] === RECEIPT_CONFIMATION && templates[1] === RECEIPT_CONFIMATION && templates[2] === RECEIPT_CONFIMATION, 'Expect 3 ' + RECEIPT_CONFIMATION + ' emails sent');
+        ok(templatesTesting && templates.length === 3 && templates[0] === RECEIPT_CONFIMATION && templates[1] === RECEIPT_CONFIMATION && templates[2] === RECEIPT_CONFIMATION, 'Expect 3 ' + RECEIPT_CONFIMATION + ' emails sent');
         deleteProperty(normalizeHeader(TEMPLATES_TESTING));
 
         expectedConfirmation = [
@@ -1697,7 +1699,7 @@ function myTests() {
         popDate(); //reset date
         templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length == 2 && templates[0] === RECEIPT_CONFIMATION && templates[1] === RECEIPT_CONFIMATION, 'Expect 2 ' + RECEIPT_CONFIMATION + ' emails sent');
+        ok(templatesTesting && templates.length === 2 && templates[0] === RECEIPT_CONFIMATION && templates[1] === RECEIPT_CONFIMATION, 'Expect 2 ' + RECEIPT_CONFIMATION + ' emails sent');
         deleteProperty(normalizeHeader(TEMPLATES_TESTING));
 
         expectedConfirmation = [
@@ -1741,7 +1743,7 @@ function myTests() {
         for (var ii = 0; ii < templates.length; ii++) {
             log('templates[' + ii + ']:' + templates[ii]);
         }
-        ok(templatesTesting && templates.length == 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
+        ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
         deleteProperty(normalizeHeader(TEMPLATES_TESTING));
         equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), FILM_ID + pad(4), 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + FILM_ID + pad(4));
 
@@ -1752,7 +1754,7 @@ function myTests() {
         popDate(); //reset date
         templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length == 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
+        ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
         deleteProperty(normalizeHeader(TEMPLATES_TESTING));
         equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), FILM_ID + pad(7), 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + FILM_ID + pad(7));
 
@@ -1763,7 +1765,7 @@ function myTests() {
         popDate(); //reset date
         templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length == 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
+        ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
         deleteProperty(normalizeHeader(TEMPLATES_TESTING));
         equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), NOT_STARTED, 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + NOT_STARTED);
 
@@ -1791,7 +1793,7 @@ function myTests() {
         for (var ii = 0; ii < templates.length; ii++) {
             log('templates[' + ii + ']:' + templates[ii]);
         }
-        ok(templatesTesting && templates.length == 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
+        ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
         deleteProperty(normalizeHeader(TEMPLATES_TESTING));
         equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), FILM_ID + pad(4), 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + FILM_ID + pad(4));
 
@@ -1802,7 +1804,7 @@ function myTests() {
         popDate(); //reset date
         templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length == 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
+        ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
         deleteProperty(normalizeHeader(TEMPLATES_TESTING));
         equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), FILM_ID + pad(7), 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + FILM_ID + pad(7));
 
@@ -1813,7 +1815,7 @@ function myTests() {
         popDate(); //reset date
         templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length == 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
+        ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
         deleteProperty(normalizeHeader(TEMPLATES_TESTING));
         equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), NOT_STARTED, 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + NOT_STARTED);
 
@@ -1848,7 +1850,7 @@ function myTests() {
         log('templatesTesting:' + templatesTesting);
         log(templates);
         log('templates.length:' + templates.length);
-        ok(templatesTesting && templates.length == 3 && templates[0] === ACCEPTED && templates[1] === NOT_ACCEPTED && templates[2] === NOT_ACCEPTED, 'Expect ' + ACCEPTED + ' followed by 2 ' + NOT_ACCEPTED);
+        ok(templatesTesting && templates.length === 3 && templates[0] === ACCEPTED && templates[1] === NOT_ACCEPTED && templates[2] === NOT_ACCEPTED, 'Expect ' + ACCEPTED + ' followed by 2 ' + NOT_ACCEPTED);
         deleteProperty(normalizeHeader(TEMPLATES_TESTING));
         equal(getNamedValue(ss, CURRENT_SELECTION_NOTIFICATION), FILM_ID + pad(4), 'Expect ' + CURRENT_SELECTION_NOTIFICATION + ' to be ' + FILM_ID + pad(4));
 
@@ -1859,7 +1861,7 @@ function myTests() {
         popDate(); //reset date
         templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length == 3 && templates[0] === NOT_ACCEPTED && templates[1] === ACCEPTED && templates[2] === NOT_ACCEPTED, 'Expect ' + NOT_ACCEPTED + ' followed by ' + ACCEPTED + ' followed by ' + NOT_ACCEPTED);
+        ok(templatesTesting && templates.length === 3 && templates[0] === NOT_ACCEPTED && templates[1] === ACCEPTED && templates[2] === NOT_ACCEPTED, 'Expect ' + NOT_ACCEPTED + ' followed by ' + ACCEPTED + ' followed by ' + NOT_ACCEPTED);
         deleteProperty(normalizeHeader(TEMPLATES_TESTING));
         equal(getNamedValue(ss, CURRENT_SELECTION_NOTIFICATION), FILM_ID + pad(7), 'Expect ' + CURRENT_SELECTION_NOTIFICATION + ' to be ' + FILM_ID + pad(7));
 
@@ -1870,9 +1872,110 @@ function myTests() {
         popDate(); //reset date
         templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length == 3 && templates[0] === ACCEPTED && templates[1] === NOT_ACCEPTED && templates[2] === ACCEPTED, 'Expect ' + ACCEPTED + ' follwed by ' + NOT_ACCEPTED + ' follwed by ' + ACCEPTED);
+        ok(templatesTesting && templates.length === 3 && templates[0] === ACCEPTED && templates[1] === NOT_ACCEPTED && templates[2] === ACCEPTED, 'Expect ' + ACCEPTED + ' follwed by ' + NOT_ACCEPTED + ' follwed by ' + ACCEPTED);
         deleteProperty(normalizeHeader(TEMPLATES_TESTING));
         equal(getNamedValue(ss, CURRENT_SELECTION_NOTIFICATION), NOT_STARTED, 'Expect ' + CURRENT_SELECTION_NOTIFICATION + ' to be ' + NOT_STARTED);
 
+
+        ///////////////////////////////////////////////////////////////////////
+        // Very occasionally the On Form Submit trigger does not fire!
+        // There are *numerous* continuing reports of this open issue.
+        //
+        // Now we test that hProcessSubmission can pick up that this and
+        // process the previous unprocessed submissions created by a failed
+        // submission trigger.
+        // 
+        // Also we test if hReminderConfirmation can pick up NO_CONTACT
+        // results made by hProcessSubmission when it runs out of email quota
+        // 
+        // We append 4 unprocessed submissions into the spreadsheet and
+        // follow that by appending another submission with an associated call
+        // to hProcessSubmission with email quota set to 2 over MIN_QUOTA
+        // 
+        // We expect hProcessSubmission to pick up the previous unprocessed
+        // submission and confirm the first 2 of the 5 in total submissions.
+        // 
+        // We then make a call to hReminderConfirmation again with email quota
+        // set to 2 over MIN_QUOTA, which we expect to pick up the first 2 of
+        // the remaining NO_CONTACT submission
+        ///////////////////////////////////////////////////////////////////////
+        var numberOfPreviousSubmissions = 10,
+            unprocessedEntries = 4;
+
+
+        overQuota = 2; // we will only be sending 3 fake emails
+        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota);
+
+
+        for (i = 0; i < unprocessedEntries + 1; i++) {
+            n = ('0' + (i + numberOfPreviousSubmissions)).slice(-2);
+            o = {};
+
+            for (j = 0; j < formColumns.length; j++) {
+                column = formColumns[j];
+                o[column] = column + n;
+
+            }
+            o[TIMESTAMP] = new Date(datesData[i] + ' GMT+0000 (GMT)');
+            o[LENGTH] = '3:2';
+            o[YEAR] = (1900 + (10 * (+i))).toString();
+            o[CONFIRM] = 'Confirm';
+            spreadsheetValues[i] = columns.map(cellValue);
+            formSubmissionValues[i] = formColumnsSpreadsheetOrder.map(submissionValue);
+            log('formSubmissionValues[' + i + ']:' + formSubmissionValues[i]);
+        }
+        var width = spreadsheetValues[0].length,
+            submission, row;
+        // Do the film submissions
+        for (i = 0; i < unprocessedEntries + 1; i++) {
+            filmSheet.insertRowAfter((+i) + 1 + numberOfPreviousSubmissions); //just to move the row that the form will populate, one futher on.
+            submission = spreadsheetValues[i];
+            row = [];
+            row[0] = submission;
+            var range = filmSheet.getRange(2 + (+i) + numberOfPreviousSubmissions, 1, 1, width);
+            // Set the submission data in the spreadsheet as though inserted by an attached form
+            range.setValues(row);
+
+            if (i === unprocessedEntries) {
+                //Build the associated Spreadsheet Form Submission object.
+                var spreadsheetFormSubmitEvent = {};
+                spreadsheetFormSubmitEvent.range = range;
+                spreadsheetFormSubmitEvent.values = formSubmissionValues[i];
+                spreadsheetFormSubmitEvent.namedValues = {};
+                for (j = 0; j < submission.length; j++) {
+                    if (formColumns.indexOf(columns[j]) > -1 || columns[j] === TIMESTAMP) {
+                        spreadsheetFormSubmitEvent.namedValues[columns[j]] = [submission[j]];
+                    }
+                }
+
+                // Clean up previous tests.
+                deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+
+                hProcessSubmission(spreadsheetFormSubmitEvent); //Call the spreadsheet form submission trigget with the event object
+
+                // Check that the emails we expected to be sent have been sent.
+                templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+                if (templatesTesting) {
+                    templates = templatesTesting.split(',');
+                }
+                ok(templatesTesting && templates.length === 2 && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION, 'Two Submisson Confirmation email has been sent.');
+                deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+
+            }
+        }
+        
+        overQuota = 2;
+        pushDate(FakeDate1); //Mock date
+        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        hReminderConfirmation(); //6th Reminder Confirmation cycle
+        popDate(); //reset date
+        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templates = templatesTesting ? templatesTesting.split(',') : null;
+        ok(templatesTesting && templates.length === 2 && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION, 'Two Submisson Confirmation email has been sent.');
+        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
     });
+
+    var scriptProperties = PropertiesService.getScriptProperties();
+    scriptProperties.deleteAllProperties();
+
 }
