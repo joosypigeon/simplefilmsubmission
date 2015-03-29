@@ -11,7 +11,20 @@ function doGet(e) {
     QUnit.config({
         title: "Unit tests for my project"
     });
+
+    var scriptProperties = PropertiesService.getScriptProperties(),
+        LOG_FILE = sfss.test_sfss_interface.LOG_FILE,
+        normalizeHeader = sfss.test_sfss_interface.normalizeHeader,
+        logIdBack = scriptProperties.getProperty(normalizeHeader(LOG_FILE));
+
+    sfss.test_sfss_interface.setLogDoc(undefined);
+    sfss.test_sfss_interface.setTesting(true);
+
     QUnit.load(myTests);
+
+    scriptProperties.setProperty(normalizeHeader(LOG_FILE), logIdBack);
+    sfss.test_sfss_interface.setTesting(false);
+
     return QUnit.getHtml();
 }
 
@@ -37,7 +50,7 @@ function myTests() {
         getProperty = sfss.test_sfss_interface.getProperty,
         setProperty = sfss.test_sfss_interface.setProperty,
         deleteProperty = sfss.test_sfss_interface.deleteProperty,
-        setTesting = sfss.test_sfss_interface.setTesting,
+        setLogDoc = sfss.test_sfss_interface.setLogDoc,
 
         // the 3 spreadsheet sheets
         FILM_SUBMISSIONS_SHEET = sfss.test_sfss_interface.FILM_SUBMISSIONS_SHEET,
@@ -98,8 +111,6 @@ function myTests() {
         LOG_FILE = sfss.test_sfss_interface.LOG_FILE,
 
         TEMPLATES_TESTING = sfss.test_sfss_interface.TEMPLATES_TESTING;
-
-    setTesting(true);
 
     module("utility function module");
 
@@ -1079,9 +1090,11 @@ function myTests() {
         templates = templatesTesting ? templatesTesting.split(',') : null;
         ok(templatesTesting && templates.length === 2 && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION, 'Two Submisson Confirmation email has been sent.');
         deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+
+
+
+
     });
 
-    var scriptProperties = PropertiesService.getScriptProperties();
-    scriptProperties.deleteAllProperties();
 
 }
