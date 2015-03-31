@@ -358,7 +358,6 @@ var sfss = (function (smm) {
     function onOpen() {
         try {
             var ss = SpreadsheetApp.getActiveSpreadsheet(),
-                scriptProperties = PropertiesService.getScriptProperties(),
                 initialised = scriptProperties.getProperty("initialised");
 
             if (initialised) {
@@ -388,8 +387,7 @@ var sfss = (function (smm) {
     // selectionNotification,
     // ///////////////////////////////////
     function statusDialog(status, confirmation, selection, height, title, html) {
-        var scriptProperties = PropertiesService.getScriptProperties(),
-            value = scriptProperties.getProperty(normalizeHeader(status + ' ' + confirmation));
+        var value = scriptProperties.getProperty(normalizeHeader(status + ' ' + confirmation));
         if (value && value === 'true') {
             setStatus(status, confirmation, selection);
         } else {
@@ -520,8 +518,7 @@ var sfss = (function (smm) {
 
     function buttonAction(e) {
         var app = UiApp.getActiveApplication(),
-            ss = SpreadsheetApp.getActiveSpreadsheet(),
-            scriptProperties = PropertiesService.getScriptProperties();
+            ss = SpreadsheetApp.getActiveSpreadsheet();
 
         scriptProperties.setProperty(normalizeHeader(e.parameter[STATUS] + ' ' + e.parameter[CONFIRMATION]), e.parameter.check);
 
@@ -1598,7 +1595,6 @@ var sfss = (function (smm) {
 
     function setup() {
         try {
-            var scriptProperties = PropertiesService.getScriptProperties();
             if (TESTING || !scriptProperties.getProperty("initialised")) {
                 if (!TESTING) {
                     scriptProperties.setProperty("initialised", "initialised");
@@ -1892,8 +1888,6 @@ var sfss = (function (smm) {
 
                 logDoc.getBody().appendParagraph((new Date()) + ":Created log file!");
 
-
-                var scriptProperties = PropertiesService.getScriptProperties();
                 scriptProperties.setProperty(normalizeHeader(LOG_FILE), logId);
 
             }
@@ -2516,182 +2510,7 @@ var sfss = (function (smm) {
             indices: indices
         };
     }
-    /*
-    /////////////////////////////////////////////////////////////////////////
-    // The code below is from the Simple Mail Merge tutorial which can be
-    // found here https://developers.google.com/apps-script/articles/mail_merge
-    /////////////////////////////////////////////////////////////////////////
 
-    /////////////////////////////////////////////////////////////////////////
-    // Replaces markers in a template string with values define in a JavaScript data object.
-    // Arguments:
-    //   - template: string containing markers, for instance ${"Column name"}
-    //   - data: JavaScript object with values to that will replace markers. For instance
-    //           data.columnName will replace marker ${"Column name"}
-    // Returns a string without markers. If no data is found to replace a marker, it is
-    // simply removed.
-    function fillInTemplateFromObject(template, data) {
-        var email = template;
-        // Search for all the variables to be replaced, for instance ${"Column name"}
-        var templateVars = template.match(/\$\{\"[^\"]+\"\}/g);
-
-        if (templateVars) {
-            // Replace variables from the template with the actual values from the data object.
-            // If no value is available, replace with the empty string.
-            for (var i = 0; i < templateVars.length; ++i) {
-                // normalizeHeader ignores ${"} so we can call it directly here.
-                var variableData = data[normalizeHeader(templateVars[i])];
-                email = email.replace(templateVars[i], variableData || "");
-            }
-        }
-
-        return email;
-    }
-
-    // setRowsData fills in one row of data per object defined in the objects Array.
-    // For every Column, it checks if data objects define a value for it.
-    // Arguments:
-    //   - sheet: the Sheet Object where the data will be written
-    //   - objects: an Array of Objects, each of which contains data for a row
-    //   - optHeadersRange: a Range of cells where the column headers are defined. This
-    //     defaults to the entire first row in sheet.
-    //   - optFirstDataRowIndex: index of the first row where data should be written. This
-    //     defaults to the row immediately below the headers.
-    function setRowsData(sheet, objects, optHeadersRange, optFirstDataRowIndex) {
-        var headersRange = optHeadersRange || sheet.getRange(1, 1, 1, sheet.getMaxColumns());
-        var firstDataRowIndex = optFirstDataRowIndex || headersRange.getRowIndex() + 1;
-        var headers = normalizeHeaders(headersRange.getValues()[0]);
-
-        var data = [];
-        for (var i = 0; i < objects.length; ++i) {
-            var values = [];
-            for (var j = 0; j < headers.length; ++j) {
-                var header = headers[j];
-                // If the header is non-empty and the object value is 0...
-                if ((header.length > 0) && (objects[i][header] == 0)) {
-                    values.push(0);
-                }
-                // If the header is empty or the object value is empty...
-                else if ((!(header.length > 0)) || (objects[i][header] == '')) {
-                    values.push('');
-                } else {
-                    values.push(objects[i][header]);
-                }
-            }
-            data.push(values);
-        }
-
-        var destinationRange = sheet.getRange(firstDataRowIndex, headersRange.getColumnIndex(), objects.length, headers.length);
-        destinationRange.setValues(data);
-    }
-
-
-    // getRowsData iterates row by row in the input range and returns an array of objects.
-    // Each object contains all the data for a given row, indexed by its normalized column name.
-    // Arguments:
-    //   - sheet: the sheet object that contains the data to be processed
-    //   - range: the exact range of cells where the data is stored
-    //   - columnHeadersRowIndex: specifies the row number where the column names are stored.
-    //       This argument is optional and it defaults to the row immediately above range;
-    // Returns an Array of objects.
-    function getRowsData(sheet, range, columnHeadersRowIndex) {
-        columnHeadersRowIndex = columnHeadersRowIndex || range.getRowIndex() - 1;
-        var numColumns = range.getLastColumn() - range.getColumn() + 1;
-        var headersRange = sheet.getRange(columnHeadersRowIndex, range.getColumn(), 1, numColumns);
-        var headers = headersRange.getValues()[0];
-        return getObjects(range.getValues(), normalizeHeaders(headers));
-    }
-
-    // For every row of data in data, generates an object that contains the data. Names of
-    // object fields are defined in keys.
-    // Arguments:
-    //   - data: JavaScript 2d array
-    //   - keys: Array of Strings that define the property names for the objects to create
-    function getObjects(data, keys) {
-        var objects = [];
-        for (var i = 0; i < data.length; ++i) {
-            var object = {};
-            var hasData = false;
-            for (var j = 0; j < data[i].length; ++j) {
-                var cellData = data[i][j];
-                if (isCellEmpty(cellData)) {
-                    continue;
-                }
-                object[keys[j]] = cellData;
-                hasData = true;
-            }
-            if (hasData) {
-                objects.push(object);
-            }
-        }
-        return objects;
-    }
-
-    // Returns an Array of normalized Strings.
-    // Arguments:
-    //   - headers: Array of Strings to normalize
-    function normalizeHeaders(headers) {
-        var keys = [];
-        for (var i = 0; i < headers.length; ++i) {
-            var key = normalizeHeader(headers[i]);
-            if (key.length > 0) {
-                keys.push(key);
-            }
-        }
-        return keys;
-    }
-
-    // Normalizes a string, by removing all alphanumeric characters and using mixed case
-    // to separate words. The output will always start with a lower case letter.
-    // This function is designed to produce JavaScript object property names.
-    // Arguments:
-    //   - header: string to normalize
-    // Examples:
-    //   "First Name" -> "firstName"
-    //   "Market Cap (millions) -> "marketCapMillions
-    //   "1 number at the beginning is ignored" -> "numberAtTheBeginningIsIgnored"
-    function normalizeHeader(header) {
-        var key = "";
-        var upperCase = false;
-        for (var i = 0; i < header.length; ++i) {
-            var letter = header[i];
-            if (letter == " " && key.length > 0) {
-                upperCase = true;
-                continue;
-            }
-            if (!isAlnum(letter)) {
-                continue;
-            }
-            if (key.length == 0 && isDigit(letter)) {
-                continue; // first character must be a letter
-            }
-            if (upperCase) {
-                upperCase = false;
-                key += letter.toUpperCase();
-            } else {
-                key += letter.toLowerCase();
-            }
-        }
-        return key;
-    }
-
-    // Returns true if the cell where cellData was read from is empty.
-    // Arguments:
-    //   - cellData: string
-    function isCellEmpty(cellData) {
-        return typeof (cellData) == "string" && cellData == "";
-    }
-
-    // Returns true if the character char is alphabetical, false otherwise.
-    function isAlnum(char) {
-        return char >= 'A' && char <= 'Z' || char >= 'a' && char <= 'z' || isDigit(char);
-    }
-
-    // Returns true if the character char is a digit, false otherwise.
-    function isDigit(char) {
-        return char >= '0' && char <= '9';
-    }
-*/
     test_sfss_interface = {
         normaliseAndValidateDuration: normaliseAndValidateDuration,
         pad: pad,
