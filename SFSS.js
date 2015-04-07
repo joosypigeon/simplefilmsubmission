@@ -1,311 +1,11 @@
-/*global Session, LockService, PropertiesService, MailApp, UiApp, SpreadsheetApp, Logger */
+/*global DocumentApp, ScriptApp, FormApp, DriveApp, Session, LockService, PropertiesService, MailApp, UiApp, SpreadsheetApp, Logger */
 
-var sfss = (function (smm) {
+var sfss = sfss || {};
+sfss.s = (function (r, smm) {
     'use strict';
 
-    var sfss_interface, FILM_SUBMISSION = "Film Submission",
-        ID = "ID",
-
-        // the 3 spreadsheet sheets
-        FILM_SUBMISSIONS_SHEET = "Film Submissions",
-        TEMPLATE_SHEET = "Templates",
-        OPTIONS_SETTINGS_SHEET = "Options & Settings",
-
-        //named ranges
-        FESTIVAL_NAME = "Festival Name",
-        FESTIVAL_WEBSITE = "Festival Website",
-        CLOSE_OF_SUBMISSION = "Close Of Submission",
-        EVENT_DATE = "Event Date",
-        RELEASE_LINK = "Release Link",
-        FIRST_FILM_ID = "First ID",
-        CURRENT_FILM_ID = "Current Film ID",
-        DAYS_BEFORE_REMINDER = "Days Before Reminder",
-        TEST_FIRST_NAME = "Test First Name",
-        TEST_LAST_NAME = "Test Last Name",
-        TEST_TITLE = "Test Title",
-        TEST_EMAIL = "Test Email",
-        COLOR_DATA = "Color Data",
-        FESTIVAL_DATA = "Festival Data",
-        TEMPLATE_DATA = "Template Data",
-        TEST_DATA = "Test Data",
-        INTERNALS = "Internals",
-
-
-        SUBMISSION_CONFIRMATION = "Submission Confirmation",
-        SUBMISSION_CONFIRMATION_SUBJECT_LINE = "Submission Confirmation Subject Line",
-        SUBMISSION_CONFIRMATION_BODY = "Submission Confirmation Body",
-
-        RECEIPT_CONFIMATION = "Receipt Confimation",
-        RECEIPT_CONFIMATION_SUBJECT_LINE = "Receipt Confimation Subject Line",
-        RECEIPT_CONFIMATION_BODY = "Receipt Confimation Body",
-
-        REMINDER = "Reminder",
-        REMINDER_SUBJECT_LINE = "Reminder Subject Line",
-        REMINDER_BODY = "Reminder Body",
-
-        NOT_ACCEPTED = "Not Accepted",
-        NOT_ACCEPTED_SUBJECT_LINE = "Not Accepted Subject Line",
-        NOT_ACCEPTED_BODY = "Not Accepted Body",
-
-        ACCEPTED = "Accepted",
-        ACCEPTED_SUBJECT_LINE = "Accepted Subject Line",
-        ACCEPTED_BODY = "Accepted Body",
-
-        AD_HOC_EMAIL = "Ad Hoc Email",
-        AD_HOC_EMAIL_SUBJECT_LINE = "Ad Hoc Email Subject Line",
-        AD_HOC_EMAIL_BODY = "Ad Hoc Email Body",
-
-        SUBJECT_LINE = 'Subject Line',
-
-        ENABLE_REMINDER = "Enable Reminder",
-        ENABLE_CONFIRMATION = "Enable Confirmation",
-        CURRENT_AD_HOC_EMAIL = "Current Ad Hoc Email",
-        CURRENT_SELECTION_NOTIFICATION = "Current Selection Notification",
-
-        SUBJECT = "Subject",
-        BODY = "Body",
-        AVAILABLE_TAGS = "Available Tags",
-        SEND_TEST_EMAIL = "Send Test Email",
-
-        //sufix and prefix for ID
-        HELP = "Help",
-        LABEL = "Label",
-        TEST = "Test",
-        BUTTON = "Button",
-        HIDDEN = "Hidden",
-        PLABEL = "PLable",
-
-        //IDs
-        NEXT = "Next",
-        PREVIOUS = "Previous",
-        SAVE = "Save",
-        OK = "OK",
-        ENABLE = "Enable",
-        UNENABLE = "Unenable",
-        CANCEL = "Cancel",
-        WAIT = "Wait",
-        STATUS_HTML = "Status HTML",
-        STATUS_WARNING_HTML = "Status Warning HTML",
-        TEST_PROCESSING_LABEL = "Test Processing Label",
-        DATE_DIFF = "Date Diff",
-        FESTIVAL_DATA_NAMES = "Festival Data Names",
-        TEMPLATE_DATA_NAMES = "Template Data Names",
-        TEST_DATA_NAMES = "Test Data Names",
-        TAGS = "Tags",
-
-        //value for ENABLE_REMINDER and ENABLE_CONFIRMATION
-        ENABLED = "Enabled",
-        NOT_ENABLED = "Not Enabled",
-
-        //values for CURRENT_SELECTION_NOTIFICATION, CURRENT_AD_HOC_EMAIL
-        NOT_STARTED = "Not Started",
-        PENDING = "Pending",
-
-        //states
-        NO_MEDIA = "No Media",
-        MEDIA_PRESENT = "Media Present",
-        PROBLEM = "Problem",
-        SELECTED = "Selected",
-        NOT_SELECTED = "Not Selected",
-        CONFIRMED = "Confirmed",
-        NOT_CONFIRMED = "Not Confirmed",
-
-        DO_NOT_CHANGE = "Do Not Change",
-
-        // process names
-        SELECTION_NOTIFICATION = "Selection Notification",
-
-        // spreadsheet menu
-        MENU_ENTRIES = [{
-            name: "Set selected range to: '" + MEDIA_PRESENT + ", " + NOT_CONFIRMED + "'",
-            functionName: "mediaPresentNotConfirmed"
-        }, {
-            name: "Set selected range to: '" + PROBLEM + "'",
-            functionName: "problem"
-        }, {
-            name: "Set selected range to: '" + SELECTED + "'",
-            functionName: "selected"
-        }, {
-            name: "Set selected range to: '" + NOT_SELECTED + "'",
-            functionName: "notSelected"
-        }, {
-            name: "Manually set state of selected range",
-            functionName: "manual"
-        },
-        null,
-        {
-            name: "Settings & Options",
-            functionName: "settingsOptions"
-        }, {
-            name: "Templates",
-            functionName: "editAndSaveTemplates"
-        },
-        null,
-        {
-            name: AD_HOC_EMAIL,
-            functionName: "adHocEmail"
-        }, {
-            name: SELECTION_NOTIFICATION,
-            functionName: "selectionNotification"
-        }],
-
-        // form data
-        FIRST_NAME = "First Name",
-        LAST_NAME = "Last Name",
-        EMAIL = "Email",
-        TITLE = "Title",
-        LENGTH = "Length",
-        COUNTRY = "Country",
-        YEAR = "Year",
-        GENRE = "Genre",
-        WEBSITE = "Website",
-        SYNOPSIS = "Synopsis",
-        CAST_AND_CREW = "Cast & Crew",
-        FESTIVAL_SELECTION_AND_AWARDS = "Festival Selection & Awards",
-
-        // for Strawberry Shorts
-        BEST_LOCAL_FILM = "Is this film submitted to the Best Local Film Competitive Programme?",
-        BEST_LOCAL_FILM_ELIGIBILITY = "If this film is being submitted to The Best Local Film Competitive Programme, please explain its eligibility?",
-
-        CONFIRM = "Confirm",
-
-        // Timestamp column
-        TIMESTAMP = "Timestamp",
-
-        // Additional FILM_SUBMISSIONS_SHEET Columns
-        COMMENTS = "Comments",
-        FILM_ID = "ID",
-        SCORE = "Score",
-        CONFIRMATION = "Confirmation",
-        SELECTION = "Selection",
-        STATUS = "Status",
-        LAST_CONTACT = "Last Contact",
-
-        FORM_TITLE = "Online Film Submissions Form",
-        FORM_RESPONSE = "You now need to download, print off and sign the permission slip. A link to the permission slip has been emailed to you. The permission slip must be mailed together with a DVD of your film, to the address given on the slip. We cannot screen your film without a signed permission slip. If you do not receive this email, please check your spam folder. If you still cannot find the email please email us at " + Session.getActiveUser().getEmail() + " .",
-        FORM_DATA = [{
-            type: "addTextItem",
-            required: {},
-            title: FIRST_NAME,
-            help: "Please enter your first name"
-        }, {
-            type: "addTextItem",
-            required: {},
-            title: LAST_NAME,
-            help: "Please enter your last name"
-        }, {
-            type: "addTextItem",
-            required: {},
-            title: EMAIL,
-            help: "Please enter your email address"
-        }, "section",
-        {
-            type: "addTextItem",
-            required: {},
-            title: TITLE,
-            help: "Please give the title of your film"
-        }, {
-            type: "addTextItem",
-            required: {},
-            title: LENGTH,
-            help: "Please enter the length of the film in format MM:SS"
-        }, {
-            type: "addTextItem",
-            required: {},
-            title: COUNTRY,
-            help: "Please enter the films country/countries of origin"
-        }, {
-            type: "addTextItem",
-            required: {},
-            title: YEAR,
-            help: "Please enter the year of the films completion in format YYYY"
-        }, {
-            type: "addTextItem",
-            required: {},
-            title: GENRE,
-            help: "Please enter the genre of the film"
-        }, {
-            type: "addTextItem",
-            title: WEBSITE,
-            help: "Please give film website, if any"
-        }, {
-            type: "addParagraphTextItem",
-            required: {},
-            title: SYNOPSIS,
-            help: "Please give synopsis of film"
-        }, {
-            type: "addParagraphTextItem",
-            title: CAST_AND_CREW,
-            help: "Please give principal cast and crew"
-        }, {
-            type: "addParagraphTextItem",
-            title: FESTIVAL_SELECTION_AND_AWARDS,
-            help: "Please give the festivals for which your film has been selected. Also give any awards your film has received"
-        }, {
-            type: "addCheckboxItem",
-            required: {},
-            title: CONFIRM,
-            help: "I confirm that I have the right to submit this film and that, should it be accepted, I give permission for this film to be screened at the cambridge strawberry shorts film festival 2015.",
-            choice: "Confirm"
-        }],
-
-        ADDITIONAL_COLUMNS = [{
-            title: FILM_ID,
-            columnIndex: 1
-        }, {
-            title: SCORE,
-            columnIndex: 1
-        }, {
-            title: SELECTION,
-            columnIndex: 1
-        }, {
-            title: CONFIRMATION,
-            columnIndex: 1
-        }, {
-            title: STATUS,
-            columnIndex: 1
-        }, {
-            title: LAST_CONTACT,
-            columnIndex: 1
-        }, {
-            title: COMMENTS,
-            columnIndex: "end"
-        }],
-
-        //columns for TEMPLATE_SHEET
-        TEMPLATE_NAME = "Name",
-        TEMPLATE = "Template",
-
-        // Sets number of numerical places on film ID so an example of a film ID were the PAD_NUMBER were set to 3 would be ID029.
-        // Legal values are 3,4,5,6
-        // NOTE: PAD_NUMBER puts an upper bound on the number of film submissions the system can cope with
-        PAD_NUMBER = 3,
-
-        // Will stop sending emails for the day when email quota is reported as less than or equal to MIN_QUOTA.
-        // Will attempt to send unsent emails the next day.
-        MIN_QUOTA = 50,
-        REMAINING_EMAIL_QUOTA = "Remaining Email Quota",
-
-        // one contact value
-        NO_CONTACT = "No Contact",
-
-        // name of log file
-        LOG_FILE = "Submissions Processing Log File",
-        LOG_FOLDER = "Log",
-        FORM_FOLDER = "Form",
-
-        // String resources
-        PROCESSING = 'Processing, please wait . . .',
-        SAVE_AND_RETURN_TO = "Save and return To:",
-
-        CACHE = {},
-
-        // For Tesing
-        TEMPLATES_TESTING = 'Templates Testing',
-
+    var sfss_interface, CACHE = {},
         PROPERTIES = {},
-
-        TESTING = false,
 
         fillInTemplateFromObject = smm.fillInTemplateFromObject,
         setRowsData = smm.setRowsData,
@@ -314,7 +14,7 @@ var sfss = (function (smm) {
         normalizeHeader = smm.normalizeHeader,
 
         logDoc, scriptProperties = PropertiesService.getScriptProperties(),
-        logId = scriptProperties.getProperty(normalizeHeader(LOG_FILE));
+        logId = scriptProperties.getProperty(normalizeHeader(r.LOG_FILE.s));
 
 
     if (logId) {
@@ -326,7 +26,7 @@ var sfss = (function (smm) {
     }
     // set TESTING to true when running unit tests
     function setTesting(b) {
-        TESTING = b;
+        r.TESTING.b = b;
     }
 
     // used in testing template emails
@@ -344,27 +44,18 @@ var sfss = (function (smm) {
         delete PROPERTIES[p];
     }
 
-    function flatten(array) {
-        var result = [],
-            self = arguments.callee;
-        array.forEach(function (item) {
-            Array.prototype.push.apply(
-            result, Array.isArray(item) ? self(item) : [item]);
-        });
-        return result;
-    }
-
     // build custom menu for spreadsheet
     function onOpen() {
+        // spreadsheet menu
         try {
             var ss = SpreadsheetApp.getActiveSpreadsheet(),
                 initialised = scriptProperties.getProperty("initialised");
 
             if (initialised) {
-                ss.addMenu(FILM_SUBMISSION, MENU_ENTRIES);
+                ss.addMenu(r.FILM_SUBMISSION.s, r.MENU_ENTRIES.d);
             } else {
-                ss.addMenu(FILM_SUBMISSION, [{
-                    name: "Setup",
+                ss.addMenu(r.FILM_SUBMISSION.s, [{
+                    name: r.INITIALISE.s,
                     functionName: "setup"
                 }]);
             }
@@ -398,10 +89,10 @@ var sfss = (function (smm) {
                 checkPanel = app.createHorizontalPanel(),
                 handler = app.createServerHandler("buttonAction"),
                 buttonGrid = app.createGrid(1, 3),
-                ok = app.createButton(OK, handler).setId(OK),
-                cancel = app.createButton(CANCEL, handler).setId(CANCEL),
+                ok = app.createButton(r.OK.s, handler).setId(r.OK.s),
+                cancel = app.createButton(r.CANCEL.s, handler).setId(r.CANCEL.s),
                 check = app.createCheckBox("Do not show me this diolog again.").setName('check'),
-                label = app.createLabel(PROCESSING).setVisible(false);
+                label = app.createLabel(r.PROCESSING.s).setVisible(false);
 
             vPanel.add(app.createHTML(html));
             buttonGrid.setWidget(0, 0, ok);
@@ -418,13 +109,13 @@ var sfss = (function (smm) {
             var statusTextBox = app.createTextBox(),
                 confirmationTextBox = app.createTextBox(),
                 selectionBox = app.createTextBox();
-            statusTextBox.setName(STATUS);
+            statusTextBox.setName(r.STATUS.s);
             statusTextBox.setVisible(false);
             statusTextBox.setValue(status);
-            confirmationTextBox.setName(CONFIRMATION);
+            confirmationTextBox.setName(r.CONFIRMATION.s);
             confirmationTextBox.setVisible(false);
             confirmationTextBox.setValue(confirmation);
-            selectionBox.setName(SELECTION);
+            selectionBox.setName(r.SELECTION.s);
             selectionBox.setVisible(false);
             selectionBox.setValue(selection);
             vPanel.add(statusTextBox);
@@ -443,22 +134,22 @@ var sfss = (function (smm) {
 
     function mediaPresentNotConfirmed() {
         var ss = SpreadsheetApp.getActiveSpreadsheet();
-        statusDialog(MEDIA_PRESENT, NOT_CONFIRMED, DO_NOT_CHANGE, 450, 'Set selection to Media Present, Not Confirmed', '<p>The state of a submission is given by the value of three fields, <b>' + STATUS + '</b>, <b>' + CONFIRMATION + '</b> and <b>' + SELECTION + '</b>.</p><p>Setting a submission to ' + STATUS + ': <b>' + MEDIA_PRESENT + '</b>, ' + CONFIRMATION + ': <b>' + NOT_CONFIRMED + '</b> (and leaving ' + SELECTION + ' unchanged) means the filmmaker will be automatically emailed after midnight to confirm the receipt of the Physical Media and the Permission Slip at the festival office, provided that:<ul><li>close of submission on ' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + ' has not been reached at the time that the email confirmation is attempted</li><li>and that confirmations are currently enabled.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, ENABLE_CONFIRMATION) + '.</p><p>If you re-set the submission to a new different state before midnight, the receipt confirmation email will not be sent.</p><p>After the receipt confirmation email is sent the state of the submission will be set to ' + STATUS + ': <b>' + MEDIA_PRESENT + '</b>, ' + CONFIRMATION + ': <b>' + CONFIRMED + '</b>.</p><p>To continue with setting the submission state to ' + STATUS + ': <b>' + MEDIA_PRESENT + '</b>, ' + CONFIRMATION + ': <b>' + NOT_CONFIRMED + '</b> press OK, to not do this press CANCEL.</p><br/>');
+        statusDialog(r.MEDIA_PRESENT.s, r.NOT_CONFIRMED.s, r.DO_NOT_CHANGE.s, 450, 'Set selection to Media Present, Not Confirmed', '<p>The state of a submission is given by the value of three fields, <b>' + r.STATUS.s + '</b>, <b>' + r.CONFIRMATION.s + '</b> and <b>' + r.SELECTION.s + '</b>.</p><p>Setting a submission to ' + r.STATUS.s + ': <b>' + r.MEDIA_PRESENT.s + '</b>, ' + r.CONFIRMATION.s + ': <b>' + r.NOT_CONFIRMED.s + '</b> (and leaving ' + r.SELECTION.s + ' unchanged) means the filmmaker will be automatically emailed after midnight to confirm the receipt of the Physical Media and the Permission Slip at the festival office, provided that:<ul><li>close of submission on ' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + ' has not been reached at the time that the email confirmation is attempted</li><li>and that confirmations are currently enabled.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, r.ENABLE_CONFIRMATION.s) + '.</p><p>If you re-set the submission to a new different state before midnight, the receipt confirmation email will not be sent.</p><p>After the receipt confirmation email is sent the state of the submission will be set to ' + r.STATUS.s + ': <b>' + r.MEDIA_PRESENT.s + '</b>, ' + r.CONFIRMATION.s + ': <b>' + r.CONFIRMED.s + '</b>.</p><p>To continue with setting the submission state to ' + r.STATUS.s + ': <b>' + r.MEDIA_PRESENT.s + '</b>, ' + r.CONFIRMATION.s + ': <b>' + r.NOT_CONFIRMED.s + '</b> press OK, to not do this press CANCEL.</p><br/>');
     }
 
     function problem() {
         var ss = SpreadsheetApp.getActiveSpreadsheet();
-        statusDialog(PROBLEM, DO_NOT_CHANGE, DO_NOT_CHANGE, 400, 'Set selection to Problem', '<p>The state of a submission is given by the value of three fields, <b>' + STATUS + '</b>, <b>' + CONFIRMATION + '</b> and <b>' + SELECTION + '</b>.</p><p>Setting a submission to ' + STATUS + ': <b>' + PROBLEM + '</b> (and leaving ' + CONFIRMATION + ' and ' + SELECTION + ' unchanged) means the filmmaker will be sent no reminder or receipt confirmation emails from now on. They will however, receive the final selection advisory email after close of submissions(' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + '), when it is sent.</p><p>If you set a submission to ' + STATUS + ': <b>' + PROBLEM + '</b>, please update the submission comment field with the details of the problem.</p><p>To continue with setting the submission state to ' + STATUS + ': <b>' + PROBLEM + '</b> press OK, to not do this press CANCEL.</p><br/>');
+        statusDialog(r.PROBLEM.s, r.DO_NOT_CHANGE.s, r.DO_NOT_CHANGE.s, 400, 'Set selection to Problem', '<p>The state of a submission is given by the value of three fields, <b>' + r.STATUS.s + '</b>, <b>' + r.CONFIRMATION.s + '</b> and <b>' + r.SELECTION.s + '</b>.</p><p>Setting a submission to ' + r.STATUS.s + ': <b>' + r.PROBLEM.s + '</b> (and leaving ' + r.CONFIRMATION.s + ' and ' + r.SELECTION.s + ' unchanged) means the filmmaker will be sent no reminder or receipt confirmation emails from now on. They will however, receive the final selection advisory email after close of submissions(' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + '), when it is sent.</p><p>If you set a submission to ' + r.STATUS.s + ': <b>' + r.PROBLEM.s + '</b>, please update the submission comment field with the details of the problem.</p><p>To continue with setting the submission state to ' + r.STATUS.s + ': <b>' + r.PROBLEM.s + '</b> press OK, to not do this press CANCEL.</p><br/>');
     }
 
     function selected() {
         var ss = SpreadsheetApp.getActiveSpreadsheet();
-        statusDialog(DO_NOT_CHANGE, DO_NOT_CHANGE, SELECTED, 480, 'Set selection to Selected', '<p>The state of a submission is given by the value of three fields, <b>' + STATUS + '</b>, <b>' + CONFIRMATION + '</b> and <b>' + SELECTION + '</b>.</p><p>A submission set to ' + SELECTION + ': <b>' + SELECTED + '</b> (and leaving ' + STATUS + ' and ' + CONFIRMATION + ' unchanged) will still receive reminder and receipt confirmation emails dependent on its <b>' + STATUS + '</b> and <b>' + CONFIRMATION + '</b> provided that:<ul><li>it is at least ' + getNamedValue(ss, DAYS_BEFORE_REMINDER) + ' days before the close of submission on ' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + ' at the time that the email is attempted</li><li>and that receipt confirmations are currently enabled for receipt confirmation,</li><li>and that reminders are currently enabled for reminders.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, ENABLE_CONFIRMATION) + '.</p><p>Note: reminders are currently ' + getNamedValue(ss, ENABLE_REMINDER) + '.</p><p>Submissions set to ' + SELECTION + ': <b>' + SELECTED + '</b> will receive the festival submission acceptance email after close of submissions(' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + '), when it is sent.</p><p>You will usually only set this state after the close of submissions.</p><p>To continue with setting the submission state to ' + SELECTION + ': <b>' + SELECTED + '</b> press OK, to not do this press CANCEL.</p><br/>');
+        statusDialog(r.DO_NOT_CHANGE.s, r.DO_NOT_CHANGE.s, r.SELECTED.s, 480, 'Set selection to Selected', '<p>The state of a submission is given by the value of three fields, <b>' + r.STATUS.s + '</b>, <b>' + r.CONFIRMATION.s + '</b> and <b>' + r.SELECTION.s + '</b>.</p><p>A submission set to ' + r.SELECTION.s + ': <b>' + r.SELECTED.s + '</b> (and leaving ' + r.STATUS.s + ' and ' + r.CONFIRMATION.s + ' unchanged) will still receive reminder and receipt confirmation emails dependent on its <b>' + r.STATUS.s + '</b> and <b>' + r.CONFIRMATION.s + '</b> provided that:<ul><li>it is at least ' + getNamedValue(ss, r.DAYS_BEFORE_REMINDER.s) + ' days before the close of submission on ' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + ' at the time that the email is attempted</li><li>and that receipt confirmations are currently enabled for receipt confirmation,</li><li>and that reminders are currently enabled for reminders.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, r.ENABLE_CONFIRMATION.s) + '.</p><p>Note: reminders are currently ' + getNamedValue(ss, r.ENABLE_REMINDER.s) + '.</p><p>Submissions set to ' + r.SELECTION.s + ': <b>' + r.SELECTED.s + '</b> will receive the festival submission acceptance email after close of submissions(' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + '), when it is sent.</p><p>You will usually only set this state after the close of submissions.</p><p>To continue with setting the submission state to ' + r.SELECTION.v + ': <b>' + r.SELECTED.v + '</b> press OK, to not do this press CANCEL.</p><br/>');
     }
 
     function notSelected() {
         var ss = SpreadsheetApp.getActiveSpreadsheet();
-        statusDialog(DO_NOT_CHANGE, DO_NOT_CHANGE, NOT_SELECTED, 480, 'Set selection to Not Selected', '<p>The state of a submission is given by the value of three fields, <b>' + STATUS + '</b>, <b>' + CONFIRMATION + '</b> and <b>' + SELECTION + '</b>.</p><p>A submission set to ' + SELECTION + ': <b>' + NOT_SELECTED + '</b> (and leaving ' + STATUS + ' and ' + CONFIRMATION + ' unchanged) will still receive reminder and receipt confirmation emails dependent on its <b>' + STATUS + '</b> and <b>' + CONFIRMATION + '</b> provided that:<ul><li>it is at least ' + getNamedValue(ss, DAYS_BEFORE_REMINDER) + ' days before the close of submission on ' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + ' at the time that the email is attempted</li><li>and that receipt confirmations are currently enabled for receipt confirmation,</li><li>and that reminders are currently enabled for reminders.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, ENABLE_CONFIRMATION) + '.</p><p>Note: reminders are currently ' + getNamedValue(ss, ENABLE_REMINDER) + '.</p><p>Submissions set to ' + SELECTION + ': <b>' + NOT_SELECTED + '</b> will receive the festival submission not acceptanced email after close of submissions(' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + '), when it is sent.</p><p>You will usually only set this state after the close of submissions.</p><p>To continue with setting the submission state to ' + SELECTION + ': <b>' + NOT_SELECTED + '</b> press OK, to not do this press CANCEL.</p><br/>');
+        statusDialog(r.DO_NOT_CHANGE.s, r.DO_NOT_CHANGE.s, r.NOT_SELECTED.s, 480, 'Set selection to Not Selected', '<p>The state of a submission is given by the value of three fields, <b>' + r.STATUS.s + '</b>, <b>' + r.CONFIRMATION.s + '</b> and <b>' + r.SELECTION.s + '</b>.</p><p>A submission set to ' + r.SELECTION.s + ': <b>' + r.NOT_SELECTED.s + '</b> (and leaving ' + r.STATUS.s + ' and ' + r.CONFIRMATION.s + ' unchanged) will still receive reminder and receipt confirmation emails dependent on its <b>' + r.STATUS.s + '</b> and <b>' + r.CONFIRMATION.s + '</b> provided that:<ul><li>it is at least ' + getNamedValue(ss, r.DAYS_BEFORE_REMINDER.s) + ' days before the close of submission on ' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + ' at the time that the email is attempted</li><li>and that receipt confirmations are currently enabled for receipt confirmation,</li><li>and that reminders are currently enabled for reminders.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, r.ENABLE_CONFIRMATION.s) + '.</p><p>Note: reminders are currently ' + getNamedValue(ss, r.ENABLE_REMINDER.s) + '.</p><p>Submissions set to ' + r.SELECTION.s + ': <b>' + r.NOT_SELECTED.s + '</b> will receive the festival submission not acceptanced email after close of submissions(' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + '), when it is sent.</p><p>You will usually only set this state after the close of submissions.</p><p>To continue with setting the submission state to ' + r.SELECTION.s + ': <b>' + r.NOT_SELECTED.s + '</b> press OK, to not do this press CANCEL.</p><br/>');
     }
 
 
@@ -468,36 +159,36 @@ var sfss = (function (smm) {
             app = UiApp.createApplication().setTitle('Set state of selection');
 
         var grid = app.createGrid(3, 2);
-        grid.setWidget(0, 0, app.createLabel(STATUS + ':'));
-        var statusListBox = app.createListBox(false).setName(STATUS);
-        statusListBox.addItem(DO_NOT_CHANGE);
-        statusListBox.addItem(NO_MEDIA);
-        statusListBox.addItem(MEDIA_PRESENT);
-        statusListBox.addItem(PROBLEM);
+        grid.setWidget(0, 0, app.createLabel(r.STATUS.s + ':'));
+        var statusListBox = app.createListBox(false).setName(r.STATUS.s);
+        statusListBox.addItem(r.DO_NOT_CHANGE.s);
+        statusListBox.addItem(r.NO_MEDIA.s);
+        statusListBox.addItem(r.MEDIA_PRESENT.s);
+        statusListBox.addItem(r.PROBLEM.s);
         grid.setWidget(0, 1, statusListBox);
-        grid.setWidget(1, 0, app.createLabel(CONFIRMATION + ':'));
-        var confirmationListBox = app.createListBox(false).setName(CONFIRMATION);
-        confirmationListBox.addItem(DO_NOT_CHANGE);
-        confirmationListBox.addItem(NOT_CONFIRMED);
-        confirmationListBox.addItem(CONFIRMED);
+        grid.setWidget(1, 0, app.createLabel(r.CONFIRMATION.s + ':'));
+        var confirmationListBox = app.createListBox(false).setName(r.CONFIRMATION.s);
+        confirmationListBox.addItem(r.DO_NOT_CHANGE.s);
+        confirmationListBox.addItem(r.NOT_CONFIRMED.s);
+        confirmationListBox.addItem(r.CONFIRMED.s);
         grid.setWidget(1, 1, confirmationListBox);
-        grid.setWidget(2, 0, app.createLabel(SELECTION + ':'));
-        var selectionListBox = app.createListBox(false).setName(SELECTION);
-        selectionListBox.addItem(DO_NOT_CHANGE);
-        selectionListBox.addItem(NOT_SELECTED);
-        selectionListBox.addItem(SELECTED);
+        grid.setWidget(2, 0, app.createLabel(r.SELECTION.s + ':'));
+        var selectionListBox = app.createListBox(false).setName(r.SELECTION.s);
+        selectionListBox.addItem(r.DO_NOT_CHANGE.s);
+        selectionListBox.addItem(r.NOT_SELECTED.s);
+        selectionListBox.addItem(r.SELECTED.s);
         grid.setWidget(2, 1, selectionListBox);
 
         var cPanel = app.createCaptionPanel("Set State Of Range").setId('cPanel'),
             vPanel = app.createVerticalPanel();
-        vPanel.add(app.createHTML('<p>The status of a submission is given by the value of three fields which are <b>' + STATUS + '</b>, <b>' + CONFIRMATION + '</b> and <b>' + SELECTION + '</b>.</p><p>For full details on what the various setting mean, please refer to documentation.</p>'));
+        vPanel.add(app.createHTML('<p>The status of a submission is given by the value of three fields which are <b>' + r.STATUS.s + '</b>, <b>' + r.CONFIRMATION.s + '</b> and <b>' + r.SELECTION.s + '</b>.</p><p>For full details on what the various setting mean, please refer to documentation.</p>'));
         vPanel.add(grid);
 
         var handler = app.createServerHandler("buttonAction"),
             buttonGrid = app.createGrid(1, 3),
-            ok = app.createButton(OK, handler).setId(OK),
-            cancel = app.createButton(CANCEL, handler).setId(CANCEL),
-            label = app.createLabel(PROCESSING).setVisible(false);
+            ok = app.createButton(r.OK.s, handler).setId(r.OK.s),
+            cancel = app.createButton(r.CANCEL.s, handler).setId(r.CANCEL.s),
+            label = app.createLabel(r.PROCESSING.s).setVisible(false);
         handler.addCallbackElement(vPanel);
         buttonGrid.setWidget(0, 0, ok);
         buttonGrid.setWidget(0, 1, cancel);
@@ -520,10 +211,10 @@ var sfss = (function (smm) {
         var app = UiApp.getActiveApplication(),
             ss = SpreadsheetApp.getActiveSpreadsheet();
 
-        scriptProperties.setProperty(normalizeHeader(e.parameter[STATUS] + ' ' + e.parameter[CONFIRMATION]), e.parameter.check);
+        scriptProperties.setProperty(normalizeHeader(e.parameter[r.STATUS.s] + ' ' + e.parameter[r.CONFIRMATION.s]), e.parameter.check);
 
-        if (e.parameter.source === OK) {
-            setStatus(e.parameter[STATUS], e.parameter[CONFIRMATION], e.parameter[SELECTION]);
+        if (e.parameter.source === r.OK.s) {
+            setStatus(e.parameter[r.STATUS.s], e.parameter[r.CONFIRMATION.s], e.parameter[r.SELECTION.s]);
         } else {
             ss.toast("Canceling operation.", "WARNING", 5);
         }
@@ -535,9 +226,9 @@ var sfss = (function (smm) {
         try {
             log('setStatus:(status, confirmation, selection):(' + status + ',' + confirmation + ',' + selection + ')');
             var ss = SpreadsheetApp.getActiveSpreadsheet();
-            if (ss.getSheetName() === FILM_SUBMISSIONS_SHEET) {
+            if (ss.getSheetName() === r.FILM_SUBMISSIONS_SHEET.s) {
                 var activeRange = SpreadsheetApp.getActiveRange(),
-                    filmSheet = ss.getSheetByName(FILM_SUBMISSIONS_SHEET),
+                    filmSheet = ss.getSheetByName(r.FILM_SUBMISSIONS_SHEET.s),
                     dataRange = filmSheet.getDataRange(),
                     statusRange = findStatusRange(filmSheet, activeRange, dataRange);
                 if (statusRange) {
@@ -545,14 +236,14 @@ var sfss = (function (smm) {
                     //log status change
                     var headersRange = filmSheet.getRange(1, 1, 1, filmSheet.getDataRange().getLastColumn()),
                         headers = normalizeHeaders(headersRange.getValues()[0]),
-                        idIndex = headers.indexOf(normalizeHeader(FILM_ID)) + 1,
+                        idIndex = headers.indexOf(normalizeHeader(r.FILM_ID.s)) + 1,
                         ids = filmSheet.getRange(statusRange.getRow(), idIndex, statusRange.getHeight(), 1).getValues();
                     log('The following film submissions have been set to "' + status + '", "' + confirmation + '", "' + selection + '": ' + ids.concat());
                 } else {
                     ss.toast("No films selected!", "WARNING", 5);
                 }
             } else {
-                ss.toast("Can only set Sate on '" + FILM_SUBMISSIONS_SHEET + "' sheet.", "WARNING", 5);
+                ss.toast("Can only set Sate on '" + r.FILM_SUBMISSIONS_SHEET.s + "' sheet.", "WARNING", 5);
             }
         } catch (e) {
             log('There has been an error in setStatus:' + e);
@@ -560,23 +251,23 @@ var sfss = (function (smm) {
     }
 
     function setStatusByStatusRange(ss, filmSheet, statusRange, status, confirmation, selection) {
-        var statusHeader = normalizeHeader(STATUS),
-            confirmationHeader = normalizeHeader(CONFIRMATION),
-            selectionHeader = normalizeHeader(SELECTION),
+        var statusHeader = normalizeHeader(r.STATUS.s),
+            confirmationHeader = normalizeHeader(r.CONFIRMATION.s),
+            selectionHeader = normalizeHeader(r.SELECTION.s),
             rows = getRowsData(filmSheet, statusRange, 1);
 
         for (var i = 0; i < rows.length; i++) {
-            if (status !== DO_NOT_CHANGE) {
+            if (status !== r.DO_NOT_CHANGE.s) {
                 rows[i][statusHeader] = status;
             } else {
                 status = rows[i][statusHeader];
             }
-            if (confirmation !== DO_NOT_CHANGE) {
+            if (confirmation !== r.DO_NOT_CHANGE.s) {
                 rows[i][confirmationHeader] = confirmation;
             } else {
                 confirmation = rows[i][confirmationHeader];
             }
-            if (selection !== DO_NOT_CHANGE) {
+            if (selection !== r.DO_NOT_CHANGE.s) {
                 rows[i][selectionHeader] = selection;
             } else {
                 selection = rows[i][selectionHeader];
@@ -589,12 +280,12 @@ var sfss = (function (smm) {
     }
 
     function findStatusColor(ss, status, confirmation, selection) {
-        var color = NOT_SELECTED;
+        var color = r.NOT_SELECTED.s;
 
-        if (selection === SELECTED) {
-            color = SELECTED;
-        } else if (status === PROBLEM) {
-            color = PROBLEM;
+        if (selection === r.SELECTED.s) {
+            color = r.SELECTED.s;
+        } else if (status === r.PROBLEM.s) {
+            color = r.PROBLEM.s;
         } else {
             color = status + ' ' + confirmation;
         }
@@ -612,7 +303,7 @@ var sfss = (function (smm) {
             high = Math.min(lastRowA, lastRowB);
 
         if (low <= high) {
-            var minMaxColumn = findMinMaxColumns(filmSheet, [STATUS, CONFIRMATION, SELECTION]);
+            var minMaxColumn = findMinMaxColumns(filmSheet, [r.STATUS.s, r.CONFIRMATION.s, r.SELECTION.s]);
             range = filmSheet.getRange(low, minMaxColumn.min, high - low + 1, minMaxColumn.max - minMaxColumn.min + 1);
         }
         return range;
@@ -620,7 +311,7 @@ var sfss = (function (smm) {
 
     function pleaseWait(ss) {
         var app = UiApp.createApplication(),
-            label = app.createLabel(PROCESSING).setStyleAttribute("fontSize", "200%");
+            label = app.createLabel(r.PROCESSING.s).setStyleAttribute("fontSize", "200%");
         app.add(label);
         ss.show(app);
     }
@@ -647,27 +338,27 @@ var sfss = (function (smm) {
         }
         try {
             var returnTo = template;
-            template = template || SUBMISSION_CONFIRMATION;
+            template = template || r.SUBMISSION_CONFIRMATION.s;
 
             var ss = SpreadsheetApp.getActiveSpreadsheet();
             pleaseWait(ss);
 
-            loadData(ss, TEST_DATA);
-            loadData(ss, TEMPLATE_DATA);
+            loadData(ss, r.TEST_DATA.s);
+            loadData(ss, r.TEMPLATE_DATA.s);
 
             var app = UiApp.createApplication(),
 
                 // Use these to turn off save, previous and next buttons if we have come from AD_HOC_MAIL or SELECTION_NOTIFICATION
                 // As I turn them all off or all on together, logically I only need one hidden field for this information
-                previousHidden = app.createHidden(normalizeHeader(PREVIOUS + ' ' + HIDDEN), !returnTo),
-                nextHidden = app.createHidden(normalizeHeader(NEXT + ' ' + HIDDEN), !returnTo),
-                saveHidden = app.createHidden(normalizeHeader(SAVE + ' ' + HIDDEN), !returnTo),
+                previousHidden = app.createHidden(normalizeHeader(r.PREVIOUS.s + ' ' + r.HIDDEN.s), !returnTo),
+                nextHidden = app.createHidden(normalizeHeader(r.NEXT.s + ' ' + r.HIDDEN.s), !returnTo),
+                saveHidden = app.createHidden(normalizeHeader(r.SAVE.s + ' ' + r.HIDDEN.s), !returnTo),
 
                 vRoot = app.createVerticalPanel().setId(normalizeHeader('vRoot')),
                 hTop = app.createHorizontalPanel(),
                 handler = app.createServerHandler("templatesButtonAction"),
-                saveButton = app.createButton(SAVE, handler).setId(normalizeHeader(SAVE)).setEnabled(!returnTo),
-                cancelButton = app.createButton(CANCEL, handler).setId(normalizeHeader(CANCEL)),
+                saveButton = app.createButton(r.SAVE.s, handler).setId(normalizeHeader(r.SAVE.s)).setEnabled(!returnTo),
+                cancelButton = app.createButton(r.CANCEL.s, handler).setId(normalizeHeader(r.CANCEL.s)),
 
                 previousButtons = {},
                 nextButtons = {},
@@ -677,28 +368,28 @@ var sfss = (function (smm) {
                 nextButtonsArray = [],
                 testButtonsArray = [],
 
-                processingLabel = app.createLabel(PROCESSING).setId(normalizeHeader(WAIT)).setVisible(false),
+                processingLabel = app.createLabel(r.PROCESSING.s).setId(normalizeHeader(r.WAIT.s)).setVisible(false),
 
-                returnToNotificationLabel = app.createLabel(SAVE_AND_RETURN_TO),
-                returnToNotificationButton = app.createButton(SELECTION_NOTIFICATION, handler).setId(normalizeHeader(SELECTION_NOTIFICATION + ' ' + BUTTON)),
-                returnToNotificationPLabel = app.createLabel(PROCESSING).setId(normalizeHeader(SELECTION_NOTIFICATION + ' ' + PLABEL)).setVisible(false),
+                returnToNotificationLabel = app.createLabel(r.SAVE_AND_RETURN_TO.s),
+                returnToNotificationButton = app.createButton(r.SELECTION_NOTIFICATION.s, handler).setId(normalizeHeader(r.SELECTION_NOTIFICATION.s + ' ' + r.BUTTON.s)),
+                returnToNotificationPLabel = app.createLabel(r.PROCESSING.s).setId(normalizeHeader(r.SELECTION_NOTIFICATION.s + ' ' + r.PLABEL.s)).setVisible(false),
 
-                returnToAdHocLabel = app.createLabel(SAVE_AND_RETURN_TO),
-                returnToAdHocButton = app.createButton(AD_HOC_EMAIL, handler).setId(normalizeHeader(AD_HOC_EMAIL + ' ' + BUTTON)),
-                returnToAdHocPLabel = app.createLabel(PROCESSING).setId(normalizeHeader(AD_HOC_EMAIL + ' ' + PLABEL)).setVisible(false),
+                returnToAdHocLabel = app.createLabel(r.SAVE_AND_RETURN_TO.s),
+                returnToAdHocButton = app.createButton(r.AD_HOC_EMAIL.s, handler).setId(normalizeHeader(r.AD_HOC_EMAIL.s + ' ' + r.BUTTON.s)),
+                returnToAdHocPLabel = app.createLabel(r.PROCESSING.s).setId(normalizeHeader(r.AD_HOC_EMAIL.s + ' ' + r.PLABEL.s)).setVisible(false),
 
-                templates = [SUBMISSION_CONFIRMATION, RECEIPT_CONFIMATION, REMINDER, NOT_ACCEPTED, ACCEPTED, AD_HOC_EMAIL],
+                templates = [r.SUBMISSION_CONFIRMATION.s, r.RECEIPT_CONFIMATION.s, r.REMINDER.s, r.NOT_ACCEPTED.s, r.ACCEPTED.s, r.AD_HOC_EMAIL.s],
                 remainingDailyQuota = MailApp.getRemainingDailyQuota(),
-                remainingEmailQuota = remainingDailyQuota - MIN_QUOTA,
-                remainingEmailQuotaHidden = app.createHidden(normalizeHeader(REMAINING_EMAIL_QUOTA), remainingEmailQuota).setId(normalizeHeader(REMAINING_EMAIL_QUOTA)),
+                remainingEmailQuota = remainingDailyQuota - r.MIN_QUOTA.n,
+                remainingEmailQuotaHidden = app.createHidden(normalizeHeader(r.REMAINING_EMAIL_QUOTA.s), remainingEmailQuota).setId(normalizeHeader(r.REMAINING_EMAIL_QUOTA.s)),
 
                 testButtonGrid = app.createGrid(1, 3),
                 //testButton          = app.createButton(TEST, handler).setId(normalizeHeader(TEST)).setEnabled(remainingEmailQuota>0),
                 testButtonLabel = app.createLabel('Send test email:').setStyleAttribute('font-weight', 'bold'),
-                testProcessingLabel = app.createLabel(PROCESSING).setStyleAttribute("fontSize", "50%").setVisible(false).setId(normalizeHeader(TEST_PROCESSING_LABEL)),
+                testProcessingLabel = app.createLabel(r.PROCESSING.s).setStyleAttribute("fontSize", "50%").setVisible(false).setId(normalizeHeader(r.TEST_PROCESSING_LABEL.s)),
 
                 testData = [{
-                    namedValue: FIRST_NAME,
+                    namedValue: r.FIRST_NAME.s,
                     type: 'createTextBox',
                     width: '200',
                     validate: {
@@ -709,7 +400,7 @@ var sfss = (function (smm) {
                     },
                     label: 'First name required'
                 }, {
-                    namedValue: LAST_NAME,
+                    namedValue: r.LAST_NAME.s,
                     type: 'createTextBox',
                     width: '200',
                     validate: {
@@ -720,7 +411,7 @@ var sfss = (function (smm) {
                     },
                     label: 'Last name required'
                 }, {
-                    namedValue: TITLE,
+                    namedValue: r.TITLE.s,
                     type: 'createTextBox',
                     width: '200',
                     validate: {
@@ -731,7 +422,7 @@ var sfss = (function (smm) {
                     },
                     label: 'Title required'
                 }, {
-                    namedValue: EMAIL,
+                    namedValue: r.EMAIL.s,
                     type: 'createTextBox',
                     width: '200',
                     validate: {
@@ -744,14 +435,14 @@ var sfss = (function (smm) {
                 appHeight = returnTo ? '530' : '500',
 
                 vAvaliableTages = app.createVerticalPanel(),
-                cAvaliableTages = app.createCaptionPanel(AVAILABLE_TAGS).setWidth('200').setHeight(height),
+                cAvaliableTages = app.createCaptionPanel(r.AVAILABLE_TAGS.s).setWidth('200').setHeight(height),
                 testGrid = app.createGrid(2 * testData.length, 2),
                 vTest = app.createVerticalPanel(),
-                cTest = app.createCaptionPanel(SEND_TEST_EMAIL).setWidth('300').setHeight(height),
+                cTest = app.createCaptionPanel(r.SEND_TEST_EMAIL.s).setWidth('300').setHeight(height),
 
-                statusHTML = app.createHTML().setHTML('<p>Remaining email quota for today:<b>' + remainingDailyQuota + '</b>. System will pause sending emails for the day when remaining email quota is less than or equal to: <b>' + MIN_QUOTA + '</b>.</p>').setId(normalizeHeader(STATUS_HTML)),
+                statusHTML = app.createHTML().setHTML('<p>Remaining email quota for today:<b>' + remainingDailyQuota + '</b>. System will pause sending emails for the day when remaining email quota is less than or equal to: <b>' + r.MIN_QUOTA.n + '</b>.</p>').setId(normalizeHeader(r.STATUS_HTML.s)),
 
-                statusWarningHTML = app.createHTML().setHTML('<p>NOTE: Todays remaining email quota is now less than or equal to <b>' + MIN_QUOTA + '</b>. Hence the system has now paused sending emails for the day.</p>').setStyleAttribute("color", "red").setVisible(remainingEmailQuota <= 0).setId(normalizeHeader(STATUS_WARNING_HTML)),
+                statusWarningHTML = app.createHTML().setHTML('<p>NOTE: Todays remaining email quota is now less than or equal to <b>' + r.MIN_QUOTA.n + '</b>. Hence the system has now paused sending emails for the day.</p>').setStyleAttribute("color", "red").setVisible(remainingEmailQuota <= 0).setId(normalizeHeader(r.STATUS_WARNING_HTML.s)),
 
                 avalibleTagsHTML = app.createHTML('<p>Name of film festival<br/><b>${"Festival Name"}</b></p><p>Address of festival website<br/><b>${"Festival Website"}</b></p><p>Link to release form<br/><b>${"Release Link"}</b></p><p>Date of close of submission<br/><b>${"Close Of Submission"}</b></p><p>Date of start of film festival<br/><b>${"Event Date"}</b></p><p>First name of filmmaker<br/><b>${"First Name"}</b></p><p>Last name of filmmaker<br/><b>${"Last Name"}</b></p><p>Title of submission<br/><b>${"Title"}</b></p>');
 
@@ -760,22 +451,22 @@ var sfss = (function (smm) {
                 templateName, previousTemplate, nextTemplate;
             for (var i = 0; i < templates.length; i++) {
                 templateName = templates[i];
-                previousButtons[templateName] = app.createButton(PREVIOUS).setVisible(templateName === template).setId(normalizeHeader(templateName + ' ' + PREVIOUS)).setEnabled(!returnTo);
+                previousButtons[templateName] = app.createButton(r.PREVIOUS.s).setVisible(templateName === template).setId(normalizeHeader(templateName + ' ' + r.PREVIOUS.s)).setEnabled(!returnTo);
                 previousButtonsArray.push(previousButtons[templateName]);
-                nextButtons[templateName] = app.createButton(NEXT).setVisible(templateName === template).setId(normalizeHeader(templateName + ' ' + NEXT)).setEnabled(!returnTo);
+                nextButtons[templateName] = app.createButton(r.NEXT.s).setVisible(templateName === template).setId(normalizeHeader(templateName + ' ' + r.NEXT.s)).setEnabled(!returnTo);
                 nextButtonsArray.push(nextButtons[templateName]);
-                testButtons[templateName] = app.createButton(TEST, handler).setVisible(templateName === template).setId(normalizeHeader(templateName + ' ' + TEST)).setEnabled(remainingEmailQuota > 0), testButtonsArray.push(testButtons[templateName]);
+                testButtons[templateName] = app.createButton(r.TEST.s, handler).setVisible(templateName === template).setId(normalizeHeader(templateName + ' ' + r.TEST.s)).setEnabled(remainingEmailQuota > 0), testButtonsArray.push(testButtons[templateName]);
             }
             for (i = 0; i < templates.length; i++) {
                 templateName = templates[i];
 
                 var cTemplate = app.createCaptionPanel(templateName).setId(normalizeHeader(templateName)),
-                    subjectLabel = app.createLabel(SUBJECT + ':').setStyleAttribute('font-weight', 'bold'),
-                    subjectHelpLabel = app.createLabel(SUBJECT + ' required').setStyleAttribute("fontSize", "50%").setId(normalizeHeader(SUBJECT + ' ' + HELP)),
-                    bodyLabel = app.createLabel(BODY + ':').setStyleAttribute('font-weight', 'bold'),
-                    bodyHelpLabel = app.createLabel(BODY + ' required').setStyleAttribute("fontSize", "50%").setId(normalizeHeader(BODY + ' ' + HELP)),
-                    subjectTextBox = app.createTextBox().setName(normalizeHeader(SUBJECT_LINE)).setText(getNamedValue(ss, templateName + ' ' + SUBJECT_LINE)).setWidth('300').setName(normalizeHeader(templateName + ' ' + SUBJECT_LINE)),
-                    bodyTextArea = app.createTextArea().setName(normalizeHeader(BODY)).setText(getNamedValue(ss, templateName + ' ' + BODY)).setWidth('300').setHeight('280').setName(normalizeHeader(templateName + ' ' + BODY)),
+                    subjectLabel = app.createLabel(r.SUBJECT.s + ':').setStyleAttribute('font-weight', 'bold'),
+                    subjectHelpLabel = app.createLabel(r.SUBJECT.s + ' required').setStyleAttribute("fontSize", "50%").setId(normalizeHeader(r.SUBJECT.s + ' ' + r.HELP.s)),
+                    bodyLabel = app.createLabel(r.BODY.s + ':').setStyleAttribute('font-weight', 'bold'),
+                    bodyHelpLabel = app.createLabel(r.BODY.s + ' required').setStyleAttribute("fontSize", "50%").setId(normalizeHeader(r.BODY.s + ' ' + r.HELP.s)),
+                    subjectTextBox = app.createTextBox().setName(normalizeHeader(r.SUBJECT_LINE.s)).setText(getNamedValue(ss, templateName + ' ' + r.SUBJECT_LINE.s)).setWidth('300').setName(normalizeHeader(templateName + ' ' + r.SUBJECT_LINE.s)),
+                    bodyTextArea = app.createTextArea().setName(normalizeHeader(r.BODY.s)).setText(getNamedValue(ss, templateName + ' ' + r.BODY.s)).setWidth('300').setHeight('280').setName(normalizeHeader(templateName + ' ' + r.BODY.s)),
                     grid = app.createGrid(6, 1);
 
                 grid.setWidget(0, 0, subjectLabel);
@@ -847,46 +538,46 @@ var sfss = (function (smm) {
             for (i = 0; i < testData.length; i++) {
                 itemData = testData[i];
                 testGrid.setWidget(2 * (+i), 0, app.createLabel(itemData.namedValue + ':').setStyleAttribute('font-weight', 'bold'));
-                name = normalizeHeader(TEST + ' ' + itemData.namedValue);
+                name = normalizeHeader(r.TEST.s + ' ' + itemData.namedValue);
                 testItemName[i] = name;
                 testItem[name] = app[itemData.type]().setName(name).setValue(getNamedValue(ss, normalizeHeader(name))).setWidth(itemData.width);
                 testGrid.setWidget(2 * (+i), 1, testItem[name]);
-                testLabel[name] = app.createLabel(itemData.label).setStyleAttribute("fontSize", "50%").setId(normalizeHeader(LABEL + ' ' + itemData.namedValue));
+                testLabel[name] = app.createLabel(itemData.label).setStyleAttribute("fontSize", "50%").setId(normalizeHeader(r.LABEL.s + ' ' + itemData.namedValue));
                 testGrid.setWidget(2 * (+i) + 1, 1, testLabel[name]);
             }
 
             //client side validation
-            var allGoodTest = app.createClientHandler().validateLength(testItem[normalizeHeader(TEST_FIRST_NAME)], 1, null).validateLength(testItem[normalizeHeader(TEST_LAST_NAME)], 1, null).validateLength(testItem[normalizeHeader(TEST_TITLE)], 1, null).validateEmail(testItem[normalizeHeader(TEST_EMAIL)]).validateRange(remainingEmailQuotaHidden, 1, null)
+            var allGoodTest = app.createClientHandler().validateLength(testItem[normalizeHeader(r.TEST_FIRST_NAME.s)], 1, null).validateLength(testItem[normalizeHeader(r.TEST_LAST_NAME.s)], 1, null).validateLength(testItem[normalizeHeader(r.TEST_TITLE.s)], 1, null).validateEmail(testItem[normalizeHeader(r.TEST_EMAIL.s)]).validateRange(remainingEmailQuotaHidden, 1, null)
 
-            .validateLength(templateData[SUBMISSION_CONFIRMATION].subject, 1, null).validateLength(templateData[SUBMISSION_CONFIRMATION].body, 1, null)
+            .validateLength(templateData[r.SUBMISSION_CONFIRMATION.s].subject, 1, null).validateLength(templateData[r.SUBMISSION_CONFIRMATION.s].body, 1, null)
 
-            .validateLength(templateData[RECEIPT_CONFIMATION].subject, 1, null).validateLength(templateData[RECEIPT_CONFIMATION].body, 1, null)
+            .validateLength(templateData[r.RECEIPT_CONFIMATION.s].subject, 1, null).validateLength(templateData[r.RECEIPT_CONFIMATION.s].body, 1, null)
 
-            .validateLength(templateData[REMINDER].subject, 1, null).validateLength(templateData[REMINDER].body, 1, null)
+            .validateLength(templateData[r.REMINDER.s].subject, 1, null).validateLength(templateData[r.REMINDER.s].body, 1, null)
 
-            .validateLength(templateData[NOT_ACCEPTED].subject, 1, null).validateLength(templateData[NOT_ACCEPTED].body, 1, null)
+            .validateLength(templateData[r.NOT_ACCEPTED.s].subject, 1, null).validateLength(templateData[r.NOT_ACCEPTED.s].body, 1, null)
 
-            .validateLength(templateData[ACCEPTED].subject, 1, null)
+            .validateLength(templateData[r.ACCEPTED.s].subject, 1, null)
 
-            .validateLength(templateData[ACCEPTED].body, 1, null)
+            .validateLength(templateData[r.ACCEPTED.s].body, 1, null)
 
-            .validateLength(templateData[AD_HOC_EMAIL].subject, 1, null).validateLength(templateData[AD_HOC_EMAIL].body, 1, null)
+            .validateLength(templateData[r.AD_HOC_EMAIL.s].subject, 1, null).validateLength(templateData[r.AD_HOC_EMAIL.s].body, 1, null)
 
             .forTargets([returnToNotificationButton, returnToAdHocButton].concat(testButtonsArray)).setEnabled(true),
 
-                allGoodSavePreviousNext = app.createClientHandler().validateLength(testItem[normalizeHeader(TEST_FIRST_NAME)], 1, null).validateLength(testItem[normalizeHeader(TEST_LAST_NAME)], 1, null).validateLength(testItem[normalizeHeader(TEST_TITLE)], 1, null).validateEmail(testItem[normalizeHeader(TEST_EMAIL)]).validateRange(remainingEmailQuotaHidden, 1, null)
+                allGoodSavePreviousNext = app.createClientHandler().validateLength(testItem[normalizeHeader(r.TEST_FIRST_NAME.s)], 1, null).validateLength(testItem[normalizeHeader(r.TEST_LAST_NAME.s)], 1, null).validateLength(testItem[normalizeHeader(r.TEST_TITLE.s)], 1, null).validateEmail(testItem[normalizeHeader(r.TEST_EMAIL.s)]).validateRange(remainingEmailQuotaHidden, 1, null)
 
-                .validateLength(templateData[SUBMISSION_CONFIRMATION].subject, 1, null).validateLength(templateData[SUBMISSION_CONFIRMATION].body, 1, null)
+                .validateLength(templateData[r.SUBMISSION_CONFIRMATION.s].subject, 1, null).validateLength(templateData[r.SUBMISSION_CONFIRMATION.s].body, 1, null)
 
-                .validateLength(templateData[RECEIPT_CONFIMATION].subject, 1, null).validateLength(templateData[RECEIPT_CONFIMATION].body, 1, null)
+                .validateLength(templateData[r.RECEIPT_CONFIMATION.s].subject, 1, null).validateLength(templateData[r.RECEIPT_CONFIMATION.s].body, 1, null)
 
-                .validateLength(templateData[REMINDER].subject, 1, null).validateLength(templateData[REMINDER].body, 1, null)
+                .validateLength(templateData[r.REMINDER.s].subject, 1, null).validateLength(templateData[r.REMINDER.s].body, 1, null)
 
-                .validateLength(templateData[NOT_ACCEPTED].subject, 1, null).validateLength(templateData[NOT_ACCEPTED].body, 1, null)
+                .validateLength(templateData[r.NOT_ACCEPTED.s].subject, 1, null).validateLength(templateData[r.NOT_ACCEPTED.s].body, 1, null)
 
-                .validateLength(templateData[ACCEPTED].subject, 1, null).validateLength(templateData[ACCEPTED].body, 1, null)
+                .validateLength(templateData[r.ACCEPTED.s].subject, 1, null).validateLength(templateData[r.ACCEPTED.s].body, 1, null)
 
-                .validateLength(templateData[AD_HOC_EMAIL].subject, 1, null).validateLength(templateData[AD_HOC_EMAIL].body, 1, null)
+                .validateLength(templateData[r.AD_HOC_EMAIL.s].subject, 1, null).validateLength(templateData[r.AD_HOC_EMAIL.s].body, 1, null)
 
                 .validateOptions(previousHidden, ['true']).validateOptions(nextHidden, ['true']).validateOptions(saveHidden, ['true'])
 
@@ -977,7 +668,7 @@ var sfss = (function (smm) {
             vControls.add(buttonGrid);
 
             if (returnTo) {
-                if (returnTo === ACCEPTED || returnTo === NOT_ACCEPTED) {
+                if (returnTo === r.ACCEPTED.s || returnTo === r.NOT_ACCEPTED.s) {
                     returnGrid.setWidget(0, 0, returnToNotificationLabel);
                     returnGrid.setWidget(0, 1, returnToNotificationButton);
                     returnGrid.setWidget(0, 2, returnToNotificationPLabel);
@@ -998,11 +689,11 @@ var sfss = (function (smm) {
             vRoot.add(previousHidden);
             vRoot.add(nextHidden);
             vRoot.add(saveHidden);
-            var tags = [TEST_TITLE, TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL];
-            vRoot.add(app.createHidden(normalizeHeader(TAGS), tags.join(',')));
-            vRoot.add(app.createHidden(normalizeHeader(TEMPLATE_DATA_NAMES), templates.join(',')));
-            vRoot.add(app.createHidden(normalizeHeader(TEST_DATA_NAMES), testData.map(function (item) {
-                return TEST + ' ' + item.namedValue;
+            var tags = [r.TEST_TITLE.s, r.TEST_FIRST_NAME.s, r.TEST_LAST_NAME.s, r.TEST_EMAIL.s];
+            vRoot.add(app.createHidden(normalizeHeader(r.TAGS.s), tags.join(',')));
+            vRoot.add(app.createHidden(normalizeHeader(r.TEMPLATE_DATA_NAMES.s), templates.join(',')));
+            vRoot.add(app.createHidden(normalizeHeader(r.TEST_DATA_NAMES.s), testData.map(function (item) {
+                return r.TEST.s + ' ' + item.namedValue;
             }).join(',')));
 
             handler.addCallbackElement(vRoot);
@@ -1023,22 +714,22 @@ var sfss = (function (smm) {
 
     function templatesButtonAction(e) {
         function saveTestAndTemplateData() {
-            var range = ss.getRangeByName(normalizeHeader(TEST_DATA)),
+            var range = ss.getRangeByName(normalizeHeader(r.TEST_DATA.s)),
                 values = testDataNames.map(function (itemName) {
                     return [itemName, e.parameter[normalizeHeader(itemName)]];
                 });
             range.setValues(values);
 
             var templatesAndSuffix = templates.map(function (item) {
-                return [item + ' ' + SUBJECT_LINE, item + ' ' + BODY];
+                return [item + ' ' + r.SUBJECT_LINE.s, item + ' ' + r.BODY.s];
             });
-            templatesAndSuffix = flatten(templatesAndSuffix);
+            templatesAndSuffix = Array.concat.apply([], templatesAndSuffix);
             values = [
-                [TEMPLATE_NAME, TEMPLATE]
+                [r.TEMPLATE_NAME.s, r.TEMPLATE.s]
             ].concat(templatesAndSuffix.map(function (itemName) {
                 return [itemName, e.parameter[normalizeHeader(itemName)]];
             })); // Add column titles in.
-            range = ss.getRangeByName(normalizeHeader(TEMPLATE_DATA));
+            range = ss.getRangeByName(normalizeHeader(r.TEMPLATE_DATA.s));
             range.setValues(values);
 
             ss.toast("Data has been saved.", "INFORMATION", 5);
@@ -1046,24 +737,24 @@ var sfss = (function (smm) {
         try {
             var app = UiApp.getActiveApplication(),
                 ss = SpreadsheetApp.getActiveSpreadsheet(),
-                testDataNames = e.parameter[normalizeHeader(TEST_DATA_NAMES)].split(','),
-                templates = e.parameter[normalizeHeader(TEMPLATE_DATA_NAMES)].split(','),
+                testDataNames = e.parameter[normalizeHeader(r.TEST_DATA_NAMES.s)].split(','),
+                templates = e.parameter[normalizeHeader(r.TEMPLATE_DATA_NAMES.s)].split(','),
                 testButtonNames = templates.map(function (x) {
-                    return normalizeHeader(x + ' ' + TEST);
+                    return normalizeHeader(x + ' ' + r.TEST.s);
                 });
 
-            if (e.parameter.source === normalizeHeader(SELECTION_NOTIFICATION + ' ' + BUTTON)) {
+            if (e.parameter.source === normalizeHeader(r.SELECTION_NOTIFICATION.s + ' ' + r.BUTTON.s)) {
                 saveTestAndTemplateData();
                 selectionNotification();
-            } else if (e.parameter.source === normalizeHeader(AD_HOC_EMAIL + ' ' + BUTTON)) {
+            } else if (e.parameter.source === normalizeHeader(r.AD_HOC_EMAIL.s + ' ' + r.BUTTON.s)) {
                 saveTestAndTemplateData();
                 adHocEmail();
             } else if (testButtonNames.indexOf(e.parameter.source) > -1) {
                 var template = templates[testButtonNames.indexOf(e.parameter.source)],
-                    remainingEmailQuotaTextBox = app.getElementById(normalizeHeader(REMAINING_EMAIL_QUOTA)),
+                    remainingEmailQuotaTextBox = app.getElementById(normalizeHeader(r.REMAINING_EMAIL_QUOTA.s)),
                     remainingDailyQuota = MailApp.getRemainingDailyQuota();
 
-                var tags = e.parameter[normalizeHeader(TAGS)].split(','),
+                var tags = e.parameter[normalizeHeader(r.TAGS.s)].split(','),
                     mergeData = {},
                     tag;
 
@@ -1072,45 +763,45 @@ var sfss = (function (smm) {
                     mergeData[normalizeHeader(tag.replace(/^Test /, ''))] = e.parameter[normalizeHeader(tag)];
                 }
 
-                var statusHTML = app.getElementById(normalizeHeader(STATUS_HTML)),
-                    statusWarningHTML = app.getElementById(normalizeHeader(STATUS_WARNING_HTML)),
-                    testProcessingLabel = app.getElementById(normalizeHeader(TEST_PROCESSING_LABEL)),
-                    saveButton = app.getElementById(normalizeHeader(SAVE)),
-                    cancelButton = app.getElementById(normalizeHeader(CANCEL)),
-                    returnToNotificationButton = app.getElementById(normalizeHeader(SELECTION_NOTIFICATION + ' ' + BUTTON)),
-                    returnToAdHocButton = app.getElementById(normalizeHeader(AD_HOC_EMAIL + ' ' + BUTTON));
+                var statusHTML = app.getElementById(normalizeHeader(r.STATUS_HTML.s)),
+                    statusWarningHTML = app.getElementById(normalizeHeader(r.STATUS_WARNING_HTML.s)),
+                    testProcessingLabel = app.getElementById(normalizeHeader(r.TEST_PROCESSING_LABEL.s)),
+                    saveButton = app.getElementById(normalizeHeader(r.SAVE.s)),
+                    cancelButton = app.getElementById(normalizeHeader(r.CANCEL.s)),
+                    returnToNotificationButton = app.getElementById(normalizeHeader(r.SELECTION_NOTIFICATION.s + ' ' + r.BUTTON.s)),
+                    returnToAdHocButton = app.getElementById(normalizeHeader(r.AD_HOC_EMAIL.s + ' ' + r.BUTTON.s));
 
-                mergeData[normalizeHeader(EMAIL)] = e.parameter[normalizeHeader(TEST_EMAIL)];
-                loadData(ss, FESTIVAL_DATA);
+                mergeData[normalizeHeader(r.EMAIL.s)] = e.parameter[normalizeHeader(r.TEST_EMAIL.s)];
+                loadData(ss, r.FESTIVAL_DATA.s);
 
                 // load test template into cache
-                setNamedValue(ss, template + ' ' + TEST + ' ' + SUBJECT_LINE, e.parameter[normalizeHeader(template + ' ' + SUBJECT_LINE)]);
-                setNamedValue(ss, template + ' ' + TEST + ' ' + BODY, e.parameter[normalizeHeader(template + ' ' + BODY)]);
-                template += (' ' + TEST);
+                setNamedValue(ss, template + ' ' + r.TEST.s + ' ' + r.SUBJECT_LINE.s, e.parameter[normalizeHeader(template + ' ' + r.SUBJECT_LINE.s)]);
+                setNamedValue(ss, template + ' ' + r.TEST.s + ' ' + r.BODY.s, e.parameter[normalizeHeader(template + ' ' + r.BODY.s)]);
+                template += (' ' + r.TEST.s);
 
-                if (remainingDailyQuota > MIN_QUOTA) { // check just in case
+                if (remainingDailyQuota > r.MIN_QUOTA.n) { // check just in case
                     remainingDailyQuota = mergeAndSend(ss, mergeData, template, remainingDailyQuota);
                     ss.toast("Test email has been sent.", "INFORMATION", 5);
                 } else {
                     ss.toast("Not enough email quota remained, email not sent!", "WARNING!", 5);
                 }
 
-                remainingEmailQuotaTextBox.setValue((remainingDailyQuota - MIN_QUOTA).toString());
-                statusHTML.setHTML('<p>Remaining email quota for today:<b>' + remainingDailyQuota + '</b>. System will pause sending emails for the day when remaining email quota is less than or equal to: <b>' + MIN_QUOTA + '</b>.</p>');
-                if (remainingDailyQuota <= MIN_QUOTA) {
+                remainingEmailQuotaTextBox.setValue((remainingDailyQuota - r.MIN_QUOTA.n).toString());
+                statusHTML.setHTML('<p>Remaining email quota for today:<b>' + remainingDailyQuota + '</b>. System will pause sending emails for the day when remaining email quota is less than or equal to: <b>' + r.MIN_QUOTA.n + '</b>.</p>');
+                if (remainingDailyQuota <= r.MIN_QUOTA.n) {
                     statusWarningHTML.setVisible(true);
                 }
-                saveButton.setEnabled(e.parameter[normalizeHeader(SAVE + ' ' + HIDDEN)] === 'true');
+                saveButton.setEnabled(e.parameter[normalizeHeader(r.SAVE.s + ' ' + r.HIDDEN.s)] === 'true');
                 cancelButton.setEnabled(true);
                 for (i = 0; i < templates.length; i++) {
-                    app.getElementById(normalizeHeader(templates[i] + ' ' + PREVIOUS)).setEnabled(e.parameter[normalizeHeader(PREVIOUS + ' ' + HIDDEN)] === 'true');
-                    app.getElementById(normalizeHeader(templates[i] + ' ' + NEXT)).setEnabled(e.parameter[normalizeHeader(NEXT + ' ' + HIDDEN)] === 'true');
-                    app.getElementById(normalizeHeader(templates[i] + ' ' + TEST)).setEnabled(remainingDailyQuota > MIN_QUOTA);
+                    app.getElementById(normalizeHeader(templates[i] + ' ' + r.PREVIOUS.s)).setEnabled(e.parameter[normalizeHeader(r.PREVIOUS.s + ' ' + r.HIDDEN.s)] === 'true');
+                    app.getElementById(normalizeHeader(templates[i] + ' ' + r.NEXT.s)).setEnabled(e.parameter[normalizeHeader(r.NEXT.s + ' ' + r.HIDDEN.s)] === 'true');
+                    app.getElementById(normalizeHeader(templates[i] + ' ' + r.TEST.s)).setEnabled(remainingDailyQuota > r.MIN_QUOTA.n);
                 }
                 returnToNotificationButton.setEnabled(true);
                 returnToAdHocButton.setEnabled(true);
                 testProcessingLabel.setVisible(false);
-            } else if (e.parameter.source === normalizeHeader(SAVE)) {
+            } else if (e.parameter.source === normalizeHeader(r.SAVE.s)) {
                 saveTestAndTemplateData();
                 app.close();
             } else {
@@ -1129,11 +820,11 @@ var sfss = (function (smm) {
 
             pleaseWait(ss);
 
-            var festivaDataNames = loadData(ss, FESTIVAL_DATA),
+            var festivaDataNames = loadData(ss, r.FESTIVAL_DATA.s),
                 app = UiApp.createApplication(),
-                festivaDataNamesHidden = app.createHidden(normalizeHeader(FESTIVAL_DATA_NAMES), festivaDataNames.join(',')),
+                festivaDataNamesHidden = app.createHidden(normalizeHeader(r.FESTIVAL_DATA_NAMES.s), festivaDataNames.join(',')),
                 gridData = [{
-                    namedValue: FESTIVAL_NAME,
+                    namedValue: r.FESTIVAL_NAME.s,
                     type: 'createTextBox',
                     width: '300px',
                     help: 'Required: please give the full name of the festival.',
@@ -1145,33 +836,33 @@ var sfss = (function (smm) {
                         }
                     }
                 }, {
-                    namedValue: FESTIVAL_WEBSITE,
+                    namedValue: r.FESTIVAL_WEBSITE.s,
                     type: 'createTextBox',
                     width: '300px',
                     help: 'Not required.'
                 }, {
-                    namedValue: CLOSE_OF_SUBMISSION,
+                    namedValue: r.CLOSE_OF_SUBMISSION.s,
                     type: 'createDateBox',
                     width: '75px',
-                    help: 'Required (default ' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + ').',
+                    help: 'Required (default ' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + ').',
                     validate: {
                         valadateDateDependance: {}
                     }
                 }, {
-                    namedValue: EVENT_DATE,
+                    namedValue: r.EVENT_DATE.s,
                     type: 'createDateBox',
                     width: '75px',
-                    help: 'Required (default ' + prettyPrintDate(getNamedValue(ss, EVENT_DATE)) + ').',
+                    help: 'Required (default ' + prettyPrintDate(getNamedValue(ss, r.EVENT_DATE.s)) + ').',
                     validate: {
                         valadateDateDependance: {}
                     }
                 }, {
-                    namedValue: RELEASE_LINK,
+                    namedValue: r.RELEASE_LINK.s,
                     type: 'createTextBox',
                     width: '300px',
                     help: 'Not required.'
                 }, {
-                    namedValue: DAYS_BEFORE_REMINDER,
+                    namedValue: r.DAYS_BEFORE_REMINDER.s,
                     type: 'createTextBox',
                     width: '30px',
                     help: 'Required: please give days before reminder email is sent.',
@@ -1184,24 +875,24 @@ var sfss = (function (smm) {
                         validateInteger: {}
                     }
                 }, {
-                    namedValue: ENABLE_REMINDER,
+                    namedValue: r.ENABLE_REMINDER.s,
                     type: 'createListBox',
                     width: '100px',
-                    help: 'Required (default ' + getNamedValue(ss, ENABLE_REMINDER) + ').',
-                    list: [NOT_ENABLED, ENABLED]
+                    help: 'Required (default ' + getNamedValue(ss, r.ENABLE_REMINDER.s) + ').',
+                    list: [r.NOT_ENABLED.s, r.ENABLED.s]
                 }, {
-                    namedValue: ENABLE_CONFIRMATION,
+                    namedValue: r.ENABLE_CONFIRMATION.s,
                     type: 'createListBox',
                     width: '100px',
-                    help: 'Required (default ' + getNamedValue(ss, ENABLE_REMINDER) + ').',
-                    list: [NOT_ENABLED, ENABLED]
+                    help: 'Required (default ' + getNamedValue(ss, r.ENABLE_REMINDER.s) + ').',
+                    list: [r.NOT_ENABLED.s, r.ENABLED.s]
                 }, {
-                    namedValue: FIRST_FILM_ID,
+                    namedValue: r.FIRST_FILM_ID.s,
                     type: 'createHidden'
                 }],
                 handler = app.createServerHandler("settingsOptionsButtonAction"),
-                save = app.createButton(SAVE, handler).setId(normalizeHeader(SAVE)),
-                cancel = app.createButton(CANCEL, handler).setId(normalizeHeader(CANCEL)),
+                save = app.createButton(r.SAVE.s, handler).setId(normalizeHeader(r.SAVE.s)),
+                cancel = app.createButton(r.CANCEL.s, handler).setId(normalizeHeader(r.CANCEL.s)),
                 cPanel = app.createCaptionPanel("Settings and Options").setId('cPanel'),
                 vPanel = app.createVerticalPanel(),
                 buttonGrid = app.createGrid(1, 3);
@@ -1235,7 +926,7 @@ var sfss = (function (smm) {
                 back[itemName] = i;
                 item[itemName].setWidth(gridData[i].width).setId(itemName).setName(itemName);
 
-                label[itemName] = app.createLabel('').setStyleAttribute("fontSize", "50%").setId(itemName + HELP);
+                label[itemName] = app.createLabel('').setStyleAttribute("fontSize", "50%").setId(itemName + r.HELP.s);
                 grid.setWidget(2 * (+i) + 1, 1, label[itemName]);
 
                 if (gridData[i].help) {
@@ -1270,17 +961,17 @@ var sfss = (function (smm) {
                     }
                 }
             }
-            var dateDiff = app.createHidden().setValue(diffDays(getNamedValue(ss, EVENT_DATE), getNamedValue(ss, CLOSE_OF_SUBMISSION))).setId(normalizeHeader(DATE_DIFF));
+            var dateDiff = app.createHidden().setValue(diffDays(getNamedValue(ss, r.EVENT_DATE.s), getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s))).setId(normalizeHeader(r.DATE_DIFF.s));
 
-            var allCorrect = app.createClientHandler().validateLength(item[normalizeHeader(FESTIVAL_NAME)], 1, null).validateRange(dateDiff, 1, null).validateRange(item[normalizeHeader(DAYS_BEFORE_REMINDER)], 1, null).forTargets(save).setEnabled(true);
-            item[normalizeHeader(FESTIVAL_NAME)].addKeyUpHandler(allCorrect);
-            item[normalizeHeader(DAYS_BEFORE_REMINDER)].addKeyUpHandler(allCorrect);
+            var allCorrect = app.createClientHandler().validateLength(item[normalizeHeader(r.FESTIVAL_NAME.s)], 1, null).validateRange(dateDiff, 1, null).validateRange(item[normalizeHeader(r.DAYS_BEFORE_REMINDER.s)], 1, null).forTargets(save).setEnabled(true);
+            item[normalizeHeader(r.FESTIVAL_NAME.s)].addKeyUpHandler(allCorrect);
+            item[normalizeHeader(r.DAYS_BEFORE_REMINDER.s)].addKeyUpHandler(allCorrect);
             //dateDiff.addValueChangeHandler(allCorrect); this does not work :(
             vPanel.add(app.createHTML('<p>Please enter the settings and options for your film festival below.</p>'));
             vPanel.add(grid);
             vPanel.add(dateDiff);
 
-            label = app.createLabel(PROCESSING).setId(normalizeHeader(WAIT)).setVisible(false);
+            label = app.createLabel(r.PROCESSING.s).setId(normalizeHeader(r.WAIT.s)).setVisible(false);
             handler.addCallbackElement(vPanel);
             buttonGrid.setWidget(0, 0, save);
             buttonGrid.setWidget(0, 1, cancel);
@@ -1309,25 +1000,25 @@ var sfss = (function (smm) {
     function validateDates(e) {
         var app = UiApp.getActiveApplication(),
             ss = SpreadsheetApp.getActiveSpreadsheet(),
-            eventDate = e.parameter[normalizeHeader(EVENT_DATE)],
-            cosDate = e.parameter[normalizeHeader(CLOSE_OF_SUBMISSION)],
-            eventLabel = app.getElementById(normalizeHeader(EVENT_DATE + ' ' + HELP)),
-            cosLabel = app.getElementById(normalizeHeader(CLOSE_OF_SUBMISSION + ' ' + HELP)),
-            save = app.getElementById(normalizeHeader(SAVE)),
-            dateDiff = app.getElementById(normalizeHeader(DATE_DIFF));
+            eventDate = e.parameter[normalizeHeader(r.EVENT_DATE.s)],
+            cosDate = e.parameter[normalizeHeader(r.CLOSE_OF_SUBMISSION.s)],
+            eventLabel = app.getElementById(normalizeHeader(r.EVENT_DATE.s + ' ' + r.HELP.s)),
+            cosLabel = app.getElementById(normalizeHeader(r.CLOSE_OF_SUBMISSION.s + ' ' + r.HELP.s)),
+            save = app.getElementById(normalizeHeader(r.SAVE.s)),
+            dateDiff = app.getElementById(normalizeHeader(r.DATE_DIFF.s));
 
         if (eventDate instanceof Date && cosDate instanceof Date) {
             // case: both dates
             if (eventDate < cosDate) {
                 // error condition
-                cosLabel.setText('"' + CLOSE_OF_SUBMISSION + '" must be before "' + EVENT_DATE + '".').setStyleAttribute("color", "red");
-                eventLabel.setText('"' + CLOSE_OF_SUBMISSION + '" must be before "' + EVENT_DATE + '".').setStyleAttribute("color", "red");
+                cosLabel.setText('"' + r.CLOSE_OF_SUBMISSION.s + '" must be before "' + r.EVENT_DATE.s + '".').setStyleAttribute("color", "red");
+                eventLabel.setText('"' + r.CLOSE_OF_SUBMISSION.s + '" must be before "' + r.EVENT_DATE.s + '".').setStyleAttribute("color", "red");
                 save.setEnabled(false);
             } else {
-                cosLabel.setText('Required (default ' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + ').').setStyleAttribute("color", "black");
-                eventLabel.setText('Required (default ' + prettyPrintDate(getNamedValue(ss, EVENT_DATE)) + ').').setStyleAttribute("color", "black");
-                var festivalName = e.parameter[normalizeHeader(FESTIVAL_NAME)],
-                    daysBeforeReminder = e.parameter[normalizeHeader(DAYS_BEFORE_REMINDER)];
+                cosLabel.setText('Required (default ' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + ').').setStyleAttribute("color", "black");
+                eventLabel.setText('Required (default ' + prettyPrintDate(getNamedValue(ss, r.EVENT_DATE.s)) + ').').setStyleAttribute("color", "black");
+                var festivalName = e.parameter[normalizeHeader(r.FESTIVAL_NAME.s)],
+                    daysBeforeReminder = e.parameter[normalizeHeader(r.DAYS_BEFORE_REMINDER.s)];
 
                 if (festivalName && festivalName.length > 0 && daysBeforeReminder && parseInt(daysBeforeReminder) > 0) {
                     save.setEnabled(true); //only enable save if everything is OK
@@ -1337,13 +1028,13 @@ var sfss = (function (smm) {
         } else {
             //case: at least one is not a date
             if (eventDate instanceof Date) {
-                eventLabel.setText('Required (default ' + prettyPrintDate(getNamedValue(ss, EVENT_DATE)) + ').').setStyleAttribute("color", "black");
+                eventLabel.setText('Required (default ' + prettyPrintDate(getNamedValue(ss, r.EVENT_DATE.s)) + ').').setStyleAttribute("color", "black");
             } else {
                 eventLabel.setText('Not a valid date').setStyleAttribute("color", "red");
             }
 
             if (cosDate instanceof Date) {
-                cosLabel.setText('Required (default ' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + ').').setStyleAttribute("color", "black");
+                cosLabel.setText('Required (default ' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + ').').setStyleAttribute("color", "black");
             } else {
                 cosLabel.setText('Not a valid date').setStyleAttribute("color", "red");
             }
@@ -1358,15 +1049,15 @@ var sfss = (function (smm) {
     function settingsOptionsButtonAction(e) {
         var app = UiApp.getActiveApplication(),
             ss = SpreadsheetApp.getActiveSpreadsheet(),
-            eventDate = e.parameter[normalizeHeader(EVENT_DATE)],
-            cosDate = e.parameter[normalizeHeader(CLOSE_OF_SUBMISSION)],
-            eventLabel = app.getElementById(normalizeHeader(EVENT_DATE + ' ' + HELP)),
-            cosLabel = app.getElementById(normalizeHeader(CLOSE_OF_SUBMISSION + ' ' + HELP)),
-            save = app.getElementById(normalizeHeader(SAVE)),
-            cancel = app.getElementById(normalizeHeader(CANCEL)),
-            wait = app.getElementById(normalizeHeader(WAIT));
+            eventDate = e.parameter[normalizeHeader(r.EVENT_DATE.s)],
+            cosDate = e.parameter[normalizeHeader(r.CLOSE_OF_SUBMISSION.s)],
+            eventLabel = app.getElementById(normalizeHeader(r.EVENT_DATE.s + ' ' + r.HELP.s)),
+            cosLabel = app.getElementById(normalizeHeader(r.CLOSE_OF_SUBMISSION.s + ' ' + r.HELP.s)),
+            save = app.getElementById(normalizeHeader(r.SAVE.s)),
+            cancel = app.getElementById(normalizeHeader(r.CANCEL.s)),
+            wait = app.getElementById(normalizeHeader(r.WAIT.s));
 
-        if (e.parameter.source === normalizeHeader(SAVE)) {
+        if (e.parameter.source === normalizeHeader(r.SAVE.s)) {
             // need to check that dates are not wrong before saving
             if (!(eventDate instanceof Date)) {
                 eventLabel.setText('Not a valid date').setStyleAttribute("color", "red");
@@ -1385,8 +1076,8 @@ var sfss = (function (smm) {
             //if we got here, the dates should indeed be dates!
             if (eventDate < cosDate) {
                 // error condition
-                cosLabel.setText('"' + CLOSE_OF_SUBMISSION + '" must be before "' + EVENT_DATE + '".').setStyleAttribute("color", "red");
-                eventLabel.setText('"' + CLOSE_OF_SUBMISSION + '" must be before "' + EVENT_DATE + '".').setStyleAttribute("color", "red");
+                cosLabel.setText('"' + r.CLOSE_OF_SUBMISSION.s + '" must be before "' + r.EVENT_DATE.s + '".').setStyleAttribute("color", "red");
+                eventLabel.setText('"' + r.CLOSE_OF_SUBMISSION.s + '" must be before "' + r.EVENT_DATE.s + '".').setStyleAttribute("color", "red");
                 save.setEnabled(false);
                 cancel.setEnabled(true);
                 wait.setVisible(false);
@@ -1394,8 +1085,8 @@ var sfss = (function (smm) {
             }
 
 
-            var festivaDataNames = e.parameter[normalizeHeader(FESTIVAL_DATA_NAMES)].split(','),
-                range = ss.getRangeByName(normalizeHeader(FESTIVAL_DATA)),
+            var festivaDataNames = e.parameter[normalizeHeader(r.FESTIVAL_DATA_NAMES.s)].split(','),
+                range = ss.getRangeByName(normalizeHeader(r.FESTIVAL_DATA.s)),
                 values = festivaDataNames.map(function (itemName) {
                     return [itemName, e.parameter[normalizeHeader(itemName)]];
                 });
@@ -1410,11 +1101,11 @@ var sfss = (function (smm) {
 
 
     function selectionNotificationAcceptedTemplate() {
-        editAndSaveTemplates(ACCEPTED);
+        editAndSaveTemplates(r.ACCEPTED.s);
     }
 
     function selectionNotificationNotAcceptedTemplate() {
-        editAndSaveTemplates(NOT_ACCEPTED);
+        editAndSaveTemplates(r.NOT_ACCEPTED.s);
     }
 
     function selectionNotification() {
@@ -1428,32 +1119,32 @@ var sfss = (function (smm) {
                 vPanel = app.createVerticalPanel(),
                 buttonGrid = app.createGrid(1, 3),
                 handler = app.createServerHandler("selectionNotificationButtonAction"),
-                enable = app.createButton(ENABLE, handler).setId(ENABLE),
-                unenable = app.createButton(UNENABLE, handler).setId(UNENABLE),
-                cancel = app.createButton(CANCEL, handler).setId(CANCEL),
-                waitHTML = app.createHTML(PROCESSING).setVisible(false),
-                cannotHTML = app.createHTML('<p>NOTE: You have not reached <b>' + CLOSE_OF_SUBMISSION + '</b> on ' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + ' yet. Hence you cannot yet enable <b>' + SELECTION_NOTIFICATION + '</b>.</p><br/>').setStyleAttribute("color", "red").setVisible(false),
+                enable = app.createButton(r.ENABLE.s, handler).setId(r.ENABLE.s),
+                unenable = app.createButton(r.UNENABLE.s, handler).setId(r.UNENABLE.s),
+                cancel = app.createButton(r.CANCEL.s, handler).setId(r.CANCEL.s),
+                waitHTML = app.createHTML(r.PROCESSING.s).setVisible(false),
+                cannotHTML = app.createHTML('<p>NOTE: You have not reached <b>' + r.CLOSE_OF_SUBMISSION.s + '</b> on ' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + ' yet. Hence you cannot yet enable <b>' + r.SELECTION_NOTIFICATION.s + '</b>.</p><br/>').setStyleAttribute("color", "red").setVisible(false),
                 height = '680',
                 currentDate = new Date(),
-                closeOfSubmission = getNamedValue(ss, CLOSE_OF_SUBMISSION);
+                closeOfSubmission = getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s);
 
 
-            vPanel.add(app.createHTML('<p><b>' + SELECTION_NOTIFICATION + '</b> is the process of mailing each submitting filmmaker with the selection status of their submission.</p><p>It is intended that you only enable <b>' + SELECTION_NOTIFICATION + '</b> once per film festival, after close ofsubmission.</p><p>Before you enable <b>' + SELECTION_NOTIFICATION + '</b>, each film submission that you are selecting for your film festival, must have its <b>' + SELECTION + '</b> field set to <b>' + SELECTED + '</b>.</p><p>When you enable <b>' + SELECTION_NOTIFICATION + '</b>, the system will start to process the submissions after midnight of that day, in their submission order.</p><p>If you unenable <b>' + SELECTION_NOTIFICATION + '</b> before midnight, the notification emails will not be sent and the <b>' + SELECTION_NOTIFICATION + '</b> will have been canceled.</p><p>Each submission that the system processes (that does not have <b>' + STATUS + '</b> set to <b>' + PROBLEM + '</b>) will receive the <b>' + ACCEPTED + '</b> email if it has <b>' + SELECTION + '</b> set to <b>' + SELECTED + '</b>, otherwise it will receive the <b>' + NOT_ACCEPTED + '</b> email.</p><p>A submission with <b>' + STATUS + '</b> set to <b>' + PROBLEM + '</b> will not receive a <b>' + SELECTION_NOTIFICATION + '</b> email.</p>'));
+            vPanel.add(app.createHTML('<p><b>' + r.SELECTION_NOTIFICATION.s + '</b> is the process of mailing each submitting filmmaker with the selection status of their submission.</p><p>It is intended that you only enable <b>' + r.SELECTION_NOTIFICATION.s + '</b> once per film festival, after close ofsubmission.</p><p>Before you enable <b>' + r.SELECTION_NOTIFICATION.s + '</b>, each film submission that you are selecting for your film festival, must have its <b>' + r.SELECTION.s + '</b> field set to <b>' + r.SELECTED.s + '</b>.</p><p>When you enable <b>' + r.SELECTION_NOTIFICATION.s + '</b>, the system will start to process the submissions after midnight of that day, in their submission order.</p><p>If you unenable <b>' + r.SELECTION_NOTIFICATION.s + '</b> before midnight, the notification emails will not be sent and the <b>' + r.SELECTION_NOTIFICATION.s + '</b> will have been canceled.</p><p>Each submission that the system processes (that does not have <b>' + r.STATUS.s + '</b> set to <b>' + r.PROBLEM.s + '</b>) will receive the <b>' + r.ACCEPTED.s + '</b> email if it has <b>' + r.SELECTION.s + '</b> set to <b>' + r.SELECTED.s + '</b>, otherwise it will receive the <b>' + r.NOT_ACCEPTED.s + '</b> email.</p><p>A submission with <b>' + r.STATUS.s + '</b> set to <b>' + r.PROBLEM.s + '</b> will not receive a <b>' + r.SELECTION_NOTIFICATION.s + '</b> email.</p>'));
 
             // link to edit and test ACCEPTED template
             var grid = app.createGrid(2, 3),
                 acceptedHandle = app.createServerHandler('selectionNotificationAcceptedTemplate'),
-                acceptedButton = app.createButton(ACCEPTED, acceptedHandle).setId(normalizeHeader(ACCEPTED)),
-                acceptedPLabel = app.createLabel(PROCESSING).setId(normalizeHeader(ACCEPTED + ' ' + PLABEL)).setStyleAttribute("fontSize", "50%").setVisible(false);
-            grid.setWidget(0, 0, app.createHTML('Edit and test <b>' + ACCEPTED + '</b> template:'));
+                acceptedButton = app.createButton(r.ACCEPTED.s, acceptedHandle).setId(normalizeHeader(r.ACCEPTED.s)),
+                acceptedPLabel = app.createLabel(r.PROCESSING.s).setId(normalizeHeader(r.ACCEPTED.s + ' ' + r.PLABEL.s)).setStyleAttribute("fontSize", "50%").setVisible(false);
+            grid.setWidget(0, 0, app.createHTML('Edit and test <b>' + r.ACCEPTED.s + '</b> template:'));
             grid.setWidget(0, 1, acceptedButton);
             grid.setWidget(0, 2, acceptedPLabel);
 
             // link to edit and test NOT_ACCEPTED template
             var notAcceptedHandle = app.createServerHandler('selectionNotificationNotAcceptedTemplate'),
-                notAcceptedButton = app.createButton(NOT_ACCEPTED, notAcceptedHandle).setId(normalizeHeader(NOT_ACCEPTED)),
-                notAcceptedPLabel = app.createLabel(PROCESSING).setId(normalizeHeader(NOT_ACCEPTED + ' ' + PLABEL)).setStyleAttribute("fontSize", "50%").setVisible(false);
-            grid.setWidget(1, 0, app.createHTML('Edit and test <b>' + NOT_ACCEPTED + '</b> template:'));
+                notAcceptedButton = app.createButton(r.NOT_ACCEPTED.s, notAcceptedHandle).setId(normalizeHeader(r.NOT_ACCEPTED.s)),
+                notAcceptedPLabel = app.createLabel(r.PROCESSING.s).setId(normalizeHeader(r.NOT_ACCEPTED.s + ' ' + r.PLABEL.s)).setStyleAttribute("fontSize", "50%").setVisible(false);
+            grid.setWidget(1, 0, app.createHTML('Edit and test <b>' + r.NOT_ACCEPTED.s + '</b> template:'));
             grid.setWidget(1, 1, notAcceptedButton);
             grid.setWidget(1, 2, notAcceptedPLabel);
 
@@ -1465,7 +1156,7 @@ var sfss = (function (smm) {
             var notAcceptedProcessing = app.createClientHandler().forTargets([enable, unenable, acceptedButton, notAcceptedButton]).setEnabled(false).forTargets(notAcceptedPLabel).setVisible(true);
             notAcceptedButton.addClickHandler(notAcceptedProcessing);
 
-            vPanel.add(app.createHTML('<p>If the system gets within ' + MIN_QUOTA + ' of using up the daily email quota, the <b>' + SELECTION_NOTIFICATION + '</b> will be paused till the next day.</p><p>NOTE: your daily email quote is currently at ' + MailApp.getRemainingDailyQuota() + '.</p><p>You cannot enable <b>' + SELECTION_NOTIFICATION + '</b> before <b>' + CLOSE_OF_SUBMISSION + '</b> on ' + prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION)) + '.</p><p><p>To continue with enabling <b>' + SELECTION_NOTIFICATION + '</b> press <b>' + ENABLE + '</b>, to not do this press <b>' + CANCEL + '</b>.</p><br/>'));
+            vPanel.add(app.createHTML('<p>If the system gets within ' + r.MIN_QUOTA.n + ' of using up the daily email quota, the <b>' + r.SELECTION_NOTIFICATION.s + '</b> will be paused till the next day.</p><p>NOTE: your daily email quote is currently at ' + MailApp.getRemainingDailyQuota() + '.</p><p>You cannot enable <b>' + r.SELECTION_NOTIFICATION.s + '</b> before <b>' + r.CLOSE_OF_SUBMISSION.s + '</b> on ' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + '.</p><p><p>To continue with enabling <b>' + r.SELECTION_NOTIFICATION.s + '</b> press <b>' + r.ENABLE.s + '</b>, to not do this press <b>' + r.CANCEL.s + '</b>.</p><br/>'));
 
             if (currentDate < closeOfSubmission) {
                 cannotHTML.setVisible(true);
@@ -1473,7 +1164,7 @@ var sfss = (function (smm) {
             }
 
             vPanel.add(cannotHTML);
-            buttonGrid.setWidget(0, 0, getNamedValue(ss, CURRENT_SELECTION_NOTIFICATION) === NOT_STARTED ? enable : unenable);
+            buttonGrid.setWidget(0, 0, getNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s) === r.NOT_STARTED.s ? enable : unenable);
             buttonGrid.setWidget(0, 1, cancel);
             buttonGrid.setWidget(0, 2, waitHTML);
             vPanel.add(buttonGrid);
@@ -1500,13 +1191,13 @@ var sfss = (function (smm) {
         var app = UiApp.getActiveApplication(),
             ss = SpreadsheetApp.getActiveSpreadsheet();
 
-        if (e.parameter.source === ENABLE) {
-            log(SELECTION_NOTIFICATION + ' set to:' + PENDING);
-            setNamedValue(ss, CURRENT_SELECTION_NOTIFICATION, PENDING);
+        if (e.parameter.source === r.ENABLE.s) {
+            log(r.SELECTION_NOTIFICATION.s + ' set to:' + r.PENDING.s);
+            setNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s, r.PENDING.s);
             ss.toast("Selection Notification has been queued.", "INFORMATION", 5);
-        } else if (e.parameter.source === UNENABLE) {
-            log(SELECTION_NOTIFICATION + ' set to:' + NOT_STARTED);
-            setNamedValue(ss, CURRENT_SELECTION_NOTIFICATION, NOT_STARTED);
+        } else if (e.parameter.source === r.UNENABLE.s) {
+            log(r.SELECTION_NOTIFICATION.s + ' set to:' + r.NOT_STARTED.s);
+            setNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s, r.NOT_STARTED.s);
             ss.toast("Selection Notification has been unqueued.", "INFORMATION", 5);
         } else {
             ss.toast("Canceling operation.", "WARNING", 5);
@@ -1515,7 +1206,7 @@ var sfss = (function (smm) {
     }
 
     function adHocEmailTemplate() {
-        selectionNotification(AD_HOC_EMAIL);
+        selectionNotification(r.AD_HOC_EMAIL.s);
     }
 
     function adHocEmail() {
@@ -1525,30 +1216,30 @@ var sfss = (function (smm) {
             pleaseWait(ss);
 
             var app = UiApp.createApplication(),
-                cPanel = app.createCaptionPanel("Queue " + AD_HOC_EMAIL).setId('cPanel'),
+                cPanel = app.createCaptionPanel("Queue " + r.AD_HOC_EMAIL.s).setId('cPanel'),
                 vPanel = app.createVerticalPanel(),
                 handler = app.createServerHandler("adHocEmailButtonAction"),
-                enable = app.createButton(ENABLE, handler).setId(normalizeHeader(ENABLE)),
-                unenable = app.createButton(UNENABLE, handler).setId(normalizeHeader(UNENABLE)),
-                cancel = app.createButton(CANCEL, handler).setId(normalizeHeader(CANCEL)),
-                adHocEmailButton = app.createButton(AD_HOC_EMAIL, handler).setId(normalizeHeader(AD_HOC_EMAIL)),
-                adHocEmailPLabel = app.createLabel(PROCESSING).setVisible(false).setId(normalizeHeader(AD_HOC_EMAIL + ' ' + PLABEL)),
-                waitLabel = app.createLabel(PROCESSING).setVisible(false),
+                enable = app.createButton(r.ENABLE.s, handler).setId(normalizeHeader(r.ENABLE.s)),
+                unenable = app.createButton(r.UNENABLE.s, handler).setId(normalizeHeader(r.UNENABLE.s)),
+                cancel = app.createButton(r.CANCEL.s, handler).setId(normalizeHeader(r.CANCEL.s)),
+                adHocEmailButton = app.createButton(r.AD_HOC_EMAIL.s, handler).setId(normalizeHeader(r.AD_HOC_EMAIL.s)),
+                adHocEmailPLabel = app.createLabel(r.PROCESSING.s).setVisible(false).setId(normalizeHeader(r.AD_HOC_EMAIL.s + ' ' + r.PLABEL.s)),
+                waitLabel = app.createLabel(r.PROCESSING.s).setVisible(false),
                 buttonGrid = app.createGrid(1, 3),
                 adHocEamilGrid = app.createGrid(1, 3);
 
-            vPanel.add(app.createHTML('<p>The system can send an <b>' + AD_HOC_EMAIL + '</b> to all submitting filmmakers.</p><p>This can be used to inform the filmmakers of changes in the circumstances of the festival, such as a change in the close of submission date.</p>'));
+            vPanel.add(app.createHTML('<p>The system can send an <b>' + r.AD_HOC_EMAIL.s + '</b> to all submitting filmmakers.</p><p>This can be used to inform the filmmakers of changes in the circumstances of the festival, such as a change in the close of submission date.</p>'));
 
-            adHocEamilGrid.setWidget(0, 0, app.createLabel('Edit and test ' + AD_HOC_EMAIL + ':'));
+            adHocEamilGrid.setWidget(0, 0, app.createLabel('Edit and test ' + r.AD_HOC_EMAIL.s + ':'));
 
 
             adHocEamilGrid.setWidget(0, 1, adHocEmailButton);
             adHocEamilGrid.setWidget(0, 2, adHocEmailPLabel);
             vPanel.add(adHocEamilGrid);
 
-            vPanel.add(app.createHTML('<p>When you enable <b>' + AD_HOC_EMAIL + '</b>, the system will start to process the submissions after midnight of that day, in their submission order.</p><p>If you unenable <b>' + AD_HOC_EMAIL + '</b> before midnight, the emails will not be sent and <b>' + AD_HOC_EMAIL + '</b> will have been canceled.</p><p>NOTE: submissions with <b>' + STATUS + '</b> set to <b>' + PROBLEM + '</b> will not receive an email.</p><br/>'));
+            vPanel.add(app.createHTML('<p>When you enable <b>' + r.AD_HOC_EMAIL.s + '</b>, the system will start to process the submissions after midnight of that day, in their submission order.</p><p>If you unenable <b>' + r.AD_HOC_EMAIL.s + '</b> before midnight, the emails will not be sent and <b>' + r.AD_HOC_EMAIL.s + '</b> will have been canceled.</p><p>NOTE: submissions with <b>' + r.STATUS.s + '</b> set to <b>' + r.PROBLEM.s + '</b> will not receive an email.</p><br/>'));
 
-            buttonGrid.setWidget(0, 0, getNamedValue(ss, CURRENT_AD_HOC_EMAIL) === NOT_STARTED ? enable : unenable);
+            buttonGrid.setWidget(0, 0, getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s) === r.NOT_STARTED.s ? enable : unenable);
             buttonGrid.setWidget(0, 1, cancel);
             buttonGrid.setWidget(0, 2, waitLabel);
             vPanel.add(buttonGrid);
@@ -1576,15 +1267,15 @@ var sfss = (function (smm) {
         var app = UiApp.getActiveApplication(),
             ss = SpreadsheetApp.getActiveSpreadsheet();
         log('adHocEmailButtonAction:e.parameter.source:' + e.parameter.source);
-        if (e.parameter.source === normalizeHeader(UNENABLE)) {
-            setNamedValue(ss, CURRENT_AD_HOC_EMAIL, NOT_STARTED);
+        if (e.parameter.source === normalizeHeader(r.UNENABLE.s)) {
+            setNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s, r.NOT_STARTED.s);
             ss.toast("Ad Hoc Email has been unqueued.", "INFORMATION", 5);
             app.close();
-        } else if (e.parameter.source === normalizeHeader(ENABLE)) {
-            setNamedValue(ss, CURRENT_AD_HOC_EMAIL, PENDING);
+        } else if (e.parameter.source === normalizeHeader(r.ENABLE.s)) {
+            setNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s, r.PENDING.s);
             ss.toast("Ad Hoc Email has been queued.", "INFORMATION", 5);
             app.close();
-        } else if (e.parameter.source === normalizeHeader(AD_HOC_EMAIL)) {
+        } else if (e.parameter.source === normalizeHeader(r.AD_HOC_EMAIL.s)) {
             adHocEmailTemplate();
         } else {
             app.close();
@@ -1595,154 +1286,18 @@ var sfss = (function (smm) {
 
     function setup() {
         try {
-            if (TESTING || !scriptProperties.getProperty("initialised")) {
-                if (!TESTING) {
+            if (r.TESTING.b || !scriptProperties.getProperty("initialised")) {
+                if (!r.TESTING.b) {
                     scriptProperties.setProperty("initialised", "initialised");
                 }
 
                 log("setup start.");
-                var filmSheetColumnWidth = [{
-                    header: TIMESTAMP,
-                    width: 120
-                }, {
-                    header: LAST_CONTACT,
-                    width: 120
-                }, {
-                    header: STATUS,
-                    width: 93
-                }, {
-                    header: CONFIRMATION,
-                    width: 92
-                }, {
-                    header: SELECTION,
-                    width: 85
-                }, {
-                    header: SCORE,
-                    width: 48
-                }, {
-                    header: FILM_ID,
-                    width: 40
-                }, {
-                    header: FIRST_NAME,
-                    width: 120
-                }, {
-                    header: LAST_NAME,
-                    width: 120
-                }, {
-                    header: EMAIL,
-                    width: 52
-                }, {
-                    header: TITLE,
-                    width: 166
-                }, {
-                    header: LENGTH,
-                    width: 52
-                }, {
-                    header: COUNTRY,
-                    width: 120
-                }, {
-                    header: YEAR,
-                    width: 37
-                }, {
-                    header: GENRE,
-                    width: 120
-                }, {
-                    header: WEBSITE,
-                    width: 120
-                }, {
-                    header: SYNOPSIS,
-                    width: 778
-                }, {
-                    header: CAST_AND_CREW,
-                    width: 463
-                }, {
-                    header: FESTIVAL_SELECTION_AND_AWARDS,
-                    width: 503
-                }, {
-                    header: BEST_LOCAL_FILM,
-                    width: 463
-                }, {
-                    header: BEST_LOCAL_FILM_ELIGIBILITY,
-                    width: 463
-                }, {
-                    header: CONFIRM,
-                    width: 120
-                }, {
-                    header: COMMENTS,
-                    width: 120
-                }],
-
-                    templateSheetColumnWidth = [{
-                        header: TEMPLATE_NAME,
-                        width: 235
-                    }, {
-                        header: TEMPLATE,
-                        width: 410
-                    }],
-
-                    // data for Options & Settings sheet
-                    states = [
-                        [NO_MEDIA + " " + NOT_CONFIRMED, [NO_MEDIA + " " + NOT_CONFIRMED, "IndianRed"]],
-                        [NO_MEDIA + " " + CONFIRMED, [NO_MEDIA + " " + CONFIRMED, "LightPink"]],
-                        [MEDIA_PRESENT + " " + NOT_CONFIRMED, [MEDIA_PRESENT + " " + NOT_CONFIRMED, "DarkSeaGreen"]],
-                        [MEDIA_PRESENT + " " + CONFIRMED, [MEDIA_PRESENT + " " + CONFIRMED, "LightGreen"]],
-                        [PROBLEM, [PROBLEM, "Orange"]],
-                        [SELECTED, [SELECTED, "Gold"]],
-                        [NOT_SELECTED, [NOT_SELECTED, "LightSteelBlue"]]
-                    ],
-
-                    currentDate = new Date(),
-                    closeDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 7, currentDate.getDate()),
-                    eventDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 9, currentDate.getDate()),
-
-                    festivalData = [
-                        [FESTIVAL_NAME, [FESTIVAL_NAME, 'The Awesome Short Film Festival']],
-                        [FESTIVAL_WEBSITE, [FESTIVAL_WEBSITE, 'http://festivalwebsite']],
-                        [CLOSE_OF_SUBMISSION, [CLOSE_OF_SUBMISSION, closeDate]],
-                        [RELEASE_LINK, [RELEASE_LINK, 'http://festivalwebsite/releaseform']],
-                        [EVENT_DATE, [EVENT_DATE, eventDate]],
-                        [DAYS_BEFORE_REMINDER, [DAYS_BEFORE_REMINDER, 28]],
-                        [ENABLE_REMINDER, [ENABLE_REMINDER, ENABLED]],
-                        [ENABLE_CONFIRMATION, [ENABLE_CONFIRMATION, ENABLED]]
-                    ],
-
-                    testData = [
-                        [TEST_FIRST_NAME, [TEST_FIRST_NAME, 'Maya']],
-                        [TEST_LAST_NAME, [TEST_LAST_NAME, 'Deren']],
-                        [TEST_TITLE, [TEST_TITLE, 'Meshes of the Afternoon']],
-                        [TEST_EMAIL, [TEST_EMAIL, Session.getActiveUser().getEmail()]]
-                    ],
-
-                    internals = [
-                        [FIRST_FILM_ID, [FIRST_FILM_ID, 2]],
-                        [CURRENT_FILM_ID, [CURRENT_FILM_ID, -1]],
-                        [CURRENT_SELECTION_NOTIFICATION, [CURRENT_SELECTION_NOTIFICATION, NOT_STARTED]],
-                        [CURRENT_AD_HOC_EMAIL, [CURRENT_AD_HOC_EMAIL, NOT_STARTED]]
-                    ],
-
-                    // data for Template sheet
-                    templates = [
-                        [TEMPLATE_NAME, TEMPLATE],
-                        [SUBMISSION_CONFIRMATION_SUBJECT_LINE, [SUBMISSION_CONFIRMATION_SUBJECT_LINE, '${"Festival Name"} Submissions Confirmation: ${"Title"}']],
-                        [SUBMISSION_CONFIRMATION_BODY, [SUBMISSION_CONFIRMATION_BODY, 'Dear ${"First Name"},\n\nthank you for submitting your film "${"Title"}" to ${"Festival Name"}.\n\nNow you need to download and sign the permission slip that can be found on our website via the link below.\n${"Release Link"}\n\nThe signed permission slip must be mailed together with a DVD of your film to our festival office. If we do not receive these by the close of submission on ${"Close Of Submission"}, we will not be able to consider your film for selection. The address of our festival office is given on the permission slip.\n\nYou will receive an email confirmation of the receipt of your film and after the close of submissions you will be advised by emailed whether or not your film has been selected.\n\nMany Thanks\n${"Festival Name"}\n${"Festival Website"}']],
-                        [RECEIPT_CONFIMATION_SUBJECT_LINE, [RECEIPT_CONFIMATION_SUBJECT_LINE, '${"Festival Name"} Receipt Confimation: ${"Title"}']],
-                        [RECEIPT_CONFIMATION_BODY, [RECEIPT_CONFIMATION_BODY, 'Dear ${"First Name"}\n\nthis is to confirm the receipt of the DVD of your film "${"Title"}" by ${"Festival Name"}.\n\nSelection will take place after the close of submission on ${"Close Of Submission"}. You will be informed after this date if your film has been selected.\n\n${"Festival Name"} runs on the evening of ${"Event Date"}.\n\nMany thanks for your film submission.\n${"Festival Name"}\n${"Festival Website"}']],
-                        [REMINDER_SUBJECT_LINE, [REMINDER_SUBJECT_LINE, '${"Festival Name"} Submission Reminder: ${"Title"}']],
-                        [REMINDER_BODY, [REMINDER_BODY, 'Dear ${"First Name"}\n\nthank you for submitting your film "${"Title"}" to ${"Festival Name"}.\n\nWe are still awaiting a DVD of your film together with a signed permission slip. If we do not receive these at our festival office by the close of submission on ${"Close Of Submission"}, we will not be able to consider your film for selection.\n\nYou can download the permission slip from our website via the link below.\n${"Release Link"}\nThe address of our festival office is given on the permission slip.\n\nWe will confirm the receipt of your film by email and after the close of submissions you will be advised by emailed whether or not your film has been selected.\n\n${"Festival Name"} runs on the evening of ${"Event Date"}.\n\nMany Thanks\n${"Festival Name"}\n${"Festival Website"}']],
-                        [NOT_ACCEPTED_SUBJECT_LINE, [NOT_ACCEPTED_SUBJECT_LINE, '${"Festival Name"}: ${"Title"}']],
-                        [NOT_ACCEPTED_BODY, [NOT_ACCEPTED_BODY, 'Dear ${"First Name"},\n\nit has been very difficult to make the selection for ${"Festival Name"} this year. We have received an enormous number of accomplished short films from all over the world and we have had to make some difficult choices. We are sorry to tell you that your film ${"Title"} has not been selected for ${"Festival Name"}.\n\nIt is extremely important to point out that this years film selection is intended to be a broad representative sample from the huge number of submissions we have received. Many film merited being in the selection, but could not be include due to the limited screening time of the festival.\n\n\We wish to thank you for your film submission and to encourage you to submit to ${"Festival Name"} next year.\n\nMany Thanks\n${"Festival Name"}\n${"Festival Website"}']],
-                        [ACCEPTED_SUBJECT_LINE, [ACCEPTED_SUBJECT_LINE, '${"Festival Name"}: ${"Title"}']],
-                        [ACCEPTED_BODY, [ACCEPTED_BODY, 'Dear ${"First Name"},\n\nit has been very difficult to make the selection for ${"Festival Name"} this year. We have received an enormous number of accomplished short films from all over the world and we have had to make some difficult choices. We are very happy to tell you that your film ${"Title"} has been selected for ${"Festival Name"}.\n\nDue to limit seating at our festival venue, we can only give two free tickets to each attending filmmaker.\n\nWe will be in touch shortly to confirm the details of the screening.\n\nMany Thanks\n${"Festival Name"}\n${"Festival Website"}']],
-                        [AD_HOC_EMAIL_SUBJECT_LINE, [AD_HOC_EMAIL_SUBJECT_LINE, '${"Festival Name"}: ${"Title"}']],
-                        [AD_HOC_EMAIL_BODY, [AD_HOC_EMAIL_BODY, 'Dear ${"First Name"},\n\njust to thank you for submitting your film "${"Title"}" to ${"Festival Name"}.\n\nAnd to let you know that ${"Festival Name"} is still completely awesome.\n\nMany Thanks\n${"Festival Name"}\n${"Festival Website"}']]
-                    ],
-                    itemData, sheet;
-
+                var itemData, sheet;
 
                 // build online submission form
-                var form = FormApp.create(FORM_TITLE).setConfirmationMessage(FORM_RESPONSE);
-                for (var itemIndex = 0; itemIndex < FORM_DATA.length; itemIndex++) {
-                    itemData = FORM_DATA[itemIndex];
+                var form = FormApp.create(r.FORM_TITLE.s).setConfirmationMessage(r.FORM_RESPONSE.s);
+                for (var itemIndex = 0; itemIndex < r.FORM_DATA.d.length; itemIndex++) {
+                    itemData = r.FORM_DATA.d[itemIndex];
                     if (itemData === "section") {
                         form.addSectionHeaderItem();
                     } else {
@@ -1763,7 +1318,7 @@ var sfss = (function (smm) {
                 // find parent folder of spreadsheet and move form to that folder
                 var ssParentFolder = DriveApp.getFileById(ssId).getParents().next(),
                     formFile = DriveApp.getFileById(formId),
-                    formFolder = DriveApp.createFolder(FORM_FOLDER);
+                    formFolder = DriveApp.createFolder(r.FORM_FOLDER.s);
 
                 DriveApp.removeFolder(formFolder); // remove from root
                 DriveApp.removeFile(formFile); // remove from root
@@ -1780,62 +1335,49 @@ var sfss = (function (smm) {
                 // Why does this only break testing!!!
                 SpreadsheetApp.flush();
 
-                // create the FILM_SUBMISSIONS_SHEET, OPTIONS_SETTINGS_SHEET and TEMPLATE_SHEET sheet
-                ss.getSheetByName('Form Responses 1').setName(FILM_SUBMISSIONS_SHEET);
-                ss.insertSheet(OPTIONS_SETTINGS_SHEET, 2);
-                ss.insertSheet(TEMPLATE_SHEET, 3);
+                // create the r.FILM_SUBMISSIONS_SHEET.s, r.OPTIONS_SETTINGS_SHEET.s and r.TEMPLATE_SHEET.s sheet
+                ss.getSheetByName('Form Responses 1').setName(r.FILM_SUBMISSIONS_SHEET.s);
+                ss.insertSheet(r.OPTIONS_SETTINGS_SHEET.s, 2);
+                ss.insertSheet(r.TEMPLATE_SHEET.s, 3);
                 ss.deleteSheet(ss.getSheetByName('Sheet1'));
 
-                // add extra columns to FILM_SUBMISSIONS_SHEET
-                sheet = ss.getSheetByName(FILM_SUBMISSIONS_SHEET);
-                for (var i = 0; i < ADDITIONAL_COLUMNS.length; i++) {
-                    columnIndex = ADDITIONAL_COLUMNS[i].columnIndex;
+                // add extra columns to r.FILM_SUBMISSIONS_SHEET.s
+                sheet = ss.getSheetByName(r.FILM_SUBMISSIONS_SHEET.s);
+                for (var i = 0; i < r.ADDITIONAL_COLUMNS.d.length; i++) {
+                    columnIndex = r.ADDITIONAL_COLUMNS.d[i].columnIndex;
                     if (columnIndex === 'end') {
                         columnIndex = sheet.getLastColumn();
                     }
                     sheet.insertColumnAfter(columnIndex);
-                    sheet.getRange(1, columnIndex + 1, 1, 1).setValue(ADDITIONAL_COLUMNS[i].title);
+                    sheet.getRange(1, columnIndex + 1, 1, 1).setValue(r.ADDITIONAL_COLUMNS.d[i].title);
                 }
 
-                //add templates to TEMPLATE_SHEET)
-                saveData(ss, ss.getSheetByName(TEMPLATE_SHEET).getRange(1, 1, 1, 1), templates, TEMPLATE_DATA, 'mistyrose');
+                //add templates to r.TEMPLATE_SHEET.s
+                saveData(ss, ss.getSheetByName(r.TEMPLATE_SHEET.s).getRange(1, 1, 1, 1), r.TEMPLATE_DATA.d, r.TEMPLATE_DATA.s, 'mistyrose');
 
-                //initialise OPTIONS_SETTINGS_SHEET
-                var data = [{
-                    name: FESTIVAL_DATA,
-                    data: festivalData
-                }, {
-                    name: TEST_DATA,
-                    data: testData
-                }, {
-                    name: COLOR_DATA,
-                    data: states
-                }, {
-                    name: INTERNALS,
-                    data: internals
-                }];
-                for (i = 0; i < data.length; i++) {
-                    var dataItem = data[i];
-                    saveData(ss, ss.getSheetByName(OPTIONS_SETTINGS_SHEET).getRange(1, 2 * (+i) + 1, 1, 1), dataItem.data, dataItem.name, (+i) % 2 ? 'aliceblue' : 'mistyrose');
+                //initialise r.OPTIONS_SETTINGS_SHEET.s
+                for (i = 0; i < r.OPTION_SHEET_DATA.d.length; i++) {
+                    var dataItem = r.OPTION_SHEET_DATA.d[i];
+                    saveData(ss, ss.getSheetByName(r.OPTIONS_SETTINGS_SHEET.s).getRange(1, 2 * (+i) + 1, 1, 1), dataItem.data, dataItem.name, (+i) % 2 ? 'aliceblue' : 'mistyrose');
 
                 }
 
                 // update menu
-                if (!TESTING) {
-                    ss.updateMenu(FILM_SUBMISSION, MENU_ENTRIES);
+                if (!r.TESTING.b) {
+                    ss.updateMenu(r.FILM_SUBMISSION.s, r.MENU_ENTRIES.d);
                 }
 
-                setColumnWidth(ss, FILM_SUBMISSIONS_SHEET, filmSheetColumnWidth);
-                setColumnWidth(ss, TEMPLATE_SHEET, templateSheetColumnWidth);
+                setColumnWidth(ss, r.FILM_SUBMISSIONS_SHEET.s, r.filmSheetColumnWidth.d);
+                setColumnWidth(ss, r.TEMPLATE_SHEET.s, r.templateSheetColumnWidth.d);
 
                 log('Built spreadsheet.');
 
-                if (!TESTING) {
+                if (!r.TESTING.b) {
                     settingsOptions(); // let user set options and settings
                 }
 
                 // Only need the triggers if we are not testing.
-                if (!TESTING) {
+                if (!r.TESTING.b) {
                     // enable film submission processing on form submission
                     ScriptApp.newTrigger("hProcessSubmission").forSpreadsheet(ss).onFormSubmit().create();
 
@@ -1874,12 +1416,12 @@ var sfss = (function (smm) {
     function log(info) {
         try {
             if (!logDoc) {
-                logDoc = DocumentApp.create(LOG_FILE), logId = logDoc.getId();
+                logDoc = DocumentApp.create(r.LOG_FILE.s), logId = logDoc.getId();
                 var logFile = DriveApp.getFileById(logId);
                 DriveApp.removeFile(logFile); // remove from root
                 var ss = SpreadsheetApp.getActiveSpreadsheet(),
                     ssParentFolder = DriveApp.getFileById(ss.getId()).getParents().next(),
-                    logFolder = DriveApp.createFolder(LOG_FOLDER);
+                    logFolder = DriveApp.createFolder(r.LOG_FOLDER.s);
                 Logger.log('ssParentFolder: ' + ssParentFolder);
                 Logger.log('logFolder: ' + logFolder);
                 DriveApp.removeFolder(logFolder); // remove from root
@@ -1888,7 +1430,7 @@ var sfss = (function (smm) {
 
                 logDoc.getBody().appendParagraph((new Date()) + ":Created log file!");
 
-                scriptProperties.setProperty(normalizeHeader(LOG_FILE), logId);
+                scriptProperties.setProperty(normalizeHeader(r.LOG_FILE.s), logId);
 
             }
             logDoc.getBody().appendParagraph((new Date()) + ": " + info);
@@ -1901,7 +1443,7 @@ var sfss = (function (smm) {
         var errInfo = "Caught something:\n";
         for (var prop in err) {
             if (err.hasOwnProperty(prop)) {
-                errInfo += "  property: " + prop + "\n    value: [" + err[prop] + "]\n";
+                errInfo += "(" + prop + ", " + err[prop] + ")\n";
             }
         }
         errInfo += "  toString(): " + " value: [" + err.toString() + "]";
@@ -1911,26 +1453,26 @@ var sfss = (function (smm) {
     function mergeAndSend(ss, submission, templateName, emailQuotaRemaining) {
         try {
             emailQuotaRemaining = emailQuotaRemaining ? emailQuotaRemaining : 0; // Set to 0 if not supplied i.e. it dosnt matter in this case
-            submission[normalizeHeader(FESTIVAL_NAME)] = getNamedValue(ss, FESTIVAL_NAME);
-            submission[normalizeHeader(CLOSE_OF_SUBMISSION)] = prettyPrintDate(getNamedValue(ss, CLOSE_OF_SUBMISSION));
-            submission[normalizeHeader(EVENT_DATE)] = prettyPrintDate(getNamedValue(ss, EVENT_DATE));
-            submission[normalizeHeader(FESTIVAL_WEBSITE)] = getNamedValue(ss, FESTIVAL_WEBSITE);
-            submission[normalizeHeader(RELEASE_LINK)] = getNamedValue(ss, RELEASE_LINK);
+            submission[normalizeHeader(r.FESTIVAL_NAME.s)] = getNamedValue(ss, r.FESTIVAL_NAME.s);
+            submission[normalizeHeader(r.CLOSE_OF_SUBMISSION.s)] = prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s));
+            submission[normalizeHeader(r.EVENT_DATE.s)] = prettyPrintDate(getNamedValue(ss, r.EVENT_DATE.s));
+            submission[normalizeHeader(r.FESTIVAL_WEBSITE.s)] = getNamedValue(ss, r.FESTIVAL_WEBSITE.s);
+            submission[normalizeHeader(r.RELEASE_LINK.s)] = getNamedValue(ss, r.RELEASE_LINK.s);
 
-            var subjectTemplate = getNamedValue(ss, templateName + ' ' + SUBJECT_LINE),
-                bodyTemplate = getNamedValue(ss, templateName + ' ' + BODY);
+            var subjectTemplate = getNamedValue(ss, templateName + ' ' + r.SUBJECT_LINE.s),
+                bodyTemplate = getNamedValue(ss, templateName + ' ' + r.BODY.s);
 
-            if (submission[normalizeHeader(EMAIL)]) {
-                MailApp.sendEmail(submission[normalizeHeader(EMAIL)], fillInTemplateFromObject(subjectTemplate, submission), fillInTemplateFromObject(bodyTemplate, submission));
+            if (submission[normalizeHeader(r.EMAIL.s)]) {
+                MailApp.sendEmail(submission[normalizeHeader(r.EMAIL.s)], fillInTemplateFromObject(subjectTemplate, submission), fillInTemplateFromObject(bodyTemplate, submission));
                 emailQuotaRemaining -= 1;
-                if (TESTING) {
-                    var templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+                if (r.TESTING.b) {
+                    var templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
                     if (templatesTesting) {
                         templatesTesting += ',' + templateName;
                     } else {
                         templatesTesting = templateName;
                     }
-                    setProperty(normalizeHeader(TEMPLATES_TESTING), templatesTesting);
+                    setProperty(normalizeHeader(r.TEMPLATES_TESTING.s), templatesTesting);
                 }
                 log('mergeAndSend:email sent');
             } else {
@@ -1954,27 +1496,27 @@ var sfss = (function (smm) {
             var ss = SpreadsheetApp.getActiveSpreadsheet();
 
             // load data in advance
-            loadData(ss, FESTIVAL_DATA);
-            loadData(ss, COLOR_DATA);
-            loadData(ss, TEMPLATE_DATA);
-            loadData(ss, INTERNALS);
+            loadData(ss, r.FESTIVAL_DATA.s);
+            loadData(ss, r.COLOR_DATA.s);
+            loadData(ss, r.TEMPLATE_DATA.s);
+            loadData(ss, r.INTERNALS.s);
 
-            var filmSheet = ss.getSheetByName(FILM_SUBMISSIONS_SHEET),
+            var filmSheet = ss.getSheetByName(r.FILM_SUBMISSIONS_SHEET.s),
                 eventRow = event.range.getRow(),
                 emailQuotaRemaining = MailApp.getRemainingDailyQuota(),
                 headersOfInterest, minMaxColumns, lastContact, rowIndex;
 
             // Insert LAST_CONTACT,FILM_ID and STATUS into film submission. Also make sure LENGTH has correct form
             // Use smallest range that will work with one call to getRowsData and setRowsData
-            headersOfInterest = [TIMESTAMP, LAST_CONTACT, FILM_ID, STATUS, CONFIRMATION, SELECTION, LENGTH];
+            headersOfInterest = [r.TIMESTAMP.s, r.LAST_CONTACT.s, r.FILM_ID.s, r.STATUS.s, r.CONFIRMATION.s, r.SELECTION.s, r.LENGTH.s];
             minMaxColumns = findMinMaxColumns(filmSheet, headersOfInterest);
 
 
-            var lastContactIndex = minMaxColumns.indices[normalizeHeader(LAST_CONTACT)];
+            var lastContactIndex = minMaxColumns.indices[normalizeHeader(r.LAST_CONTACT.s)];
             var lastContactCell = filmSheet.getRange(eventRow, lastContactIndex, 1, 1);
             lastContact = lastContactCell.getValue();
 
-            if (lastContact instanceof Date || lastContact === NO_CONTACT) {
+            if (lastContact instanceof Date || lastContact === r.NO_CONTACT.s) {
                 throw {
                     message: 'ERROR: this submission has already been processed!'
                 };
@@ -1990,7 +1532,7 @@ var sfss = (function (smm) {
                     log('rowIndex:' + rowIndex);
                     lastContact = filmSheet.getRange(rowIndex, lastContactIndex, 1, 1).getValue();
                     log('lastContact:' + lastContact);
-                    if (lastContact instanceof Date || lastContact === NO_CONTACT) {
+                    if (lastContact instanceof Date || lastContact === r.NO_CONTACT.s) {
                         break;
                     } else {
                         lastUnprocessedIndex = rowIndex;
@@ -2007,56 +1549,56 @@ var sfss = (function (smm) {
             var rows = getRowsData(filmSheet, unprocessedRange, 1);
 
             var index, currentFilmID = -1,
-                filmSubmissionData, length, confirmation, color, color_CONFIRMED, color_NOT_CONFIRMED, date = event.namedValues[TIMESTAMP][0];
+                filmSubmissionData, length, confirmation, color, color_CONFIRMED, color_NOT_CONFIRMED, date = event.namedValues[r.TIMESTAMP.s][0];
 
             // Update Find and update Film ID for current submission
             if (eventRow === 2) {
                 // first submission
-                currentFilmID = getNamedValue(ss, FIRST_FILM_ID) - 1;
+                currentFilmID = getNamedValue(ss, r.FIRST_FILM_ID.s) - 1;
             } else {
-                currentFilmID = getNamedValue(ss, CURRENT_FILM_ID);
+                currentFilmID = getNamedValue(ss, r.CURRENT_FILM_ID.s);
 
             }
 
             for (index = 0; index < rows.length; index += 1) {
                 currentFilmID = currentFilmID + 1;
-                log('processSubmission:processing film submission ' + ID + pad(currentFilmID));
+                log('processSubmission:processing film submission ' + r.ID.s + pad(currentFilmID));
                 filmSubmissionData = rows[index];
 
-                length = normaliseAndValidateDuration(filmSubmissionData[normalizeHeader(LENGTH)]);
+                length = normaliseAndValidateDuration(filmSubmissionData[normalizeHeader(r.LENGTH.s)]);
                 if (length) {
-                    filmSubmissionData[normalizeHeader(LENGTH)] = length;
+                    filmSubmissionData[normalizeHeader(r.LENGTH.s)] = length;
                 }
-                filmSubmissionData[normalizeHeader(STATUS)] = NO_MEDIA;
-                filmSubmissionData[normalizeHeader(FILM_ID)] = ID + pad(currentFilmID);
-                if (MIN_QUOTA < emailQuotaRemaining) {
+                filmSubmissionData[normalizeHeader(r.STATUS.s)] = r.NO_MEDIA.s;
+                filmSubmissionData[normalizeHeader(r.FILM_ID.s)] = r.ID.s + pad(currentFilmID);
+                if (r.MIN_QUOTA.n < emailQuotaRemaining) {
                     lastContact = date;
-                    confirmation = CONFIRMED;
+                    confirmation = r.CONFIRMED.s;
                 } else {
-                    lastContact = NO_CONTACT;
-                    confirmation = NOT_CONFIRMED;
+                    lastContact = r.NO_CONTACT.s;
+                    confirmation = r.NOT_CONFIRMED.s;
                 }
                 emailQuotaRemaining -= 1;
-                filmSubmissionData[normalizeHeader(CONFIRMATION)] = confirmation;
-                filmSubmissionData[normalizeHeader(SELECTION)] = NOT_SELECTED;
-                filmSubmissionData[normalizeHeader(LAST_CONTACT)] = lastContact;
-                filmSubmissionData[normalizeHeader(SCORE)] = -1;
+                filmSubmissionData[normalizeHeader(r.CONFIRMATION.s)] = confirmation;
+                filmSubmissionData[normalizeHeader(r.SELECTION.s)] = r.NOT_SELECTED.s;
+                filmSubmissionData[normalizeHeader(r.LAST_CONTACT.s)] = lastContact;
+                filmSubmissionData[normalizeHeader(r.SCORE.s)] = -1;
             }
 
-            setNamedValue(ss, CURRENT_FILM_ID, currentFilmID);
+            setNamedValue(ss, r.CURRENT_FILM_ID.s, currentFilmID);
 
             setRowsData(filmSheet, rows, filmSheet.getRange(1, minColumn, 1, maxColumn - minColumn + 1), lastUnprocessedIndex);
 
             //set status color on film submission
-            color_CONFIRMED = findStatusColor(ss, NO_MEDIA, CONFIRMED, NOT_SELECTED);
-            color_NOT_CONFIRMED = findStatusColor(ss, NO_MEDIA, NOT_CONFIRMED, NOT_SELECTED);
+            color_CONFIRMED = findStatusColor(ss, r.NO_MEDIA.s, r.CONFIRMED.s, r.NOT_SELECTED.s);
+            color_NOT_CONFIRMED = findStatusColor(ss, r.NO_MEDIA.s, r.NOT_CONFIRMED.s, r.NOT_SELECTED.s);
 
 
             // send confirmation email
             for (index = 0; index < rows.length; index += 1) {
                 filmSubmissionData = rows[index];
-                if (filmSubmissionData[normalizeHeader(LAST_CONTACT)] !== NO_CONTACT) {
-                    mergeAndSend(ss, filmSubmissionData, SUBMISSION_CONFIRMATION);
+                if (filmSubmissionData[normalizeHeader(r.LAST_CONTACT.s)] !== r.NO_CONTACT.s) {
+                    mergeAndSend(ss, filmSubmissionData, r.SUBMISSION_CONFIRMATION.s);
                     color = color_CONFIRMED;
                 } else {
                     color = color_NOT_CONFIRMED;
@@ -2124,15 +1666,15 @@ var sfss = (function (smm) {
 
     function pad(number) {
         if (number > 0) {
-            return ("000000" + number).slice(-PAD_NUMBER);
+            return ("000000" + number).slice(-r.PAD_NUMBER.n);
         } else {
-            return ("\\d\\d\\d\\d\\d\\d").slice(-2 * PAD_NUMBER);
+            return ("\\d\\d\\d\\d\\d\\d").slice(-2 * r.PAD_NUMBER.n);
         }
     }
 
     // for testing
     function setPadNumber(n) {
-        PAD_NUMBER = n;
+        r.PAD_NUMBER.n = n;
     }
 
     function setNamedValueInCache(name, value) {
@@ -2247,9 +1789,9 @@ var sfss = (function (smm) {
     // if(Ad Hoc Email is pending or in progress){
     //    Continue with Ad Hoc Email.
     //    Stop when all submissions processed
-    //    or daily mail allocation is down to MIN_QUOTA.
+    //    or daily mail allocation is down to r.MIN_QUOTA.n.
     // } else if (not yet reached Close Of Submissions) {
-    //    While daily mail allocation is greater than MIN_QUOTA for each submission
+    //    While daily mail allocation is greater than r.MIN_QUOTA.n for each submission
     //       if submission is not confirmed {
     //          send submission confirmation
     //       } else if media present but not confirmed {
@@ -2261,7 +1803,7 @@ var sfss = (function (smm) {
     // } else if (Notification Confirmation is pending or in progress) {
     //    Continue with Notification Confirmation.
     //    Stop when all submissions processed
-    //    or daily mail allocation is down to MIN_QUOTA.
+    //    or daily mail allocation is down to r.MIN_QUOTA.n.
     // }
     ///////////////////////////////////////////////////////////////////////////////
     function hReminderConfirmation() {
@@ -2269,19 +1811,19 @@ var sfss = (function (smm) {
             log('hReminderConfirmation start');
             var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-            loadData(ss, FESTIVAL_DATA);
-            loadData(ss, TEMPLATE_DATA);
-            loadData(ss, INTERNALS);
-            loadData(ss, COLOR_DATA);
+            loadData(ss, r.FESTIVAL_DATA.s);
+            loadData(ss, r.TEMPLATE_DATA.s);
+            loadData(ss, r.INTERNALS.s);
+            loadData(ss, r.COLOR_DATA.s);
 
             var emailQuotaRemaining = MailApp.getRemainingDailyQuota(),
-                enabledReminder = getNamedValue(ss, ENABLE_REMINDER) === ENABLED,
-                enableConfirmation = getNamedValue(ss, ENABLE_CONFIRMATION) === ENABLED,
-                filmSheet = ss.getSheetByName(FILM_SUBMISSIONS_SHEET),
+                enabledReminder = getNamedValue(ss, r.ENABLE_REMINDER.s) === r.ENABLED.s,
+                enableConfirmation = getNamedValue(ss, r.ENABLE_CONFIRMATION.s) === r.ENABLED.s,
+                filmSheet = ss.getSheetByName(r.FILM_SUBMISSIONS_SHEET.s),
                 lastRow = filmSheet.getLastRow(),
                 currentDate = new Date(),
-                closeOfSubmission = getNamedValue(ss, CLOSE_OF_SUBMISSION),
-                daysBeforeReminder = getNamedValue(ss, DAYS_BEFORE_REMINDER),
+                closeOfSubmission = getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s),
+                daysBeforeReminder = getNamedValue(ss, r.DAYS_BEFORE_REMINDER.s),
                 daysTillClose = diffDays(closeOfSubmission, currentDate);
 
             log('hReminderConfirmation:enabledReminder: ' + enabledReminder + '\nenableConfirmation: ' + enableConfirmation + '\ncloseOfSubmission: ' + closeOfSubmission + '\ndaysBeforeReminder: ' + daysBeforeReminder + '\ndaysTillClose: ' + daysTillClose + '\nemailQuotaRemaining: ' + emailQuotaRemaining);
@@ -2290,43 +1832,43 @@ var sfss = (function (smm) {
                 log('hReminderConfirmation:processing');
                 var headersRange = filmSheet.getRange(1, 1, 1, filmSheet.getDataRange().getLastColumn()),
                     headers = normalizeHeaders(headersRange.getValues()[0]),
-                    confirmationColumnIndex = headers.indexOf(normalizeHeader(CONFIRMATION)) + 1,
-                    lastContactColumnIndex = headers.indexOf(normalizeHeader(LAST_CONTACT)) + 1,
-                    minMaxColumns = findMinMaxColumns(filmSheet, [LAST_CONTACT, STATUS, CONFIRMATION, SELECTION, FIRST_NAME, EMAIL, TITLE]),
+                    confirmationColumnIndex = headers.indexOf(normalizeHeader(r.CONFIRMATION.s)) + 1,
+                    lastContactColumnIndex = headers.indexOf(normalizeHeader(r.LAST_CONTACT.s)) + 1,
+                    minMaxColumns = findMinMaxColumns(filmSheet, [r.LAST_CONTACT.s, r.STATUS.s, r.CONFIRMATION.s, r.SELECTION.s, r.FIRST_NAME.s, r.EMAIL.s, r.TITLE.s]),
                     height = filmSheet.getDataRange().getLastRow() - 1,
                     range = filmSheet.getRange(2, minMaxColumns.min, height, minMaxColumns.max - minMaxColumns.min + 1),
                     submissions = getRowsData(filmSheet, range, 1),
-                    currentAdHocEmail = getNamedValue(ss, CURRENT_AD_HOC_EMAIL),
-                    currentSelectionNotification = getNamedValue(ss, CURRENT_SELECTION_NOTIFICATION),
+                    currentAdHocEmail = getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s),
+                    currentSelectionNotification = getNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s),
                     color = "",
                     i, submission, status, confirmation, selection, filmId, filmIdFormat, processNextSubmission, setToFinishedAtEnd, matches;
 
-                if (currentAdHocEmail !== NOT_STARTED) {
+                if (currentAdHocEmail !== r.NOT_STARTED.s) {
                     // AD HOC EMAIL
                     log('hReminderConfirmation:processing Ad Hoc Mail');
-                    filmIdFormat = FILM_ID + pad(-1);
-                    processNextSubmission = currentAdHocEmail === PENDING;
+                    filmIdFormat = r.FILM_ID.s + pad(-1);
+                    processNextSubmission = currentAdHocEmail === r.PENDING.s;
                     setToFinishedAtEnd = true;
                     log('hReminderConfirmation:currentAdHocEmail:' + currentAdHocEmail);
-                    // Loop through all submissions until we come to the first submission after CURRENT_AD_HOC_EMAIL.
+                    // Loop through all submissions until we come to the first submission after r.CURRENT_AD_HOC_EMAIL.s.
                     // Start with first if currentAdHocEmail === PENDING. Normally this will be the case.
                     for (i = 0; i < submissions.length; i++) {
-                        if (emailQuotaRemaining <= MIN_QUOTA) {
-                            log('hReminderConfirmation:ran out of email quota during ' + AD_HOC_EMAIL + ', (MIN_QUOTA, emailQuotaRemaining):(' + MIN_QUOTA + ',' + emailQuotaRemaining + '). Terminating ' + AD_HOC_EMAIL + ' early.');
+                        if (emailQuotaRemaining <= r.MIN_QUOTA.n) {
+                            log('hReminderConfirmation:ran out of email quota during ' + r.AD_HOC_EMAIL.s + ', (r.MIN_QUOTA.n, emailQuotaRemaining):(' + r.MIN_QUOTA.n + ',' + emailQuotaRemaining + '). Terminating ' + r.AD_HOC_EMAIL.s + ' early.');
                             setToFinishedAtEnd = false;
                             break; //stop sending emails for the day
                         }
 
                         submission = submissions[i];
-                        status = submission[normalizeHeader(STATUS)];
-                        filmId = submission[normalizeHeader(FILM_ID)];
+                        status = submission[normalizeHeader(r.STATUS.s)];
+                        filmId = submission[normalizeHeader(r.FILM_ID.s)];
 
                         if (!filmId) {
                             log('hReminderConfirmation:ERROR: exepected film id!');
                             continue;
                         }
 
-                        if (status === PROBLEM) {
+                        if (status === r.PROBLEM.s) {
                             // Ingnore submissions with status PROBLEM
                             continue;
                         }
@@ -2336,8 +1878,8 @@ var sfss = (function (smm) {
                             filmId = matches[0];
                             if (processNextSubmission) {
                                 // send Ad Hoc Email
-                                emailQuotaRemaining = mergeAndSend(ss, submission, AD_HOC_EMAIL, emailQuotaRemaining);
-                                setNamedValue(ss, CURRENT_AD_HOC_EMAIL, filmId); //Update current
+                                emailQuotaRemaining = mergeAndSend(ss, submission, r.AD_HOC_EMAIL.s, emailQuotaRemaining);
+                                setNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s, filmId); //Update current
                                 log('hReminderConfirmation:Ad Hoc Mail:processed:' + filmId);
                             } else {
                                 processNextSubmission = filmId === currentAdHocEmail;
@@ -2348,97 +1890,97 @@ var sfss = (function (smm) {
                         }
                     } // for (var i in submissions)
                     if (setToFinishedAtEnd) {
-                        setNamedValue(ss, CURRENT_AD_HOC_EMAIL, NOT_STARTED); // Job done. Reset.
+                        setNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s, r.NOT_STARTED.s); // Job done. Reset.
                     }
 
                     // if (currentAdHocEmail!==NOT_STARTED)
                 } else if (currentDate < closeOfSubmission) {
                     for (i = 0; i < submissions.length; i++) {
-                        if (emailQuotaRemaining <= MIN_QUOTA) {
-                            log('Ran out of email quota, (MIN_QUOTA, emailQuotaRemaining):(' + MIN_QUOTA + ',' + emailQuotaRemaining + ').');
+                        if (emailQuotaRemaining <= r.MIN_QUOTA.n) {
+                            log('Ran out of email quota, (r.MIN_QUOTA.n, emailQuotaRemaining):(' + r.MIN_QUOTA.n + ',' + emailQuotaRemaining + ').');
                             log('Terminating daily reminder and confirmation processing early.');
                             break; //stop sending emails for the day
                         }
 
                         submission = submissions[i];
-                        status = submission[normalizeHeader(STATUS)];
-                        confirmation = submission[normalizeHeader(CONFIRMATION)];
-                        selection = submission[normalizeHeader(SELECTION)];
-                        if (status === PROBLEM) {
+                        status = submission[normalizeHeader(r.STATUS.s)];
+                        confirmation = submission[normalizeHeader(r.CONFIRMATION.s)];
+                        selection = submission[normalizeHeader(r.SELECTION.s)];
+                        if (status === r.PROBLEM.s) {
                             // Ingnore submissions with status PROBLEM
                             continue;
                         }
 
-                        if (status === NO_MEDIA) {
-                            if (confirmation === NOT_CONFIRMED) {
+                        if (status === r.NO_MEDIA.s) {
+                            if (confirmation === r.NOT_CONFIRMED.s) {
                                 //Send submission confirmation. This should be a very rare case!
-                                log('hReminderConfirmation:no submission confirmation has been sent to ' + submission[normalizeHeader(FILM_ID)] + '.');
+                                log('hReminderConfirmation:no submission confirmation has been sent to ' + submission[normalizeHeader(r.FILM_ID.s)] + '.');
 
-                                emailQuotaRemaining = mergeAndSend(ss, submission, SUBMISSION_CONFIRMATION, emailQuotaRemaining);
+                                emailQuotaRemaining = mergeAndSend(ss, submission, r.SUBMISSION_CONFIRMATION.s, emailQuotaRemaining);
 
                                 filmSheet.getRange(2 + (+i), lastContactColumnIndex, 1, 1).setValue(currentDate);
-                                filmSheet.getRange(2 + (+i), confirmationColumnIndex, 1, 1).setValue(CONFIRMED);
-                                color = findStatusColor(ss, status, CONFIRMED, selection);
+                                filmSheet.getRange(2 + (+i), confirmationColumnIndex, 1, 1).setValue(r.CONFIRMED.s);
+                                color = findStatusColor(ss, status, r.CONFIRMED.s, selection);
                                 filmSheet.getRange(2 + (+i), 1, 1, filmSheet.getDataRange().getLastColumn()).setBackground(color);
-                                log('hReminderConfirmation:submission confirmation has now been sent to ' + submission[normalizeHeader(FILM_ID)] + ' and its ' + LAST_CONTACT + ' updated.');
+                                log('hReminderConfirmation:submission confirmation has now been sent to ' + submission[normalizeHeader(r.FILM_ID.s)] + ' and its ' + r.LAST_CONTACT.s + ' updated.');
                             } else if (daysTillClose > daysBeforeReminder && enabledReminder) {
                                 // Need to send reminder to send Media and release form
-                                var lastContact = submission[normalizeHeader(LAST_CONTACT)];
+                                var lastContact = submission[normalizeHeader(r.LAST_CONTACT.s)];
 
                                 var daysSinceLastContact = diffDays(currentDate, lastContact);
 
                                 if (daysSinceLastContact >= daysBeforeReminder) {
                                     //send reminder
-                                    log('It is ' + daysSinceLastContact + ' days since ' + LAST_CONTACT + ' with submission ' + submission[normalizeHeader(FILM_ID)] + ' which has status ' + NO_MEDIA + '.');
+                                    log('It is ' + daysSinceLastContact + ' days since ' + r.LAST_CONTACT.s + ' with submission ' + submission[normalizeHeader(r.FILM_ID.s)] + ' which has status ' + r.NO_MEDIA.s + '.');
 
-                                    emailQuotaRemaining = mergeAndSend(ss, submission, REMINDER, emailQuotaRemaining);
+                                    emailQuotaRemaining = mergeAndSend(ss, submission, r.REMINDER.s, emailQuotaRemaining);
 
                                     filmSheet.getRange(2 + (+i), lastContactColumnIndex, 1, 1).setValue(currentDate);
-                                    log('hReminderConfirmation:a reminder has been sent to submission ' + submission[normalizeHeader(FILM_ID)] + ' and its ' + LAST_CONTACT + ' updated.');
+                                    log('hReminderConfirmation:a reminder has been sent to submission ' + submission[normalizeHeader(r.FILM_ID.s)] + ' and its ' + r.LAST_CONTACT.s + ' updated.');
                                 }
                             }
 
-                        } else if (status === MEDIA_PRESENT && confirmation === NOT_CONFIRMED && enableConfirmation) {
+                        } else if (status === r.MEDIA_PRESENT.s && confirmation === r.NOT_CONFIRMED.s && enableConfirmation) {
                             //send confirmation of receipt of media
-                            log('hReminderConfirmation:submission ' + submission[normalizeHeader(FILM_ID)] + ' has status ' + MEDIA_PRESENT + ', ' + NOT_CONFIRMED + '.');
+                            log('hReminderConfirmation:submission ' + submission[normalizeHeader(r.FILM_ID.s)] + ' has status ' + r.MEDIA_PRESENT.s + ', ' + r.NOT_CONFIRMED.s + '.');
 
-                            emailQuotaRemaining = mergeAndSend(ss, submission, RECEIPT_CONFIMATION, emailQuotaRemaining);
+                            emailQuotaRemaining = mergeAndSend(ss, submission, r.RECEIPT_CONFIMATION.s, emailQuotaRemaining);
 
                             filmSheet.getRange(2 + (+i), lastContactColumnIndex, 1, 1).setValue(currentDate);
-                            filmSheet.getRange(2 + (+i), confirmationColumnIndex, 1, 1).setValue(CONFIRMED);
-                            color = findStatusColor(ss, status, CONFIRMED, selection);
+                            filmSheet.getRange(2 + (+i), confirmationColumnIndex, 1, 1).setValue(r.CONFIRMED.s);
+                            color = findStatusColor(ss, status, r.CONFIRMED.s, selection);
                             filmSheet.getRange(2 + (+i), 1, 1, filmSheet.getDataRange().getLastColumn()).setBackground(color);
-                            log('hReminderConfirmation:the status of submission ' + submission[normalizeHeader(FILM_ID)] + ' has been updated to ' + MEDIA_PRESENT + ', ' + CONFIRMED + ' and a receipt confirmation email has been sent.');
+                            log('hReminderConfirmation:the status of submission ' + submission[normalizeHeader(r.FILM_ID.s)] + ' has been updated to ' + r.MEDIA_PRESENT.s + ', ' + r.CONFIRMED.s + ' and a receipt confirmation email has been sent.');
                         }
                     } // for(var i in submissions)
                     //  else if (currentDate<closeOfSubmission)
-                } else if (currentSelectionNotification !== NOT_STARTED) {
+                } else if (currentSelectionNotification !== r.NOT_STARTED.s) {
                     // SELECTION NOTIFICATION
                     log('hReminderConfirmation:processing Selection Notification');
-                    filmIdFormat = FILM_ID + pad(-1);
-                    processNextSubmission = currentSelectionNotification === PENDING;
+                    filmIdFormat = r.FILM_ID.s + pad(-1);
+                    processNextSubmission = currentSelectionNotification === r.PENDING.s;
                     setToFinishedAtEnd = true;
                     log('hReminderConfirmation:currentSelectionNotification:' + currentSelectionNotification);
-                    // Loop through all submissions until we come to the first submission after CURRENT_SELECTION_NOTIFICATION.
-                    // Start with first if CURRENT_SELECTION_NOTIFICATION === PENDING. Normally this will be the case.
+                    // Loop through all submissions until we come to the first submission after r.CURRENT_SELECTION_NOTIFICATION.s.
+                    // Start with first if r.CURRENT_SELECTION_NOTIFICATION.s === PENDING. Normally this will be the case.
                     for (i = 0; i < submissions.length; i++) {
-                        if (emailQuotaRemaining <= MIN_QUOTA) {
-                            log('hReminderConfirmation:ran out of email quota during ' + SELECTION_NOTIFICATION + ', (MIN_QUOTA, emailQuotaRemaining):(' + MIN_QUOTA + ',' + emailQuotaRemaining + '). Terminating ' + SELECTION_NOTIFICATION + ' early.');
+                        if (emailQuotaRemaining <= r.MIN_QUOTA.n) {
+                            log('hReminderConfirmation:ran out of email quota during ' + r.SELECTION_NOTIFICATION.s + ', (r.MIN_QUOTA.n, emailQuotaRemaining):(' + r.MIN_QUOTA.n + ',' + emailQuotaRemaining + '). Terminating ' + r.SELECTION_NOTIFICATION.s + ' early.');
                             setToFinishedAtEnd = false;
                             break; //stop sending emails for the day
                         }
 
                         submission = submissions[i];
-                        filmId = submission[normalizeHeader(FILM_ID)];
-                        status = submission[normalizeHeader(STATUS)];
-                        selection = submission[normalizeHeader(SELECTION)];
+                        filmId = submission[normalizeHeader(r.FILM_ID.s)];
+                        status = submission[normalizeHeader(r.STATUS.s)];
+                        selection = submission[normalizeHeader(r.SELECTION.s)];
 
                         if (!filmId) {
                             log('hReminderConfirmation:ERROR: exepected film id!');
                             continue;
                         }
 
-                        if (status === PROBLEM) {
+                        if (status === r.PROBLEM.s) {
                             // Ingnore submissions with status PROBLEM
                             continue;
                         }
@@ -2448,13 +1990,13 @@ var sfss = (function (smm) {
                             filmId = matches[0];
                             if (processNextSubmission) {
                                 //send SELECTION NOTIFICATION
-                                if (selection === SELECTED) {
-                                    emailQuotaRemaining = mergeAndSend(ss, submission, ACCEPTED, emailQuotaRemaining);
+                                if (selection === r.SELECTED.s) {
+                                    emailQuotaRemaining = mergeAndSend(ss, submission, r.ACCEPTED.s, emailQuotaRemaining);
                                 } else {
-                                    emailQuotaRemaining = mergeAndSend(ss, submission, NOT_ACCEPTED, emailQuotaRemaining);
+                                    emailQuotaRemaining = mergeAndSend(ss, submission, r.NOT_ACCEPTED.s, emailQuotaRemaining);
                                 }
 
-                                setNamedValue(ss, CURRENT_SELECTION_NOTIFICATION, filmId); //Update current
+                                setNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s, filmId); //Update current
                                 log('hReminderConfirmation:processed ' + filmId + ' as ' + selection);
                             } else {
                                 processNextSubmission = filmId === currentSelectionNotification;
@@ -2465,7 +2007,7 @@ var sfss = (function (smm) {
                         }
                     } //for (var i in submissions)
                     if (setToFinishedAtEnd) {
-                        setNamedValue(ss, CURRENT_SELECTION_NOTIFICATION, NOT_STARTED); //Job done. Reset.
+                        setNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s, r.NOT_STARTED.s); //Job done. Reset.
                     }
                     // else if(currentSelectionNotification!==NOT_STARTED)
                 }
@@ -2528,81 +2070,7 @@ var sfss = (function (smm) {
         setProperty: setProperty,
         deleteProperty: deleteProperty,
         setTesting: setTesting,
-        setLogDoc: setLogDoc,
-
-        FILM_SUBMISSION: FILM_SUBMISSION,
-        ID: ID,
-
-        // the 3 spreadsheet sheets
-        FILM_SUBMISSIONS_SHEET: FILM_SUBMISSIONS_SHEET,
-        TEMPLATE_SHEET: TEMPLATE_SHEET,
-        OPTIONS_SETTINGS_SHEET: OPTIONS_SETTINGS_SHEET,
-
-        CLOSE_OF_SUBMISSION: CLOSE_OF_SUBMISSION,
-        DAYS_BEFORE_REMINDER: DAYS_BEFORE_REMINDER,
-
-        SUBMISSION_CONFIRMATION: SUBMISSION_CONFIRMATION,
-        RECEIPT_CONFIMATION: RECEIPT_CONFIMATION,
-        REMINDER: REMINDER,
-        NOT_ACCEPTED: NOT_ACCEPTED,
-        ACCEPTED: ACCEPTED,
-        AD_HOC_EMAIL: AD_HOC_EMAIL,
-
-        CURRENT_AD_HOC_EMAIL: CURRENT_AD_HOC_EMAIL,
-        CURRENT_SELECTION_NOTIFICATION: CURRENT_SELECTION_NOTIFICATION,
-
-        //values for CURRENT_SELECTION_NOTIFICATION, CURRENT_AD_HOC_EMAIL
-        NOT_STARTED: NOT_STARTED,
-        PENDING: PENDING,
-
-        //states
-        NO_MEDIA: NO_MEDIA,
-        MEDIA_PRESENT: MEDIA_PRESENT,
-        PROBLEM: PROBLEM,
-        SELECTED: SELECTED,
-        NOT_SELECTED: NOT_SELECTED,
-        CONFIRMED: CONFIRMED,
-        NOT_CONFIRMED: NOT_CONFIRMED,
-
-        DO_NOT_CHANGE: DO_NOT_CHANGE,
-
-        LENGTH: LENGTH,
-        YEAR: YEAR,
-
-        CONFIRM: CONFIRM,
-
-        TIMESTAMP: TIMESTAMP,
-
-        // Additional FILM_SUBMISSIONS_SHEET Columns
-        COMMENTS: COMMENTS,
-        FILM_ID: FILM_ID,
-        SCORE: SCORE,
-        CONFIRMATION: CONFIRMATION,
-        SELECTION: SELECTION,
-        STATUS: STATUS,
-        LAST_CONTACT: LAST_CONTACT,
-
-        FORM_DATA: FORM_DATA,
-
-        // Sets number of numerical places on film ID so an example of a film ID were the PAD_NUMBER were set to 3 would be ID029.
-        // Legal values are 3,4,5,6
-        // NOTE: PAD_NUMBER puts an upper bound on the number of film submissions the system can cope with
-        PAD_NUMBER: PAD_NUMBER,
-
-        // Will stop sending emails for the day when email quota is reported as less than or equal to MIN_QUOTA.
-        // Will attempt to send unsent emails the next day.
-        MIN_QUOTA: MIN_QUOTA,
-        REMAINING_EMAIL_QUOTA: REMAINING_EMAIL_QUOTA,
-
-        // one contact value
-        NO_CONTACT: NO_CONTACT,
-
-        // name of log file
-        LOG_FILE: LOG_FILE,
-        LOG_FOLDER: LOG_FOLDER,
-        FORM_FOLDER: FORM_FOLDER,
-
-        TEMPLATES_TESTING: TEMPLATES_TESTING
+        setLogDoc: setLogDoc
     };
 
     sfss_interface = {
@@ -2636,31 +2104,31 @@ var sfss = (function (smm) {
     };
 
     return sfss_interface;
-})(smm);
+}(sfss.r, sfss.smm));
 
 //////////////////////////////////////
 // build custom menu for spreadsheet
 //////////////////////////////////////
 function onOpen() {
-    sfss.onOpen();
+    sfss.s.sonOpen();
 }
 
 //////////////////////////////////////
 // setup system
 //////////////////////////////////////
 function setup() {
-    sfss.setup();
+    sfss.s.setup();
 }
 
 //////////////////////////////////////
 // start of system triggers
 //////////////////////////////////////
 function hProcessSubmission(e) {
-    sfss.hProcessSubmission(e);
+    sfss.s.hProcessSubmission(e);
 }
 
 function hReminderConfirmation(e) {
-    sfss.hReminderConfirmation(e);
+    sfss.s.hReminderConfirmation(e);
 }
 //////////////////////////////////////
 // end of system triggers
@@ -2671,39 +2139,39 @@ function hReminderConfirmation(e) {
 // spreadsheet menu items
 //////////////////////////////
 function mediaPresentNotConfirmed() {
-    sfss.mediaPresentNotConfirmed();
+    sfss.s.mediaPresentNotConfirmed();
 }
 
 function problem() {
-    sfss.problem();
+    sfss.s.problem();
 }
 
 function selected() {
-    sfss.selected();
+    sfss.s.selected();
 }
 
 function notSelected() {
-    sfss.notSelected();
+    sfss.s.notSelected();
 }
 
 function manual() {
-    sfss.manual();
+    sfss.s.manual();
 }
 
 function settingsOptions() {
-    sfss.settingsOptions();
+    sfss.s.settingsOptions();
 }
 
 function editAndSaveTemplates() {
-    sfss.editAndSaveTemplates();
+    sfss.s.editAndSaveTemplates();
 }
 
 function adHocEmail() {
-    sfss.adHocEmail();
+    sfss.s.adHocEmail();
 }
 
 function selectionNotification() {
-    sfss.selectionNotification();
+    sfss.s.selectionNotification();
 }
 ///////////////////////////
 // end of spreadsheet menu items
@@ -2714,23 +2182,23 @@ function selectionNotification() {
 // start of button actions
 ///////////////////////////////////
 function buttonAction(e) {
-    return sfss.buttonAction(e);
+    return sfss.s.buttonAction(e);
 }
 
 function templatesButtonAction(e) {
-    return sfss.templatesButtonAction(e);
+    return sfss.s.templatesButtonAction(e);
 }
 
 function settingsOptionsButtonAction(e) {
-    return sfss.settingsOptionsButtonAction(e);
+    return sfss.s.settingsOptionsButtonAction(e);
 }
 
 function selectionNotificationButtonAction(e) {
-    return sfss.selectionNotificationButtonAction(e);
+    return sfss.s.selectionNotificationButtonAction(e);
 }
 
 function adHocEmailButtonAction(e) {
-    return sfss.adHocEmailButtonAction(e);
+    return sfss.s.adHocEmailButtonAction(e);
 }
 ///////////////////////////////////
 // end of button actions

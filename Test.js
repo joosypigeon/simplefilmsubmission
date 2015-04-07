@@ -13,17 +13,18 @@ function doGet(e) {
     });
 
     var scriptProperties = PropertiesService.getScriptProperties(),
-        LOG_FILE = sfss.test_sfss_interface.LOG_FILE,
-        normalizeHeader = sfss.test_sfss_interface.normalizeHeader,
-        logIdBack = scriptProperties.getProperty(normalizeHeader(LOG_FILE));
+        s = sfss.s.test_sfss_interface,
+        r = sfss.r,
+        normalizeHeader = s.normalizeHeader,
+        logIdBack = scriptProperties.getProperty(normalizeHeader(r.LOG_FILE.s));
 
-    sfss.test_sfss_interface.setLogDoc(undefined);
-    sfss.test_sfss_interface.setTesting(true);
+    s.setLogDoc(undefined);
+    s.setTesting(true);
 
     QUnit.load(myTests);
 
     scriptProperties.setProperty(normalizeHeader(LOG_FILE), logIdBack);
-    sfss.test_sfss_interface.setTesting(false);
+    s.setTesting(false);
 
     return QUnit.getHtml();
 }
@@ -35,82 +36,24 @@ QUnit.helpers(this);
 
 function myTests() {
     Logger.log('start:myTests');
-    var pad = sfss.test_sfss_interface.pad,
-        setPadNumber = sfss.test_sfss_interface.setPadNumber,
-        diffDays = sfss.test_sfss_interface.diffDays,
-        normaliseAndValidateDuration = sfss.test_sfss_interface.normaliseAndValidateDuration,
-        normalizeHeader = sfss.test_sfss_interface.normalizeHeader,
-        setNamedValue = sfss.test_sfss_interface.setNamedValue,
-        getNamedValue = sfss.test_sfss_interface.getNamedValue,
-        saveData = sfss.test_sfss_interface.saveData,
-        loadData = sfss.test_sfss_interface.loadData,
-        findMinMaxColumns = sfss.test_sfss_interface.findMinMaxColumns,
-        log = sfss.test_sfss_interface.log,
-        findStatusColor = sfss.test_sfss_interface.findStatusColor,
-        getProperty = sfss.test_sfss_interface.getProperty,
-        setProperty = sfss.test_sfss_interface.setProperty,
-        deleteProperty = sfss.test_sfss_interface.deleteProperty,
-        setLogDoc = sfss.test_sfss_interface.setLogDoc,
-
-        // the 3 spreadsheet sheets
-        FILM_SUBMISSIONS_SHEET = sfss.test_sfss_interface.FILM_SUBMISSIONS_SHEET,
-
-        CLOSE_OF_SUBMISSION = sfss.test_sfss_interface.CLOSE_OF_SUBMISSION,
-        DAYS_BEFORE_REMINDER = sfss.test_sfss_interface.DAYS_BEFORE_REMINDER,
-
-
-        SUBMISSION_CONFIRMATION = sfss.test_sfss_interface.SUBMISSION_CONFIRMATION,
-        RECEIPT_CONFIMATION = sfss.test_sfss_interface.RECEIPT_CONFIMATION,
-        REMINDER = sfss.test_sfss_interface.REMINDER,
-        NOT_ACCEPTED = sfss.test_sfss_interface.NOT_ACCEPTED,
-        ACCEPTED = sfss.test_sfss_interface.ACCEPTED,
-        AD_HOC_EMAIL = sfss.test_sfss_interface.AD_HOC_EMAIL,
-
-        CURRENT_AD_HOC_EMAIL = sfss.test_sfss_interface.CURRENT_AD_HOC_EMAIL,
-        CURRENT_SELECTION_NOTIFICATION = sfss.test_sfss_interface.CURRENT_SELECTION_NOTIFICATION,
-
-        //values for CURRENT_SELECTION_NOTIFICATION, CURRENT_AD_HOC_EMAIL
-        NOT_STARTED = sfss.test_sfss_interface.NOT_STARTED,
-        PENDING = sfss.test_sfss_interface.PENDING,
-
-        //states
-        NO_MEDIA = sfss.test_sfss_interface.NO_MEDIA,
-        MEDIA_PRESENT = sfss.test_sfss_interface.MEDIA_PRESENT,
-        PROBLEM = sfss.test_sfss_interface.PROBLEM,
-        SELECTED = sfss.test_sfss_interface.SELECTED,
-        NOT_SELECTED = sfss.test_sfss_interface.NOT_SELECTED,
-        CONFIRMED = sfss.test_sfss_interface.CONFIRMED,
-        NOT_CONFIRMED = sfss.test_sfss_interface.NOT_CONFIRMED,
-
-        LENGTH = sfss.test_sfss_interface.LENGTH,
-        YEAR = sfss.test_sfss_interface.YEAR,
-
-        CONFIRM = sfss.test_sfss_interface.CONFIRM,
-
-        TIMESTAMP = sfss.test_sfss_interface.TIMESTAMP,
-
-        //COMMENTS = sfss.test_sfss_interface.COMMENTS,
-        FILM_ID = sfss.test_sfss_interface.FILM_ID,
-        SCORE = sfss.test_sfss_interface.SCORE,
-        CONFIRMATION = sfss.test_sfss_interface.CONFIRMATION,
-        SELECTION = sfss.test_sfss_interface.SELECTION,
-        STATUS = sfss.test_sfss_interface.STATUS,
-        LAST_CONTACT = sfss.test_sfss_interface.LAST_CONTACT,
-        FORM_DATA = sfss.test_sfss_interface.FORM_DATA,
-
-        // Sets number of numerical places on film ID so an example of a film ID were the PAD_NUMBER were set to 3 would be ID029.
-        // Legal values are 3,4,5,6
-        // NOTE: PAD_NUMBER puts an upper bound on the number of film submissions the system can cope with
-        PAD_NUMBER = sfss.test_sfss_interface.PAD_NUMBER,
-
-        // Will stop sending emails for the day when email quota is reported as less than or equal to MIN_QUOTA.
-        // Will attempt to send unsent emails the next day.
-        MIN_QUOTA = sfss.test_sfss_interface.MIN_QUOTA,
-
-        // name of log file
-        LOG_FILE = sfss.test_sfss_interface.LOG_FILE,
-
-        TEMPLATES_TESTING = sfss.test_sfss_interface.TEMPLATES_TESTING;
+    var s = sfss.s.test_sfss_interface,
+        r = sfss.r,
+        pad = s.pad,
+        setPadNumber = s.setPadNumber,
+        diffDays = s.diffDays,
+        normaliseAndValidateDuration = s.normaliseAndValidateDuration,
+        normalizeHeader = s.normalizeHeader,
+        setNamedValue = s.setNamedValue,
+        getNamedValue = s.getNamedValue,
+        saveData = s.saveData,
+        loadData = s.loadData,
+        findMinMaxColumns = s.findMinMaxColumns,
+        log = s.log,
+        findStatusColor = s.findStatusColor,
+        getProperty = s.getProperty,
+        setProperty = s.setProperty,
+        deleteProperty = s.deleteProperty,
+        setLogDoc = s.setLogDoc;
 
     module("utility function module");
 
@@ -151,19 +94,19 @@ function myTests() {
             ];
 
         for (var i = 0; i < 4; i++) {
-            PAD_NUMBER = i + 3;
-            setPadNumber(PAD_NUMBER);
-            for (var j = 0; j < PAD_NUMBER; j++) {
-                strictEqual(pad(padTestDataInput[j]), padTestDataOutput[i][j], 'Require leading zeros on string rep of number with ' + PAD_NUMBER + ' places.');
+            r.PAD_NUMBER.n = i + 3;
+            setPadNumber(r.PAD_NUMBER.n);
+            for (var j = 0; j < r.PAD_NUMBER.n; j++) {
+                strictEqual(pad(padTestDataInput[j]), padTestDataOutput[i][j], 'Require leading zeros on string rep of number with ' + r.PAD_NUMBER.n + ' places.');
             }
         }
 
         var testData = ['\\d\\d\\d', '\\d\\d\\d\\d', '\\d\\d\\d\\d\\d', '\\d\\d\\d\\d\\d\\d'];
 
         for (i = 0; i < testData.length; i++) {
-            PAD_NUMBER = (+i) + 3;
-            setPadNumber(PAD_NUMBER);
-            strictEqual(pad(-1), testData[i], 'Film ID suffix returned by pad for ' + PAD_NUMBER + ' places.');
+            r.PAD_NUMBER.n = (+i) + 3;
+            setPadNumber(r.PAD_NUMBER.n);
+            strictEqual(pad(-1), testData[i], 'Film ID suffix returned by pad for ' + r.PAD_NUMBER.n + ' places.');
         }
     });
 
@@ -361,11 +304,11 @@ function myTests() {
     test('setup', function () {
         ////////////////////////////////////////////////////////////////////////
         // First we setup the system.
-        // We then set up a mock MailApp which is only overQuota over MIN_QUOTA
+        // We then set up a mock MailApp which is only overQuota over r.MIN_QUOTA.n
         // We simulate 10 submissions
         ////////////////////////////////////////////////////////////////////////
-        PAD_NUMBER = 3;
-        setPadNumber(PAD_NUMBER);
+        r.PAD_NUMBER.n = 3;
+        setPadNumber(r.PAD_NUMBER.n);
         equal(true, true, setup());
 
 
@@ -408,7 +351,7 @@ function myTests() {
         // The first set of test is for hProcessSubmission. This is the Spreadsheet
         // Form Submission trigger. Its sets the submissions Last Contact, Status,
         // Confirmation, Selection and Film ID. And if the daily email quota is greater
-        // than MIN_QUOTA it sends a Submission Confirmation email.
+        // than r.MIN_QUOTA.n it sends a Submission Confirmation email.
         //
         // NOTE: if no Submission Confirmation email is sent, the submission is marked
         // as No Media, Not Confirmed. When hReminderConfirmation runs (after midnight)
@@ -417,10 +360,10 @@ function myTests() {
         ///////////////////////////////////////////////////////////////////////////////
 
         // build submission data
-        var filmSheet = ss.getSheetByName(FILM_SUBMISSIONS_SHEET),
+        var filmSheet = ss.getSheetByName(r.FILM_SUBMISSIONS_SHEET.s),
             datesData = ['Jan 1 2010 01:26:09', 'Jan 2 2010 02:36:10', 'Jan 3 2010 03:10:52', 'Jan 4 2010 04:54:31', 'Jan 5 2010 05:24:15', 'Jan 6 2010 06:57:19', 'Jan 7 2010 07:22:55', 'Jan 8 2010 08:33:22', 'Jan 9 2010 09:42:10', 'Jan 10 2010 10:10:32'],
             columns = filmSheet.getRange(1, 1, 1, filmSheet.getDataRange().getLastColumn()).getValues()[0],
-            formColumns = FORM_DATA.filter(function (x) {
+            formColumns = r.FORM_DATA.d.filter(function (x) {
                 return x !== 'section';
             }).map(function (x) {
                 return x.title;
@@ -442,7 +385,7 @@ function myTests() {
         }
 
         var overQuota = 5;
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota);
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota);
 
         var spreadsheetValues = [],
             formSubmissionValues = [];
@@ -463,10 +406,10 @@ function myTests() {
                 o[column] = column + n;
 
             }
-            o[TIMESTAMP] = new Date(datesData[i] + ' GMT+0000 (GMT)');
-            o[LENGTH] = '3:2';
-            o[YEAR] = (1900 + (10 * (+i))).toString();
-            o[CONFIRM] = 'Confirm';
+            o[r.TIMESTAMP.s] = new Date(datesData[i] + ' GMT+0000 (GMT)');
+            o[r.LENGTH.s] = '3:2';
+            o[r.YEAR.s] = (1900 + (10 * (+i))).toString();
+            o[r.CONFIRM.s] = 'Confirm';
             spreadsheetValues[i] = columns.map(cellValue);
             formSubmissionValues[i] = formColumnsSpreadsheetOrder.map(submissionValue);
 
@@ -488,24 +431,24 @@ function myTests() {
             spreadsheetFormSubmitEvent.values = formSubmissionValues[i];
             spreadsheetFormSubmitEvent.namedValues = {};
             for (j = 0; j < submission.length; j++) {
-                if (formColumns.indexOf(columns[j]) > -1 || columns[j] === TIMESTAMP) {
+                if (formColumns.indexOf(columns[j]) > -1 || columns[j] === r.TIMESTAMP.s) {
                     spreadsheetFormSubmitEvent.namedValues[columns[j]] = [submission[j]];
                 }
             }
 
             // Clean up previous tests.
-            deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+            deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
 
             hProcessSubmission(spreadsheetFormSubmitEvent); //Call the spreadsheet form submission trigget with the event object
             ////Utilities.sleep(3000);
 
             // Check that the emails we expected to be sent have been sent.
-            templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+            templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
             if ((+i) < overQuota) {
                 if (templatesTesting) {
                     templates = templatesTesting.split(',');
                 }
-                ok(templatesTesting && templates.length === 1 && templates[0] === SUBMISSION_CONFIRMATION, 'One Submisson Confirmation email has been sent.');
+                ok(templatesTesting && templates.length === 1 && templates[0] === r.SUBMISSION_CONFIRMATION.s, 'One Submisson Confirmation email has been sent.');
             } else {
                 ok(!templatesTesting, 'No email sent.');
             }
@@ -513,55 +456,55 @@ function myTests() {
 
         // After the film submissions, check that the Status, Confirmation, Selection and Film ID columns are as we expect
         var expectedStatus = [
-            [NO_MEDIA],
-            [NO_MEDIA],
-            [NO_MEDIA],
-            [NO_MEDIA],
-            [NO_MEDIA],
-            [NO_MEDIA],
-            [NO_MEDIA],
-            [NO_MEDIA],
-            [NO_MEDIA],
-            [NO_MEDIA]
+            [r.NO_MEDIA.s],
+            [r.NO_MEDIA.s],
+            [r.NO_MEDIA.s],
+            [r.NO_MEDIA.s],
+            [r.NO_MEDIA.s],
+            [r.NO_MEDIA.s],
+            [r.NO_MEDIA.s],
+            [r.NO_MEDIA.s],
+            [r.NO_MEDIA.s],
+            [r.NO_MEDIA.s]
         ];
-        var statusColumn = columns.indexOf(STATUS);
-        ok(statusColumn > -1, 'There is a ' + STATUS + ' column.');
+        var statusColumn = columns.indexOf(r.STATUS.s);
+        ok(statusColumn > -1, 'There is a ' + r.STATUS.s + ' column.');
         statusColumn += 1;
-        deepEqual(filmSheet.getRange(2, statusColumn, 10, 1).getValues(), expectedStatus, 'Expect status ' + NO_MEDIA + '.');
+        deepEqual(filmSheet.getRange(2, statusColumn, 10, 1).getValues(), expectedStatus, 'Expect status ' + r.NO_MEDIA.s + '.');
 
         var expectedConfirmation = [
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [NOT_CONFIRMED],
-            [NOT_CONFIRMED],
-            [NOT_CONFIRMED],
-            [NOT_CONFIRMED],
-            [NOT_CONFIRMED]
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.NOT_CONFIRMED.s],
+            [r.NOT_CONFIRMED.s],
+            [r.NOT_CONFIRMED.s],
+            [r.NOT_CONFIRMED.s],
+            [r.NOT_CONFIRMED.s]
         ];
-        var confirmationColumn = columns.indexOf(CONFIRMATION);
-        ok(confirmationColumn > -1, 'There is a ' + CONFIRMATION + ' column.');
+        var confirmationColumn = columns.indexOf(r.CONFIRMATION.s);
+        ok(confirmationColumn > -1, 'There is a ' + r.CONFIRMATION.s + ' column.');
         confirmationColumn += 1;
-        deepEqual(filmSheet.getRange(2, confirmationColumn, 10, 1).getValues(), expectedConfirmation, 'Expect first 5 submissions to be ' + CONFIRMED + ', second 5 submissions to be ' + NOT_CONFIRMED);
+        deepEqual(filmSheet.getRange(2, confirmationColumn, 10, 1).getValues(), expectedConfirmation, 'Expect first 5 submissions to be ' + r.CONFIRMED.s + ', second 5 submissions to be ' + r.NOT_CONFIRMED.s);
 
         var expectedSelection = [
-            [NOT_SELECTED],
-            [NOT_SELECTED],
-            [NOT_SELECTED],
-            [NOT_SELECTED],
-            [NOT_SELECTED],
-            [NOT_SELECTED],
-            [NOT_SELECTED],
-            [NOT_SELECTED],
-            [NOT_SELECTED],
-            [NOT_SELECTED]
+            [r.NOT_SELECTED.s],
+            [r.NOT_SELECTED.s],
+            [r.NOT_SELECTED.s],
+            [r.NOT_SELECTED.s],
+            [r.NOT_SELECTED.s],
+            [r.NOT_SELECTED.s],
+            [r.NOT_SELECTED.s],
+            [r.NOT_SELECTED.s],
+            [r.NOT_SELECTED.s],
+            [r.NOT_SELECTED.s]
         ];
-        var selectionColumn = columns.indexOf(SELECTION);
-        ok(selectionColumn > -1, 'There is a ' + SELECTION + ' column.');
+        var selectionColumn = columns.indexOf(r.SELECTION.s);
+        ok(selectionColumn > -1, 'There is a ' + r.SELECTION.s + ' column.');
         selectionColumn += 1;
-        deepEqual(filmSheet.getRange(2, selectionColumn, 10, 1).getValues(), expectedSelection, 'Expect selection to be ' + NOT_SELECTED);
+        deepEqual(filmSheet.getRange(2, selectionColumn, 10, 1).getValues(), expectedSelection, 'Expect selection to be ' + r.NOT_SELECTED.s);
 
         var expectedFilmId = [
             ['ID002'],
@@ -575,10 +518,10 @@ function myTests() {
             ['ID010'],
             ['ID011']
         ];
-        var filmIdColumn = columns.indexOf(FILM_ID);
-        ok(filmIdColumn > -1, 'There is a ' + FILM_ID + ' column.');
+        var filmIdColumn = columns.indexOf(r.FILM_ID.s);
+        ok(filmIdColumn > -1, 'There is a ' + r.FILM_ID.s + ' column.');
         filmIdColumn += 1;
-        deepEqual(filmSheet.getRange(2, filmIdColumn, 10, 1).getValues(), expectedFilmId, 'Expect correctly formated and sequenced ' + FILM_ID);
+        deepEqual(filmSheet.getRange(2, filmIdColumn, 10, 1).getValues(), expectedFilmId, 'Expect correctly formated and sequenced ' + r.FILM_ID.s);
 
         //Utilities.sleep(1000);
 
@@ -590,9 +533,9 @@ function myTests() {
         // if(Ad Hoc Email is pending or in progress){
         //    Continue with Ad Hoc Email.
         //    Stop when all submissions processed
-        //    or daily mail allocation is down to MIN_QUOTA.
+        //    or daily mail allocation is down to r.MIN_QUOTA.n.
         // } else if (not yet reached Close Of Submissions) {
-        //    While daily mail allocation is greater than MIN_QUOTA for each submission
+        //    While daily mail allocation is greater than r.MIN_QUOTA.n for each submission
         //       if submission is not confirmed {
         //          send submission confirmation
         //       } else if media present but not confirmed {
@@ -604,12 +547,12 @@ function myTests() {
         // } else if (Notification Confirmation is pending or in progress) {
         //    Continue with Notification Confirmation.
         //    Stop when all submissions processed
-        //    or daily mail allocation is down to MIN_QUOTA.
+        //    or daily mail allocation is down to r.MIN_QUOTA.n.
         // }
         ///////////////////////////////////////////////////////////////////////////////
 
         // Set the Cose of Submission to something consistant with the Timestamps on the ten film submission
-        setNamedValue(ss, CLOSE_OF_SUBMISSION, new Date('Jun 1 2010 GMT+0000 (GMT)'));
+        setNamedValue(ss, r.CLOSE_OF_SUBMISSION.s, new Date('Jun 1 2010 GMT+0000 (GMT)'));
 
         // Need to Mock the Date constructor
         (function (global) {
@@ -634,61 +577,61 @@ function myTests() {
         // Now we test hReminderConfirmation.
         //
         // The next two tests check that hReminderConfirmation can send submission
-        // confirmations. That it stops when its daily email quota drops to MIN_QUOTA
+        // confirmations. That it stops when its daily email quota drops to r.MIN_QUOTA.n
         // and that it can resume sending submissions confirmations when called
         // again
         ///////////////////////////////////////////////////////////////////////////////
 
         // Set the remaining daily email quote to only 3 emails left
         overQuota = 3;
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
         pushDate(FakeDate1); //Mock date
         hReminderConfirmation(); //first Reminder Confirmation cycle
         popDate(); // reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length === overQuota && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION && templates[2] === SUBMISSION_CONFIRMATION, 'Three ' + SUBMISSION_CONFIRMATION + ' emails sent:' + templates.length);
+        ok(templatesTesting && templates.length === overQuota && templates[0] === r.SUBMISSION_CONFIRMATION.s && templates[1] === r.SUBMISSION_CONFIRMATION.s && templates[2] === r.SUBMISSION_CONFIRMATION.s, 'Three ' + r.SUBMISSION_CONFIRMATION.s + ' emails sent:' + templates.length);
         for (var ii = 0; ii < templates.length; ii++) {
             log('templates[' + i + ']:' + templates[i]);
         }
 
         expectedConfirmation = [
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [NOT_CONFIRMED],
-            [NOT_CONFIRMED]
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.NOT_CONFIRMED.s],
+            [r.NOT_CONFIRMED.s]
         ];
-        deepEqual(filmSheet.getRange(2, confirmationColumn, 10, 1).getValues(), expectedConfirmation, 'Expect first 7 submissions to be ' + CONFIRMED + ', second 3 submissions to be ' + NOT_CONFIRMED);
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+        deepEqual(filmSheet.getRange(2, confirmationColumn, 10, 1).getValues(), expectedConfirmation, 'Expect first 7 submissions to be ' + r.CONFIRMED.s + ', second 3 submissions to be ' + r.NOT_CONFIRMED.s);
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
 
         //Utilities.sleep(3000);
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota to only 3 emails left
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota to only 3 emails left
         pushDate(FakeDate1); //Mock date
         hReminderConfirmation(); //Second Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length === 2 && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION, 'Two ' + SUBMISSION_CONFIRMATION + ' emails sent');
+        ok(templatesTesting && templates.length === 2 && templates[0] === r.SUBMISSION_CONFIRMATION.s && templates[1] === r.SUBMISSION_CONFIRMATION.s, 'Two ' + r.SUBMISSION_CONFIRMATION.s + ' emails sent');
         expectedConfirmation = [
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED]
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s]
         ];
-        deepEqual(filmSheet.getRange(2, confirmationColumn, 10, 1).getValues(), expectedConfirmation, 'Expect all submissions to be ' + CONFIRMED);
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+        deepEqual(filmSheet.getRange(2, confirmationColumn, 10, 1).getValues(), expectedConfirmation, 'Expect all submissions to be ' + r.CONFIRMED.s);
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
 
 
         function FakeDate2(d) {
@@ -700,7 +643,7 @@ function myTests() {
         // The next three tests check that hReminderConfirmation can send Reminders
         // when the media is not present for a submissions and a sufficent number of
         // days have passed since the last contact. It is checked that reminders are
-        // sent until the daily email quota drops to MIN_QUOTA, in which case it stops.
+        // sent until the daily email quota drops to r.MIN_QUOTA.n, in which case it stops.
         // It is checked that hReminderConfirmation can resume sending Reminders when
         // it stopped in the previous call.
         ///////////////////////////////////////////////////////////////////////////////
@@ -708,131 +651,131 @@ function myTests() {
         // Expect a sufficent amount of time has not elapsed for reminders to
         // have been sent
         overQuota = 3;
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
-        setNamedValue(ss, DAYS_BEFORE_REMINDER, 50); //High DAYS_BEFORE_REMINDER so no reminder emails need to be sent yet
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
+        setNamedValue(ss, r.DAYS_BEFORE_REMINDER.s, 50); //High r.DAYS_BEFORE_REMINDER.s so no reminder emails need to be sent yet
         pushDate(FakeDate2); //Mock date
         hReminderConfirmation(); //thid Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         ok(!templatesTesting, 'Expect no emails sent i.e. no reminder emails need to be sent yet.');
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
 
         //Utilities.sleep(3000);
 
         // Expect that 3 reminders will be sent.
-        setNamedValue(ss, DAYS_BEFORE_REMINDER, 14); // lower DAYS_BEFORE_REMINDER so that reminder emails will need to be sent
+        setNamedValue(ss, r.DAYS_BEFORE_REMINDER.s, 14); // lower r.DAYS_BEFORE_REMINDER.s so that reminder emails will need to be sent
         pushDate(FakeDate2); //Mock date
         hReminderConfirmation(); //fourth Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length === 3 && templates[0] === REMINDER && templates[1] === REMINDER && templates[2] === REMINDER, 'Expect 3 ' + REMINDER + ' emails sent');
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+        ok(templatesTesting && templates.length === 3 && templates[0] === r.REMINDER.s && templates[1] === r.REMINDER.s && templates[2] === r.REMINDER.s, 'Expect 3 ' + r.REMINDER.s + ' emails sent');
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
 
         //Utilities.sleep(3000);
 
         // Expect that 2 reminders will be sent
         overQuota = 3;
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
         pushDate(FakeDate2); //Mock date
         hReminderConfirmation(); //fourth Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length === 2 && templates[0] === REMINDER && templates[1] === REMINDER, 'Expect 2 ' + REMINDER + ' emails sent');
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+        ok(templatesTesting && templates.length === 2 && templates[0] === r.REMINDER.s && templates[1] === r.REMINDER.s, 'Expect 2 ' + r.REMINDER.s + ' emails sent');
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
 
         //Utilities.sleep(3000);
 
         ///////////////////////////////////////////////////////////////////////////////
         // The next 4 tests check that hReminderConfirmation can send Receipt
-        // Confirmations. That it stops when its daily email quota drops to MIN_QUOTA
+        // Confirmations. That it stops when its daily email quota drops to r.MIN_QUOTA.n
         // and that it can resume sending submissions confirmations when called
         // again
         ///////////////////////////////////////////////////////////////////////////////
         var statusColumnData = [
-            [MEDIA_PRESENT],
-            [MEDIA_PRESENT],
-            [NO_MEDIA],
-            [NO_MEDIA],
-            [MEDIA_PRESENT],
-            [MEDIA_PRESENT],
-            [NO_MEDIA],
-            [MEDIA_PRESENT],
-            [NO_MEDIA],
-            [MEDIA_PRESENT]
+            [r.MEDIA_PRESENT.s],
+            [r.MEDIA_PRESENT.s],
+            [r.NO_MEDIA.s],
+            [r.NO_MEDIA.s],
+            [r.MEDIA_PRESENT.s],
+            [r.MEDIA_PRESENT.s],
+            [r.NO_MEDIA.s],
+            [r.MEDIA_PRESENT.s],
+            [r.NO_MEDIA.s],
+            [r.MEDIA_PRESENT.s]
         ];
         filmSheet.getRange(2, statusColumn, 10, 1).setValues(statusColumnData);
         var confirmationColumnData = [
-            [CONFIRMED],
-            [NOT_CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [NOT_CONFIRMED],
-            [NOT_CONFIRMED],
-            [CONFIRMED],
-            [NOT_CONFIRMED],
-            [CONFIRMED],
-            [NOT_CONFIRMED]
+            [r.CONFIRMED.s],
+            [r.NOT_CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.NOT_CONFIRMED.s],
+            [r.NOT_CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.NOT_CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.NOT_CONFIRMED.s]
         ];
         filmSheet.getRange(2, confirmationColumn, 10, 1).setValues(confirmationColumnData);
         var color;
         for (i = 0; i < confirmationColumnData.length; i++) {
-            color = findStatusColor(ss, statusColumnData[i][0], confirmationColumnData[i][0], NOT_SELECTED);
+            color = findStatusColor(ss, statusColumnData[i][0], confirmationColumnData[i][0], r.NOT_SELECTED.s);
             filmSheet.getRange(2 + (+i), 1, 1, filmSheet.getDataRange().getLastColumn()).setBackground(color);
         }
 
         // Expect 3 Receipt Confirmations to be sent
         overQuota = 3;
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
         pushDate(FakeDate2); //Mock date
         hReminderConfirmation(); //fourth Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length === 3 && templates[0] === RECEIPT_CONFIMATION && templates[1] === RECEIPT_CONFIMATION && templates[2] === RECEIPT_CONFIMATION, 'Expect 3 ' + RECEIPT_CONFIMATION + ' emails sent');
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+        ok(templatesTesting && templates.length === 3 && templates[0] === r.RECEIPT_CONFIMATION.s && templates[1] === r.RECEIPT_CONFIMATION.s && templates[2] === r.RECEIPT_CONFIMATION.s, 'Expect 3 ' + r.RECEIPT_CONFIMATION.s + ' emails sent');
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
 
         expectedConfirmation = [
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [NOT_CONFIRMED],
-            [CONFIRMED],
-            [NOT_CONFIRMED]
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.NOT_CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.NOT_CONFIRMED.s]
         ];
-        deepEqual(filmSheet.getRange(2, confirmationColumn, 10, 1).getValues(), expectedConfirmation, 'Expect first 7 submissions to be ' + CONFIRMED + ' and the 9th submission to be ' + CONFIRMED);
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+        deepEqual(filmSheet.getRange(2, confirmationColumn, 10, 1).getValues(), expectedConfirmation, 'Expect first 7 submissions to be ' + r.CONFIRMED.s + ' and the 9th submission to be ' + r.CONFIRMED.s);
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
 
         // Expect 2 Receipt Confirmations to be sent
         overQuota = 3;
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
         pushDate(FakeDate2); //Mock date
         hReminderConfirmation(); //fourth Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length === 2 && templates[0] === RECEIPT_CONFIMATION && templates[1] === RECEIPT_CONFIMATION, 'Expect 2 ' + RECEIPT_CONFIMATION + ' emails sent');
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+        ok(templatesTesting && templates.length === 2 && templates[0] === r.RECEIPT_CONFIMATION.s && templates[1] === r.RECEIPT_CONFIMATION.s, 'Expect 2 ' + r.RECEIPT_CONFIMATION.s + ' emails sent');
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
 
         expectedConfirmation = [
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED],
-            [CONFIRMED]
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s],
+            [r.CONFIRMED.s]
         ];
-        deepEqual(filmSheet.getRange(2, confirmationColumn, 10, 1).getValues(), expectedConfirmation, 'Expect all submissions to be ' + CONFIRMED);
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+        deepEqual(filmSheet.getRange(2, confirmationColumn, 10, 1).getValues(), expectedConfirmation, 'Expect all submissions to be ' + r.CONFIRMED.s);
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
 
         //Utilities.sleep(1000);
 
@@ -842,49 +785,49 @@ function myTests() {
         // Set Status of submission ID008 to Problem
         // Submissions with Status Problem are ingnored by Ad Hoc Email
         filmSheet.getRange(8, statusColumn, 1, 1).setValues([
-            [PROBLEM]
+            [r.PROBLEM.s]
         ]);
-        color = findStatusColor(ss, PROBLEM, CONFIRMED, NOT_SELECTED);
+        color = findStatusColor(ss, r.PROBLEM.s, r.CONFIRMED.s, r.NOT_SELECTED.s);
         filmSheet.getRange(8, 1, 1, filmSheet.getDataRange().getLastColumn()).setBackground(color);
 
         //Set Ad Hoc Email to trigger with the next hReminderConfirmation call
-        setNamedValue(ss, CURRENT_AD_HOC_EMAIL, PENDING);
+        setNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s, r.PENDING.s);
 
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
         pushDate(FakeDate2); //Mock date
         hReminderConfirmation(); //5th Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
         log('templates.length:' + templates.length);
         for (var ii = 0; ii < templates.length; ii++) {
             log('templates[' + ii + ']:' + templates[ii]);
         }
-        ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
-        equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), FILM_ID + pad(4), 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + FILM_ID + pad(4));
+        ok(templatesTesting && templates.length === 3 && templates[0] === r.AD_HOC_EMAIL.s && templates[1] === r.AD_HOC_EMAIL.s && templates[2] === r.AD_HOC_EMAIL.s, 'Expect 3 ' + r.AD_HOC_EMAIL.s);
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
+        equal(getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s), r.FILM_ID.s + pad(4), 'Expect ' + r.CURRENT_AD_HOC_EMAIL.s + ' to be ' + r.FILM_ID.s + pad(4));
 
         //Utilities.sleep(1000);
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
         pushDate(FakeDate2); //Mock date
         hReminderConfirmation(); //6th Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
-        equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), FILM_ID + pad(7), 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + FILM_ID + pad(7));
+        ok(templatesTesting && templates.length === 3 && templates[0] === r.AD_HOC_EMAIL.s && templates[1] === r.AD_HOC_EMAIL.s && templates[2] === r.AD_HOC_EMAIL.s, 'Expect 3 ' + r.AD_HOC_EMAIL.s);
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
+        equal(getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s), r.FILM_ID.s + pad(7), 'Expect ' + r.CURRENT_AD_HOC_EMAIL.s + ' to be ' + r.FILM_ID.s + pad(7));
 
         //Utilities.sleep(1000);
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
         pushDate(FakeDate2); //Mock date
         hReminderConfirmation(); //6th Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
-        equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), NOT_STARTED, 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + NOT_STARTED);
+        ok(templatesTesting && templates.length === 3 && templates[0] === r.AD_HOC_EMAIL.s && templates[1] === r.AD_HOC_EMAIL.s && templates[2] === r.AD_HOC_EMAIL.s, 'Expect 3 ' + r.AD_HOC_EMAIL.s);
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
+        equal(getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s), r.NOT_STARTED.s, 'Expect ' + r.CURRENT_AD_HOC_EMAIL.s + ' to be ' + r.NOT_STARTED.s);
 
         //Utilities.sleep(1000);
 
@@ -898,43 +841,43 @@ function myTests() {
         FakeDate3.prototype = Date.prototype;
 
         //Set Ad Hoc Email to trigger with the next hReminderConfirmation call
-        setNamedValue(ss, CURRENT_AD_HOC_EMAIL, PENDING);
+        setNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s, r.PENDING.s);
 
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
         pushDate(FakeDate3); //Mock date
         hReminderConfirmation(); //5th Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
         log('templates.length:' + templates.length);
         for (var ii = 0; ii < templates.length; ii++) {
             log('templates[' + ii + ']:' + templates[ii]);
         }
-        ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
-        equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), FILM_ID + pad(4), 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + FILM_ID + pad(4));
+        ok(templatesTesting && templates.length === 3 && templates[0] === r.AD_HOC_EMAIL.s && templates[1] === r.AD_HOC_EMAIL.s && templates[2] === r.AD_HOC_EMAIL.s, 'Expect 3 ' + r.AD_HOC_EMAIL.s);
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
+        equal(getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s), r.FILM_ID.s + pad(4), 'Expect ' + r.CURRENT_AD_HOC_EMAIL.s + ' to be ' + r.FILM_ID.s + pad(4));
 
         //Utilities.sleep(1000);
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
         pushDate(FakeDate3); //Mock date
         hReminderConfirmation(); //6th Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
-        equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), FILM_ID + pad(7), 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + FILM_ID + pad(7));
+        ok(templatesTesting && templates.length === 3 && templates[0] === r.AD_HOC_EMAIL.s && templates[1] === r.AD_HOC_EMAIL.s && templates[2] === r.AD_HOC_EMAIL.s, 'Expect 3 ' + r.AD_HOC_EMAIL.s);
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
+        equal(getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s), r.FILM_ID.s + pad(7), 'Expect ' + r.CURRENT_AD_HOC_EMAIL.s + ' to be ' + r.FILM_ID.s + pad(7));
 
         //Utilities.sleep(1000);
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
         pushDate(FakeDate3); //Mock date
         hReminderConfirmation(); //6th Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length === 3 && templates[0] === AD_HOC_EMAIL && templates[1] === AD_HOC_EMAIL && templates[2] === AD_HOC_EMAIL, 'Expect 3 ' + AD_HOC_EMAIL);
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
-        equal(getNamedValue(ss, CURRENT_AD_HOC_EMAIL), NOT_STARTED, 'Expect ' + CURRENT_AD_HOC_EMAIL + ' to be ' + NOT_STARTED);
+        ok(templatesTesting && templates.length === 3 && templates[0] === r.AD_HOC_EMAIL.s && templates[1] === r.AD_HOC_EMAIL.s && templates[2] === r.AD_HOC_EMAIL.s, 'Expect 3 ' + r.AD_HOC_EMAIL.s);
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
+        equal(getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s), r.NOT_STARTED.s, 'Expect ' + r.CURRENT_AD_HOC_EMAIL.s + ' to be ' + r.NOT_STARTED.s);
 
         //Utilities.sleep(1000);
 
@@ -942,56 +885,56 @@ function myTests() {
         // Test Selection Notification Email
         ///////////////////////////////////////////////////////////////////////////////
         selectionColumnData = [
-            [SELECTED],
-            [NOT_SELECTED],
-            [NOT_SELECTED],
-            [NOT_SELECTED],
-            [SELECTED],
-            [NOT_SELECTED],
-            [NOT_SELECTED],
-            [SELECTED],
-            [NOT_SELECTED],
-            [SELECTED]
+            [r.SELECTED.s],
+            [r.NOT_SELECTED.s],
+            [r.NOT_SELECTED.s],
+            [r.NOT_SELECTED.s],
+            [r.SELECTED.s],
+            [r.NOT_SELECTED.s],
+            [r.NOT_SELECTED.s],
+            [r.SELECTED.s],
+            [r.NOT_SELECTED.s],
+            [r.SELECTED.s]
         ];
         filmSheet.getRange(2, selectionColumn, 10, 1).setValues(selectionColumnData);
 
         //Set Ad Hoc Email to trigger with the next hReminderConfirmation call
-        setNamedValue(ss, CURRENT_SELECTION_NOTIFICATION, PENDING);
+        setNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s, r.PENDING.s);
 
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
         pushDate(FakeDate3); //Mock date
         hReminderConfirmation(); //5th Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
         log('templatesTesting:' + templatesTesting);
         log(templates);
         log('templates.length:' + templates.length);
-        ok(templatesTesting && templates.length === 3 && templates[0] === ACCEPTED && templates[1] === NOT_ACCEPTED && templates[2] === NOT_ACCEPTED, 'Expect ' + ACCEPTED + ' followed by 2 ' + NOT_ACCEPTED);
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
-        equal(getNamedValue(ss, CURRENT_SELECTION_NOTIFICATION), FILM_ID + pad(4), 'Expect ' + CURRENT_SELECTION_NOTIFICATION + ' to be ' + FILM_ID + pad(4));
+        ok(templatesTesting && templates.length === 3 && templates[0] === r.ACCEPTED.s && templates[1] === r.NOT_ACCEPTED.s && templates[2] === r.NOT_ACCEPTED.s, 'Expect ' + r.ACCEPTED.s + ' followed by 2 ' + r.NOT_ACCEPTED.s);
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
+        equal(getNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s), r.FILM_ID.s + pad(4), 'Expect ' + r.CURRENT_SELECTION_NOTIFICATION.s + ' to be ' + r.FILM_ID.s + pad(4));
 
         //Utilities.sleep(1000);
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
         pushDate(FakeDate3); //Mock date
         hReminderConfirmation(); //6th Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length === 3 && templates[0] === NOT_ACCEPTED && templates[1] === ACCEPTED && templates[2] === NOT_ACCEPTED, 'Expect ' + NOT_ACCEPTED + ' followed by ' + ACCEPTED + ' followed by ' + NOT_ACCEPTED);
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
-        equal(getNamedValue(ss, CURRENT_SELECTION_NOTIFICATION), FILM_ID + pad(7), 'Expect ' + CURRENT_SELECTION_NOTIFICATION + ' to be ' + FILM_ID + pad(7));
+        ok(templatesTesting && templates.length === 3 && templates[0] === r.NOT_ACCEPTED.s && templates[1] === r.ACCEPTED.s && templates[2] === r.NOT_ACCEPTED.s, 'Expect ' + r.NOT_ACCEPTED.s + ' followed by ' + r.ACCEPTED.s + ' followed by ' + r.NOT_ACCEPTED.s);
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
+        equal(getNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s), r.FILM_ID.s + pad(7), 'Expect ' + r.CURRENT_SELECTION_NOTIFICATION.s + ' to be ' + r.FILM_ID.s + pad(7));
 
         //Utilities.sleep(1000);
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
         pushDate(FakeDate3); //Mock date
         hReminderConfirmation(); //6th Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length === 3 && templates[0] === ACCEPTED && templates[1] === NOT_ACCEPTED && templates[2] === ACCEPTED, 'Expect ' + ACCEPTED + ' follwed by ' + NOT_ACCEPTED + ' follwed by ' + ACCEPTED);
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
-        equal(getNamedValue(ss, CURRENT_SELECTION_NOTIFICATION), NOT_STARTED, 'Expect ' + CURRENT_SELECTION_NOTIFICATION + ' to be ' + NOT_STARTED);
+        ok(templatesTesting && templates.length === 3 && templates[0] === r.ACCEPTED.s && templates[1] === r.NOT_ACCEPTED.s && templates[2] === r.ACCEPTED.s, 'Expect ' + r.ACCEPTED.s + ' follwed by ' + r.NOT_ACCEPTED.s + ' follwed by ' + r.ACCEPTED.s);
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
+        equal(getNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s), r.NOT_STARTED.s, 'Expect ' + r.CURRENT_SELECTION_NOTIFICATION.s + ' to be ' + r.NOT_STARTED.s);
 
 
         ///////////////////////////////////////////////////////////////////////
@@ -1007,13 +950,13 @@ function myTests() {
         // 
         // We append 4 unprocessed submissions into the spreadsheet and
         // follow that by appending another submission with an associated call
-        // to hProcessSubmission with email quota set to 2 over MIN_QUOTA
+        // to hProcessSubmission with email quota set to 2 over r.MIN_QUOTA.n
         // 
         // We expect hProcessSubmission to pick up the previous unprocessed
         // submission and confirm the first 2 of the 5 in total submissions.
         // 
         // We then make a call to hReminderConfirmation again with email quota
-        // set to 2 over MIN_QUOTA, which we expect to pick up the first 2 of
+        // set to 2 over r.MIN_QUOTA.n, which we expect to pick up the first 2 of
         // the remaining NO_CONTACT submission
         ///////////////////////////////////////////////////////////////////////
         var numberOfPreviousSubmissions = 10,
@@ -1021,7 +964,7 @@ function myTests() {
 
 
         overQuota = 2; // we will only be sending 3 fake emails
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota);
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota);
 
 
         for (i = 0; i < unprocessedEntries + 1; i++) {
@@ -1033,10 +976,10 @@ function myTests() {
                 o[column] = column + n;
 
             }
-            o[TIMESTAMP] = new Date(datesData[i] + ' GMT+0000 (GMT)');
-            o[LENGTH] = '3:2';
-            o[YEAR] = (1900 + (10 * (+i))).toString();
-            o[CONFIRM] = 'Confirm';
+            o[r.TIMESTAMP.s] = new Date(datesData[i] + ' GMT+0000 (GMT)');
+            o[r.LENGTH.s] = '3:2';
+            o[r.YEAR.s] = (1900 + (10 * (+i))).toString();
+            o[r.CONFIRM.s] = 'Confirm';
             spreadsheetValues[i] = columns.map(cellValue);
             formSubmissionValues[i] = formColumnsSpreadsheetOrder.map(submissionValue);
             log('formSubmissionValues[' + i + ']:' + formSubmissionValues[i]);
@@ -1060,36 +1003,36 @@ function myTests() {
                 spreadsheetFormSubmitEvent.values = formSubmissionValues[i];
                 spreadsheetFormSubmitEvent.namedValues = {};
                 for (j = 0; j < submission.length; j++) {
-                    if (formColumns.indexOf(columns[j]) > -1 || columns[j] === TIMESTAMP) {
+                    if (formColumns.indexOf(columns[j]) > -1 || columns[j] === r.TIMESTAMP.s) {
                         spreadsheetFormSubmitEvent.namedValues[columns[j]] = [submission[j]];
                     }
                 }
 
                 // Clean up previous tests.
-                deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+                deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
 
                 hProcessSubmission(spreadsheetFormSubmitEvent); //Call the spreadsheet form submission trigget with the event object
 
                 // Check that the emails we expected to be sent have been sent.
-                templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+                templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
                 if (templatesTesting) {
                     templates = templatesTesting.split(',');
                 }
-                ok(templatesTesting && templates.length === 2 && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION, 'Two Submisson Confirmation email has been sent.');
-                deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+                ok(templatesTesting && templates.length === 2 && templates[0] === r.SUBMISSION_CONFIRMATION.s && templates[1] === r.SUBMISSION_CONFIRMATION.s, 'Two Submisson Confirmation email has been sent.');
+                deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
 
             }
         }
 
         overQuota = 2;
         pushDate(FakeDate1); //Mock date
-        MailApp.setRemainingDailyQuota(MIN_QUOTA + overQuota); //reset email quota
+        MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
         hReminderConfirmation(); //6th Reminder Confirmation cycle
         popDate(); //reset date
-        templatesTesting = getProperty(normalizeHeader(TEMPLATES_TESTING));
+        templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
         templates = templatesTesting ? templatesTesting.split(',') : null;
-        ok(templatesTesting && templates.length === 2 && templates[0] === SUBMISSION_CONFIRMATION && templates[1] === SUBMISSION_CONFIRMATION, 'Two Submisson Confirmation email has been sent.');
-        deleteProperty(normalizeHeader(TEMPLATES_TESTING));
+        ok(templatesTesting && templates.length === 2 && templates[0] === r.SUBMISSION_CONFIRMATION.s && templates[1] === r.SUBMISSION_CONFIRMATION.s, 'Two Submisson Confirmation email has been sent.');
+        deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
 
 
 
