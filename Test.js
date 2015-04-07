@@ -23,7 +23,7 @@ function doGet(e) {
 
     QUnit.load(myTests);
 
-    scriptProperties.setProperty(normalizeHeader(LOG_FILE), logIdBack);
+    scriptProperties.setProperty(normalizeHeader(r.LOG_FILE.s), logIdBack);
     s.setTesting(false);
 
     return QUnit.getHtml();
