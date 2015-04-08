@@ -2,7 +2,7 @@
 // The code below is from the Simple Mail Merge tutorial which can be
 // found here https://developers.google.com/apps-script/articles/mail_merge
 ////////////////////////////////////////////////////////////////////////////////
-
+Logger.log('entering file smm');
 var sfss = sfss || {};
 sfss.smm = (function () {
     /////////////////////////////////////////////////////////////////////////
@@ -183,3 +183,4 @@ sfss.smm = (function () {
         normalizeHeader: normalizeHeader
     };
 })();
+Logger.log('leaving file smm');

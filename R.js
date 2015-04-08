@@ -1,5 +1,5 @@
-/*global smm, Session*/
-
+/*global smm, Session, PropertiesService */
+Logger.log('entering file r');
 var sfss = sfss || {};
 sfss.r = (function () {
     var r = {}; // Resource storage.
@@ -220,7 +220,9 @@ sfss.r = (function () {
             ['currentDate', new Date()],
 
             ['TESTING', false],
-            ['TEMPLATES_TESTING', 'Templates Testing']
+            ['TEMPLATES_TESTING', 'Templates Testing'],
+            
+            ['SCRIPT_PROPERTIES', PropertiesService.getScriptProperties()]
         ];
 
         resourceData00.forEach(R.addResource);
@@ -515,3 +517,4 @@ sfss.r = (function () {
 
     return r; // Pass out resource storage
 }());
+Logger.log('leaving file r');
