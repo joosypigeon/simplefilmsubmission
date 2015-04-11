@@ -1,4 +1,4 @@
-/*global Logger */
+/*global Logger, SpreadsheetApp, MailApp */
 
 Logger.log('entering file util');
 var sfss = sfss || {};
@@ -6,36 +6,19 @@ try {
     sfss.u = (function (r, lg, smm) {
         'use strict';
 
-        var utils_interface = {},
+        var utils_interface,
 
             CACHE = {},
 
             log = lg.log,
             catchToString = lg.catchToString,
-
+            
+            fillInTemplateFromObject = smm.fillInTemplateFromObject,
             normalizeHeaders = smm.normalizeHeaders,
             normalizeHeader = smm.normalizeHeader;
 
 
-        function setColumnWidth(ss, sheetName, columnWidths) {
-            try {
-                var sheet = ss.getSheetByName(sheetName),
-                    headers = sheet.getRange(1, 1, 1, sheet.getDataRange().getLastColumn()).getValues()[0],
-                    width = {};
-                for (var columnIndex = 0; columnIndex < columnWidths.length; columnIndex++) {
-                    width[columnWidths[columnIndex].header] = columnWidths[columnIndex].width;
-                }
 
-                for (columnIndex in headers) {
-                    if (width[headers[columnIndex]]) {
-                        sheet.setColumnWidth(1 + (+columnIndex), width[headers[columnIndex]]);
-                    }
-                }
-                SpreadsheetApp.flush();
-            } catch (e) {
-                log('setColumnWidth:error:' + catchToString(e));
-            }
-        }
 
         function prettyPrintDate(date) {
             if (!date) {
@@ -257,45 +240,7 @@ try {
             };
         }
 
-        function mergeAndSend(ss, submission, templateName, emailQuotaRemaining) {
-            try {
-                emailQuotaRemaining = emailQuotaRemaining ? emailQuotaRemaining : 0; // Set to 0 if not supplied i.e. it dosnt matter in this case
-                submission[normalizeHeader(r.FESTIVAL_NAME.s)] = getNamedValue(ss, r.FESTIVAL_NAME.s);
-                submission[normalizeHeader(r.CLOSE_OF_SUBMISSION.s)] = prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s));
-                submission[normalizeHeader(r.EVENT_DATE.s)] = prettyPrintDate(getNamedValue(ss, r.EVENT_DATE.s));
-                submission[normalizeHeader(r.FESTIVAL_WEBSITE.s)] = getNamedValue(ss, r.FESTIVAL_WEBSITE.s);
-                submission[normalizeHeader(r.RELEASE_LINK.s)] = getNamedValue(ss, r.RELEASE_LINK.s);
-
-                var subjectTemplate = getNamedValue(ss, templateName + ' ' + r.SUBJECT_LINE.s),
-                    bodyTemplate = getNamedValue(ss, templateName + ' ' + r.BODY.s);
-
-                if (submission[normalizeHeader(r.EMAIL.s)]) {
-                    MailApp.sendEmail(submission[normalizeHeader(r.EMAIL.s)], fillInTemplateFromObject(subjectTemplate, submission), fillInTemplateFromObject(bodyTemplate, submission));
-                    emailQuotaRemaining -= 1;
-                    if (r.TESTING.b) {
-                        var templatesTesting = getProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
-                        if (templatesTesting) {
-                            templatesTesting += ',' + templateName;
-                        } else {
-                            templatesTesting = templateName;
-                        }
-                        setProperty(normalizeHeader(r.TEMPLATES_TESTING.s), templatesTesting);
-                    }
-                    log('mergeAndSend:email sent');
-                } else {
-                    log('mergeAndSend:error:no email found!');
-                }
-
-
-            } catch (e) {
-                log('mergeAndSend:error:' + catchToString(e));
-            }
-            return emailQuotaRemaining;
-        }
-
         utils_interface = {
-            catchToString: catchToString,
-            setColumnWidth: setColumnWidth,
             prettyPrintDate: prettyPrintDate,
             normaliseAndValidateDuration: normaliseAndValidateDuration,
             pad: pad,
@@ -306,9 +251,7 @@ try {
             saveData: saveData,
             findStatusColor: findStatusColor,
             diffDays: diffDays,
-            findMinMaxColumns: findMinMaxColumns,
-
-            mergeAndSend: mergeAndSend
+            findMinMaxColumns: findMinMaxColumns
         };
 
         return utils_interface;

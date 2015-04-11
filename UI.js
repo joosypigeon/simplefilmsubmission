@@ -10,6 +10,8 @@ try {
 
             normalizeHeaders = smm.normalizeHeaders,
             normalizeHeader = smm.normalizeHeader,
+            getRowsData = smm.getRowsData,
+            setRowsData = smm.setRowsData,
 
             log = lg.log,
             catchToString = lg.catchToString,
@@ -18,8 +20,8 @@ try {
             loadData = u.loadData,
             prettyPrintDate = u.prettyPrintDate,
             getNamedValue = u.getNamedValue,
-            diffDays = u.diffDays;
-
+            diffDays = u.diffDays,
+            findMinMaxColumns = u.findMinMaxColumns;
 
         // build custom menu for spreadsheet
         function onOpen() {
@@ -1265,21 +1267,22 @@ try {
             adHocEmail: adHocEmail,
             selectionNotification: selectionNotification,
 
-            // button actions
+            // button actions and server handlers
             buttonAction: buttonAction,
             templatesButtonAction: templatesButtonAction,
             settingsOptionsButtonAction: settingsOptionsButtonAction,
             selectionNotificationButtonAction: selectionNotificationButtonAction,
-            adHocEmailButtonAction: adHocEmailButtonAction
+            adHocEmailButtonAction: adHocEmailButtonAction,
+            validateDates: validateDates
         };
 
         return ui_interface;
 
     }(sfss.r, sfss.lg, sfss.u, sfss.smm));
 
-    //////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
     // spreadsheet menu items
-    //////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
     function mediaPresentNotConfirmed() {
         sfss.ui.mediaPresentNotConfirmed();
     }
@@ -1315,14 +1318,13 @@ try {
     function selectionNotification() {
         sfss.ui.selectionNotification();
     }
-    ///////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
     // end of spreadsheet menu items
-    ///////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
-
-    ///////////////////////////////////
-    // start of button actions
-    ///////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    // start of button actions and server handlers
+    ////////////////////////////////////////////////////////////////////////////
     function buttonAction(e) {
         return sfss.ui.buttonAction(e);
     }
@@ -1342,9 +1344,13 @@ try {
     function adHocEmailButtonAction(e) {
         return sfss.ui.adHocEmailButtonAction(e);
     }
-    ///////////////////////////////////
-    // end of button actions
-    ///////////////////////////////////
+
+    function validateDates(e) {
+        return sfss.ui.validateDates(e);
+    }
+    ////////////////////////////////////////////////////////////////////////////
+    // end of button actions and server handlers
+    ////////////////////////////////////////////////////////////////////////////
 } catch (e) {
     Logger.log(sfss.lg.catchToString(e));
 }

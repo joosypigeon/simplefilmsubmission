@@ -2,13 +2,11 @@
 Logger.log('entering file sfss');
 var sfss = sfss || {};
 try {
-    sfss.s = (function (r, lg, u, ui, smm) {
+    sfss.s = (function (r, lg, u, m, f, ui, smm) {
         'use strict';
 
         var sfss_interface,
-            PROPERTIES = {},
 
-            fillInTemplateFromObject = smm.fillInTemplateFromObject,
             setRowsData = smm.setRowsData,
             getRowsData = smm.getRowsData,
             normalizeHeaders = smm.normalizeHeaders,
@@ -16,45 +14,33 @@ try {
 
             log = lg.log,
             catchToString = lg.catchToString,
-            
-            setColumnWidth = u.setColumnWidth,
-            prettyPrintDate = u.prettyPrintDate,
+            buildLogFile = lg.buildLogFile,
+
+
             normaliseAndValidateDuration = u.normaliseAndValidateDuration,
             pad = u.pad,
             setPadNumber = u.setPadNumber,
             getNamedValue = u.getNamedValue,
             setNamedValue = u.setNamedValue,
-            loadData = u.loadData,
             saveData = u.saveData,
+            loadData = u.loadData,
             findStatusColor = u.findStatusColor,
             diffDays = u.diffDays,
             findMinMaxColumns = u.findMinMaxColumns,
-            mergeAndSend = u.mergeAndSend;
+            
+            mergeAndSend = m.mergeAndSend,
+            getProperty = m.getProperty,
+            setProperty = m.setProperty,
+            deleteProperty = m.deleteProperty,
+            
+            buildFormAndSpreadsheet = f.buildFormAndSpreadsheet;
 
 
-        function setLogDoc(lD) {
-            ui.setLogDoc(lD);
-        }
+ 
         // set TESTING to true when running unit tests
         function setTesting(b) {
             r.TESTING.b = b;
         }
-
-        // used in testing template emails
-        function getProperty(p) {
-            return PROPERTIES[p];
-        }
-
-        // used in testing template emails
-        function setProperty(p, v) {
-            PROPERTIES[p] = v;
-        }
-
-        // used in testing template emails
-        function deleteProperty(p) {
-            delete PROPERTIES[p];
-        }
-
 
         function setup() {
             try {
@@ -64,92 +50,18 @@ try {
                     }
 
                     log("setup start.");
-                    var itemData, sheet;
-
-                    // build online submission form
-                    var form = FormApp.create(r.FORM_TITLE.s).setConfirmationMessage(r.FORM_RESPONSE.s);
-                    for (var itemIndex = 0; itemIndex < r.FORM_DATA.d.length; itemIndex++) {
-                        itemData = r.FORM_DATA.d[itemIndex];
-                        if (itemData === "section") {
-                            form.addSectionHeaderItem();
-                        } else {
-                            var formItem = form[itemData.type]().setTitle(itemData.title).setHelpText(itemData.help).setRequired(itemData.required ? true : false);
-                            if (itemData.type === "addCheckboxItem") {
-                                formItem.setChoices([formItem.createChoice(itemData.choice)]);
-                            }
-                            if (itemData.type === "addMultipleChoiceItem") {
-                                formItem.setChoiceValues(itemData.choices);
-                            }
-                        }
+                    var ss = SpreadsheetApp.getActiveSpreadsheet();
+                    if (!r.TESTING.b) {
+                        buildLogFile(ss);
                     }
-
-                    var ss = SpreadsheetApp.getActiveSpreadsheet(),
-                        ssId = ss.getId(),
-                        formId = form.getId();
-
-                    // find parent folder of spreadsheet and move form to that folder
-                    var ssParentFolder = DriveApp.getFileById(ssId).getParents().next(),
-                        formFile = DriveApp.getFileById(formId),
-                        formFolder = DriveApp.createFolder(r.FORM_FOLDER.s);
-
-                    DriveApp.removeFolder(formFolder); // remove from root
-                    DriveApp.removeFile(formFile); // remove from root
-                    ssParentFolder.addFolder(formFolder);
-                    formFolder.addFile(formFile);
-
-                    log('Built online submission form.');
-
-                    // initialise spreadsheet and set spreadsheet as the destination of the form
-                    form.setDestination(FormApp.DestinationType.SPREADSHEET, ss.getId());
-
-                    // Need this for testing.
-                    // Otherwise 'Form Responses 1' not present when looked for!!!
-                    // Why does this only break testing!!!
-                    SpreadsheetApp.flush();
-
-                    // create the r.FILM_SUBMISSIONS_SHEET.s, r.OPTIONS_SETTINGS_SHEET.s and r.TEMPLATE_SHEET.s sheet
-                    ss.getSheetByName('Form Responses 1').setName(r.FILM_SUBMISSIONS_SHEET.s);
-                    ss.insertSheet(r.OPTIONS_SETTINGS_SHEET.s, 2);
-                    ss.insertSheet(r.TEMPLATE_SHEET.s, 3);
-                    ss.deleteSheet(ss.getSheetByName('Sheet1'));
-
-                    // add extra columns to r.FILM_SUBMISSIONS_SHEET.s
-                    sheet = ss.getSheetByName(r.FILM_SUBMISSIONS_SHEET.s);
-                    for (var i = 0; i < r.ADDITIONAL_COLUMNS.d.length; i++) {
-                        columnIndex = r.ADDITIONAL_COLUMNS.d[i].columnIndex;
-                        if (columnIndex === 'end') {
-                            columnIndex = sheet.getLastColumn();
-                        }
-                        sheet.insertColumnAfter(columnIndex);
-                        sheet.getRange(1, columnIndex + 1, 1, 1).setValue(r.ADDITIONAL_COLUMNS.d[i].title);
-                    }
-
-                    //add templates to r.TEMPLATE_SHEET.s
-                    saveData(ss, ss.getSheetByName(r.TEMPLATE_SHEET.s).getRange(1, 1, 1, 1), r.TEMPLATE_DATA.d, r.TEMPLATE_DATA.s, 'mistyrose');
-
-                    //initialise r.OPTIONS_SETTINGS_SHEET.s
-                    for (i = 0; i < r.OPTION_SHEET_DATA.d.length; i++) {
-                        var dataItem = r.OPTION_SHEET_DATA.d[i];
-                        saveData(ss, ss.getSheetByName(r.OPTIONS_SETTINGS_SHEET.s).getRange(1, 2 * (+i) + 1, 1, 1), dataItem.data, dataItem.name, (+i) % 2 ? 'aliceblue' : 'mistyrose');
-
-                    }
+                    buildFormAndSpreadsheet(ss);
 
                     // update menu
                     if (!r.TESTING.b) {
                         ss.updateMenu(r.FILM_SUBMISSION.s, r.MENU_ENTRIES.d);
-                    }
 
-                    setColumnWidth(ss, r.FILM_SUBMISSIONS_SHEET.s, r.filmSheetColumnWidth.d);
-                    setColumnWidth(ss, r.TEMPLATE_SHEET.s, r.templateSheetColumnWidth.d);
-
-                    log('Built spreadsheet.');
-
-                    if (!r.TESTING.b) {
                         settingsOptions(); // let user set options and settings
-                    }
 
-                    // Only need the triggers if we are not testing.
-                    if (!r.TESTING.b) {
                         // enable film submission processing on form submission
                         ScriptApp.newTrigger("hProcessSubmission").forSpreadsheet(ss).onFormSubmit().create();
 
@@ -161,7 +73,7 @@ try {
                     }
                 }
             } catch (e) {
-                log('setup:error:' + catchToString(e));
+                Logger.log('setup:' + catchToString(e));
             }
         }
 
@@ -544,6 +456,7 @@ try {
             normalizeHeader: normalizeHeader,
             log: log,
             findStatusColor: findStatusColor,
+            
             getProperty: getProperty,
             setProperty: setProperty,
             deleteProperty: deleteProperty,
@@ -562,7 +475,7 @@ try {
         };
 
         return sfss_interface;
-    }(sfss.r, sfss.lg, sfss.u, sfss.ui, sfss.smm));
+    }(sfss.r, sfss.lg, sfss.u, sfss.merge, sfss.form, sfss.ui, sfss.smm));
 } catch (e) {
     Logger.log(sfss.lg.catchToString(e));
 }
@@ -594,7 +507,4 @@ function hReminderConfirmation(e) {
 //////////////////////////////////////
 // end of system triggers
 //////////////////////////////////////
-
-
-
 Logger.log('leaving file sfss');

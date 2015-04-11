@@ -21,7 +21,6 @@ try {
             normalizeHeader = s.normalizeHeader,
             logIdBack = r.SCRIPT_PROPERTIES.d.getProperty(normalizeHeader(r.LOG_FILE.s));
 
-        lg.setLogDoc(undefined);
         s.setTesting(true);
 
         QUnit.load(myTests);
@@ -44,6 +43,7 @@ try {
         var s = sfss.s.testing,
             r = sfss.r,
             u = sfss.u,
+            m = sfss.merge,
             lg = sfss.lg,
             smm = sfss.smm,
 
@@ -62,10 +62,26 @@ try {
             findMinMaxColumns = u.findMinMaxColumns,
             findStatusColor = u.findStatusColor,
             
-            getProperty = s.getProperty,
-            setProperty = s.setProperty,
-            deleteProperty = s.deleteProperty;
+            getProperty = m.getProperty,
+            setProperty = m.setProperty,
+            deleteProperty = m.deleteProperty;
+    
+        // Create a temporary spreadsheet and put it in the folder Test. Put the
+        // test folder in the same folder has the spreadsheet containing this script.
+        // Note: ssFile and testFolder should have been created at the root of the drive
+        var ss = SpreadsheetApp.create('Testing'),
+            ssFile = DriveApp.getFileById(ss.getId()),
+            testFolder = DriveApp.createFolder('Test');
 
+        DriveApp.removeFile(ssFile);
+        testFolder.addFile(ssFile);
+
+        ss.setSpreadsheetTimeZone('GMT');
+        SpreadsheetApp.setActiveSpreadsheet(ss);
+
+        SpreadsheetApp.flush();
+        
+        lg.buildLogFile(ss);
 
         module("utility function module");
 
@@ -178,22 +194,6 @@ try {
                 equal(diffDays(item.input.a, item.input.b), item.expected, 'Difference in days between two dates.');
             }
         });
-
-        // Create a temporary spreadsheet and put it in the folder Test. Put the
-        // test folder in the same folder has the spreadsheet containing this script.
-        // Note: ssFile and testFolder should have been created at the root of the drive
-        var ss = SpreadsheetApp.create('Testing'),
-            ssFile = DriveApp.getFileById(ss.getId()),
-            testFolder = DriveApp.createFolder('Test');
-
-        DriveApp.removeFile(ssFile);
-        testFolder.addFile(ssFile);
-
-        ss.setSpreadsheetTimeZone('GMT');
-        SpreadsheetApp.setActiveSpreadsheet(ss);
-
-        SpreadsheetApp.flush();
-
 
         test('get/set', function () {
             var sheet1 = ss.getSheetByName('Sheet1'),
