@@ -25,7 +25,9 @@ try {
 
         QUnit.load(myTests);
 
-        r.SCRIPT_PROPERTIES.d.setProperty(normalizeHeader(r.LOG_FILE.s), logIdBack);
+        if (logIdBack) {
+            r.SCRIPT_PROPERTIES.d.setProperty(normalizeHeader(r.LOG_FILE.s), logIdBack);
+        }
         s.setTesting(false);
 
         return QUnit.getHtml();
@@ -48,9 +50,9 @@ try {
             smm = sfss.smm,
 
             normalizeHeader = smm.normalizeHeader,
-            
+
             log = lg.log,
-            
+
             pad = u.pad,
             setPadNumber = u.setPadNumber,
             diffDays = u.diffDays,
@@ -61,11 +63,10 @@ try {
             loadData = u.loadData,
             findMinMaxColumns = u.findMinMaxColumns,
             findStatusColor = u.findStatusColor,
-            
+
             getProperty = m.getProperty,
-            setProperty = m.setProperty,
             deleteProperty = m.deleteProperty;
-    
+
         // Create a temporary spreadsheet and put it in the folder Test. Put the
         // test folder in the same folder has the spreadsheet containing this script.
         // Note: ssFile and testFolder should have been created at the root of the drive
@@ -80,12 +81,13 @@ try {
         SpreadsheetApp.setActiveSpreadsheet(ss);
 
         SpreadsheetApp.flush();
-        
+
         lg.buildLogFile(ss);
 
         module("utility function module");
 
         test("duration", function () {
+            log('test duration');
             var durationTestData = [{
                 data: '2 minutes     32 seconds',
                 expected: '00:02:32'
@@ -112,7 +114,9 @@ try {
             }
         });
 
+
         test('pad', function () {
+            log('test pad');
             var padTestDataInput = [2, 27, 271, 2718, 27182, 271828],
                 padTestDataOutput = [
                     ['002', '027', '271'],
@@ -138,7 +142,9 @@ try {
             }
         });
 
+
         test('diffDays', function () {
+            log('test diffDays');
             var testData = [{
                 input: {
                     a: new Date('Jan 1 2010 00:00:00'),
@@ -195,7 +201,9 @@ try {
             }
         });
 
+
         test('get/set', function () {
+            log('test get/set');
             var sheet1 = ss.getSheetByName('Sheet1'),
                 name1 = 'Hello World',
                 name2 = 'Goodbye World',
@@ -215,7 +223,9 @@ try {
 
         });
 
+
         test('loadData/saveData', function () {
+            log('test loadData/saveData');
             var inputData = [],
                 i, j, name, data;
 
@@ -243,7 +253,9 @@ try {
 
         });
 
+
         test('findMinMaxColumns', function () {
+            log('test findMinMaxColumns');
             var sheet3 = ss.insertSheet('Sheet3'),
                 numberOfHeaders = 25,
                 prefix = 'Header',
@@ -312,8 +324,10 @@ try {
             }
         });
 
+
         var that = this;
         test('setup', function () {
+            log('test setup');
             ////////////////////////////////////////////////////////////////////////
             // First we setup the system.
             // We then set up a mock MailApp which is only overQuota over r.MIN_QUOTA.n
@@ -1035,7 +1049,7 @@ try {
 
                 }
             }
-
+            log('HELLO WORLD');
             overQuota = 2;
             pushDate(FakeDate1); //Mock date
             MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
@@ -1046,7 +1060,7 @@ try {
             ok(templatesTesting && templates.length === 2 && templates[0] === r.SUBMISSION_CONFIRMATION.s && templates[1] === r.SUBMISSION_CONFIRMATION.s, 'Two Submisson Confirmation email has been sent.');
             deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
 
-
+            log('END OF TESTING');
 
 
         });

@@ -8,17 +8,14 @@ try {
 
         var utils_interface,
 
-            CACHE = {},
+        CACHE = {},
 
             log = lg.log,
             catchToString = lg.catchToString,
-            
+
             fillInTemplateFromObject = smm.fillInTemplateFromObject,
             normalizeHeaders = smm.normalizeHeaders,
             normalizeHeader = smm.normalizeHeader;
-
-
-
 
         function prettyPrintDate(date) {
             if (!date) {
@@ -240,18 +237,43 @@ try {
             };
         }
 
+        function touchSpreadsheet(callback) {
+            log('touchSpreadsheet start');
+            try {
+                var lock = LockService.getPublicLock();
+                lock.waitLock(30000);
+                log(Array.prototype.slice.call(arguments, 1));
+                callback.apply(undefined, Array.prototype.slice.call(arguments, 1));
+                lock.releaseLock();
+            } catch (e) {
+                log('touchSpreadsheet:' + catchToString(e));
+            }
+            log('touchSpreadsheet end');
+        }
+
+        // set TESTING to true when running unit tests
+        function setTesting(b) {
+            Logger.log('setTesting:' + b);
+            r.TESTING.b = b;
+        }
+
         utils_interface = {
             prettyPrintDate: prettyPrintDate,
             normaliseAndValidateDuration: normaliseAndValidateDuration,
             pad: pad,
             setPadNumber: setPadNumber,
+            findStatusColor: findStatusColor,
+            diffDays: diffDays,
+            findMinMaxColumns: findMinMaxColumns,
+
             getNamedValue: getNamedValue,
             setNamedValue: setNamedValue,
             loadData: loadData,
             saveData: saveData,
-            findStatusColor: findStatusColor,
-            diffDays: diffDays,
-            findMinMaxColumns: findMinMaxColumns
+
+            setTesting: setTesting,
+
+            touchSpreadsheet: touchSpreadsheet
         };
 
         return utils_interface;
