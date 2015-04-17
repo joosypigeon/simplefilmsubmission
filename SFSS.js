@@ -2,10 +2,22 @@
 Logger.log('entering file sfss');
 var sfss = sfss || {};
 try {
-    sfss.s = (function (r, lg, u, ui, i, m, p, re, smm) {
+    sfss.s = (function (s) {
         'use strict';
 
-        var sfss_interface, testing, normalizeHeader = smm.normalizeHeader,
+        var sfss_interface, testing,
+
+            lg = s.lg,
+            u = s.u,
+            ui = s.ui,
+            i = s.init,
+            m = s.merge,
+            p = s.process,
+            re = s.reminder,
+            smm = s.smm,
+
+
+            normalizeHeader = smm.normalizeHeader,
 
             log = lg.log,
 
@@ -103,7 +115,7 @@ try {
         };
 
         return sfss_interface;
-    }(sfss.r, sfss.lg, sfss.u, sfss.ui, sfss.init, sfss.merge, sfss.process, sfss.reminder, sfss.smm));
+    }(sfss));
 } catch (e) {
     Logger.log(sfss.lg.catchToString(e));
 }

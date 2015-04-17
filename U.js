@@ -1,19 +1,20 @@
-/*global Logger, SpreadsheetApp, MailApp */
+/*global Logger, SpreadsheetApp, MailApp, LockService */
 
 Logger.log('entering file util');
 var sfss = sfss || {};
 try {
-    sfss.u = (function (r, lg, smm) {
+    sfss.u = (function (s) {
         'use strict';
 
-        var utils_interface,
+        var utils_interface, r = s.r,
+            lg = s.lg,
+            smm = s.smm,
 
-        CACHE = {},
+            CACHE = {},
 
             log = lg.log,
             catchToString = lg.catchToString,
 
-            fillInTemplateFromObject = smm.fillInTemplateFromObject,
             normalizeHeaders = smm.normalizeHeaders,
             normalizeHeader = smm.normalizeHeader;
 
@@ -278,7 +279,7 @@ try {
 
         return utils_interface;
 
-    }(sfss.r, sfss.lg, sfss.smm));
+    }(sfss));
 
 } catch (e) {
     Logger.log(sfss.lg.catchToString(e));

@@ -817,7 +817,7 @@ try {
             filmSheet.getRange(8, 1, 1, filmSheet.getDataRange().getLastColumn()).setBackground(color);
 
             //Set Ad Hoc Email to trigger with the next hReminderConfirmation call
-            setNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s, r.PENDING.s);
+            setNamedValue(ss, r.CURRENT_PROCESS.s, r.AD_HOC_PROCESS.s);
 
             MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
             pushDate(FakeDate2); //Mock date
@@ -831,7 +831,7 @@ try {
             }
             ok(templatesTesting && templates.length === 3 && templates[0] === r.AD_HOC_EMAIL.s && templates[1] === r.AD_HOC_EMAIL.s && templates[2] === r.AD_HOC_EMAIL.s, 'Expect 3 ' + r.AD_HOC_EMAIL.s);
             deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
-            equal(getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s), r.FILM_ID.s + pad(4), 'Expect ' + r.CURRENT_AD_HOC_EMAIL.s + ' to be ' + r.FILM_ID.s + pad(4));
+            equal(getNamedValue(ss, r.LAST_PROCESS_INDEX.s), 4, 'Expect ' + r.LAST_PROCESS_INDEX.s + ' to be ' + 4);
 
             //Utilities.sleep(1000);
             MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
@@ -842,7 +842,7 @@ try {
             templates = templatesTesting ? templatesTesting.split(',') : null;
             ok(templatesTesting && templates.length === 3 && templates[0] === r.AD_HOC_EMAIL.s && templates[1] === r.AD_HOC_EMAIL.s && templates[2] === r.AD_HOC_EMAIL.s, 'Expect 3 ' + r.AD_HOC_EMAIL.s);
             deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
-            equal(getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s), r.FILM_ID.s + pad(7), 'Expect ' + r.CURRENT_AD_HOC_EMAIL.s + ' to be ' + r.FILM_ID.s + pad(7));
+            equal(getNamedValue(ss, r.LAST_PROCESS_INDEX.s), 7, 'Expect ' + r.LAST_PROCESS_INDEX.s + ' to be ' + 7);
 
             //Utilities.sleep(1000);
             MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
@@ -853,7 +853,7 @@ try {
             templates = templatesTesting ? templatesTesting.split(',') : null;
             ok(templatesTesting && templates.length === 3 && templates[0] === r.AD_HOC_EMAIL.s && templates[1] === r.AD_HOC_EMAIL.s && templates[2] === r.AD_HOC_EMAIL.s, 'Expect 3 ' + r.AD_HOC_EMAIL.s);
             deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
-            equal(getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s), r.NOT_STARTED.s, 'Expect ' + r.CURRENT_AD_HOC_EMAIL.s + ' to be ' + r.NOT_STARTED.s);
+            equal(getNamedValue(ss, r.LAST_PROCESS_INDEX.s), r.NOT_STARTED.s, 'Expect ' + r.LAST_PROCESS_INDEX.s + ' to be ' + r.NOT_STARTED.s);
 
             //Utilities.sleep(1000);
 
@@ -867,7 +867,7 @@ try {
             FakeDate3.prototype = Date.prototype;
 
             //Set Ad Hoc Email to trigger with the next hReminderConfirmation call
-            setNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s, r.PENDING.s);
+            setNamedValue(ss, r.CURRENT_PROCESS.s, r.AD_HOC_PROCESS.s);
 
             MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
             pushDate(FakeDate3); //Mock date
@@ -881,7 +881,7 @@ try {
             }
             ok(templatesTesting && templates.length === 3 && templates[0] === r.AD_HOC_EMAIL.s && templates[1] === r.AD_HOC_EMAIL.s && templates[2] === r.AD_HOC_EMAIL.s, 'Expect 3 ' + r.AD_HOC_EMAIL.s);
             deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
-            equal(getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s), r.FILM_ID.s + pad(4), 'Expect ' + r.CURRENT_AD_HOC_EMAIL.s + ' to be ' + r.FILM_ID.s + pad(4));
+            equal(getNamedValue(ss, r.LAST_PROCESS_INDEX.s), 4, 'Expect ' + r.CURRENT_AD_HOC_EMAIL.s + ' to be ' + 4);
 
             //Utilities.sleep(1000);
             MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
@@ -892,7 +892,7 @@ try {
             templates = templatesTesting ? templatesTesting.split(',') : null;
             ok(templatesTesting && templates.length === 3 && templates[0] === r.AD_HOC_EMAIL.s && templates[1] === r.AD_HOC_EMAIL.s && templates[2] === r.AD_HOC_EMAIL.s, 'Expect 3 ' + r.AD_HOC_EMAIL.s);
             deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
-            equal(getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s), r.FILM_ID.s + pad(7), 'Expect ' + r.CURRENT_AD_HOC_EMAIL.s + ' to be ' + r.FILM_ID.s + pad(7));
+            equal(getNamedValue(ss, r.LAST_PROCESS_INDEX.s), 7, 'Expect ' + r.LAST_PROCESS_INDEX.s + ' to be ' + 7);
 
             //Utilities.sleep(1000);
             MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
@@ -903,7 +903,7 @@ try {
             templates = templatesTesting ? templatesTesting.split(',') : null;
             ok(templatesTesting && templates.length === 3 && templates[0] === r.AD_HOC_EMAIL.s && templates[1] === r.AD_HOC_EMAIL.s && templates[2] === r.AD_HOC_EMAIL.s, 'Expect 3 ' + r.AD_HOC_EMAIL.s);
             deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
-            equal(getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s), r.NOT_STARTED.s, 'Expect ' + r.CURRENT_AD_HOC_EMAIL.s + ' to be ' + r.NOT_STARTED.s);
+            equal(getNamedValue(ss, r.LAST_PROCESS_INDEX.s), r.NOT_STARTED.s, 'Expect ' + r.LAST_PROCESS_INDEX.s + ' to be ' + r.NOT_STARTED.s);
 
             //Utilities.sleep(1000);
 
@@ -925,7 +925,7 @@ try {
             filmSheet.getRange(2, selectionColumn, 10, 1).setValues(selectionColumnData);
 
             //Set Ad Hoc Email to trigger with the next hReminderConfirmation call
-            setNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s, r.PENDING.s);
+            setNamedValue(ss, r.CURRENT_PROCESS.s, r.SELECTION_NOTIFICATION_PROCESS.s);
 
             MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
             pushDate(FakeDate3); //Mock date
@@ -938,7 +938,7 @@ try {
             log('templates.length:' + templates.length);
             ok(templatesTesting && templates.length === 3 && templates[0] === r.ACCEPTED.s && templates[1] === r.NOT_ACCEPTED.s && templates[2] === r.NOT_ACCEPTED.s, 'Expect ' + r.ACCEPTED.s + ' followed by 2 ' + r.NOT_ACCEPTED.s);
             deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
-            equal(getNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s), r.FILM_ID.s + pad(4), 'Expect ' + r.CURRENT_SELECTION_NOTIFICATION.s + ' to be ' + r.FILM_ID.s + pad(4));
+            equal(getNamedValue(ss, r.LAST_PROCESS_INDEX.s), 4, 'Expect ' + r.LAST_PROCESS_INDEX.s + ' to be ' + 4);
 
             //Utilities.sleep(1000);
             MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
@@ -949,7 +949,7 @@ try {
             templates = templatesTesting ? templatesTesting.split(',') : null;
             ok(templatesTesting && templates.length === 3 && templates[0] === r.NOT_ACCEPTED.s && templates[1] === r.ACCEPTED.s && templates[2] === r.NOT_ACCEPTED.s, 'Expect ' + r.NOT_ACCEPTED.s + ' followed by ' + r.ACCEPTED.s + ' followed by ' + r.NOT_ACCEPTED.s);
             deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
-            equal(getNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s), r.FILM_ID.s + pad(7), 'Expect ' + r.CURRENT_SELECTION_NOTIFICATION.s + ' to be ' + r.FILM_ID.s + pad(7));
+            equal(getNamedValue(ss, r.LAST_PROCESS_INDEX.s), 7, 'Expect ' + r.LAST_PROCESS_INDEX.s + ' to be ' + 7);
 
             //Utilities.sleep(1000);
             MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
@@ -960,7 +960,7 @@ try {
             templates = templatesTesting ? templatesTesting.split(',') : null;
             ok(templatesTesting && templates.length === 3 && templates[0] === r.ACCEPTED.s && templates[1] === r.NOT_ACCEPTED.s && templates[2] === r.ACCEPTED.s, 'Expect ' + r.ACCEPTED.s + ' follwed by ' + r.NOT_ACCEPTED.s + ' follwed by ' + r.ACCEPTED.s);
             deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
-            equal(getNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s), r.NOT_STARTED.s, 'Expect ' + r.CURRENT_SELECTION_NOTIFICATION.s + ' to be ' + r.NOT_STARTED.s);
+            equal(getNamedValue(ss, r.LAST_PROCESS_INDEX.s), r.NOT_STARTED.s, 'Expect ' + r.LAST_PROCESS_INDEX.s + ' to be ' + r.NOT_STARTED.s);
 
 
             ///////////////////////////////////////////////////////////////////////
@@ -1049,7 +1049,7 @@ try {
 
                 }
             }
-            log('HELLO WORLD');
+
             overQuota = 2;
             pushDate(FakeDate1); //Mock date
             MailApp.setRemainingDailyQuota(r.MIN_QUOTA.n + overQuota); //reset email quota
@@ -1059,10 +1059,6 @@ try {
             templates = templatesTesting ? templatesTesting.split(',') : null;
             ok(templatesTesting && templates.length === 2 && templates[0] === r.SUBMISSION_CONFIRMATION.s && templates[1] === r.SUBMISSION_CONFIRMATION.s, 'Two Submisson Confirmation email has been sent.');
             deleteProperty(normalizeHeader(r.TEMPLATES_TESTING.s));
-
-            log('END OF TESTING');
-
-
         });
 
 

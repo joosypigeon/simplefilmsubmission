@@ -17,7 +17,7 @@ try {
                         r.SCRIPT_PROPERTIES.d.setProperty("initialised", "initialised");
                     }
 
-                    log("setup start.");
+                    Logger.log("setup start.");
                     var ss = SpreadsheetApp.getActiveSpreadsheet();
                     if (!r.TESTING.b) {
                         buildLogFile(ss);
