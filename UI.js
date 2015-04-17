@@ -3,11 +3,14 @@ Logger.log('entering file ui');
 var sfss = sfss || {};
 
 try {
-    sfss.ui = (function (r, lg, u, smm) {
+    sfss.ui = (function (s) {
         'use strict';
 
         var ui_interface = {},
-
+            r = s.r,
+            lg = s.lg,
+            u = s.u,
+            smm = s.smm,
             normalizeHeaders = smm.normalizeHeaders,
             normalizeHeader = smm.normalizeHeader,
             getRowsData = smm.getRowsData,
@@ -21,7 +24,8 @@ try {
             prettyPrintDate = u.prettyPrintDate,
             getNamedValue = u.getNamedValue,
             diffDays = u.diffDays,
-            findMinMaxColumns = u.findMinMaxColumns;
+            findMinMaxColumns = u.findMinMaxColumns,
+            setNamedValue = u.setNamedValue;
 
         // build custom menu for spreadsheet
         function onOpen() {
@@ -1132,7 +1136,7 @@ try {
                 }
 
                 vPanel.add(cannotHTML);
-                buttonGrid.setWidget(0, 0, getNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s) === r.NOT_STARTED.s ? enable : unenable);
+                buttonGrid.setWidget(0, 0, getNamedValue(ss, r.LAST_PROCESS_INDEX.s) === r.NOT_STARTED.s ? enable : unenable);
                 buttonGrid.setWidget(0, 1, cancel);
                 buttonGrid.setWidget(0, 2, waitHTML);
                 vPanel.add(buttonGrid);
@@ -1161,11 +1165,13 @@ try {
 
             if (e.parameter.source === r.ENABLE.s) {
                 log(r.SELECTION_NOTIFICATION.s + ' set to:' + r.PENDING.s);
-                setNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s, r.PENDING.s);
+                setNamedValue(ss, r.CURRENT_PROCESS.s, r.SELECTION_NOTIFICATION_PROCESS.s);
+                setNamedValue(ss, r.LAST_PROCESS_INDEX.s, r.NOT_STARTED.s);
                 ss.toast("Selection Notification has been queued.", "INFORMATION", 5);
             } else if (e.parameter.source === r.UNENABLE.s) {
                 log(r.SELECTION_NOTIFICATION.s + ' set to:' + r.NOT_STARTED.s);
-                setNamedValue(ss, r.CURRENT_SELECTION_NOTIFICATION.s, r.NOT_STARTED.s);
+                setNamedValue(ss, r.CURRENT_PROCESS.s, r.DEFAULT_PROCESS.s);
+                setNamedValue(ss, r.LAST_PROCESS_INDEX.s, r.NOT_STARTED.s);
                 ss.toast("Selection Notification has been unqueued.", "INFORMATION", 5);
             } else {
                 ss.toast("Canceling operation.", "WARNING", 5);
@@ -1174,7 +1180,7 @@ try {
         }
 
         function adHocEmailTemplate() {
-            selectionNotification(r.AD_HOC_EMAIL.s);
+            editAndSaveTemplates(r.AD_HOC_EMAIL.s);
         }
 
         function adHocEmail() {
@@ -1207,7 +1213,7 @@ try {
 
                 vPanel.add(app.createHTML('<p>When you enable <b>' + r.AD_HOC_EMAIL.s + '</b>, the system will start to process the submissions after midnight of that day, in their submission order.</p><p>If you unenable <b>' + r.AD_HOC_EMAIL.s + '</b> before midnight, the emails will not be sent and <b>' + r.AD_HOC_EMAIL.s + '</b> will have been canceled.</p><p>NOTE: submissions with <b>' + r.STATUS.s + '</b> set to <b>' + r.PROBLEM.s + '</b> will not receive an email.</p><br/>'));
 
-                buttonGrid.setWidget(0, 0, getNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s) === r.NOT_STARTED.s ? enable : unenable);
+                buttonGrid.setWidget(0, 0, getNamedValue(ss, r.CURRENT_PROCESS.s) === r.AD_HOC_PROCESS.s ? unenable : enable);
                 buttonGrid.setWidget(0, 1, cancel);
                 buttonGrid.setWidget(0, 2, waitLabel);
                 vPanel.add(buttonGrid);
@@ -1224,7 +1230,7 @@ try {
 
                 var adHocClick = app.createClientHandler().forTargets([enable, unenable, cancel, adHocEmailButton]).setEnabled(false).forTargets(adHocEmailPLabel).setVisible(true);
                 adHocEmailButton.addClickHandler(adHocClick);
-
+                app.setHeight('350');
                 ss.show(app);
             } catch (e) {
                 log('adHocEmail:error:' + catchToString(e));
@@ -1236,11 +1242,13 @@ try {
                 ss = SpreadsheetApp.getActiveSpreadsheet();
             log('adHocEmailButtonAction:e.parameter.source:' + e.parameter.source);
             if (e.parameter.source === normalizeHeader(r.UNENABLE.s)) {
-                setNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s, r.NOT_STARTED.s);
+                setNamedValue(ss, r.CURRENT_PROCESS.s, r.DEFAULT_PROCESS.s);
+                setNamedValue(ss, r.LAST_PROCESS_INDEX.s, r.NOT_STARTED.s);
                 ss.toast("Ad Hoc Email has been unqueued.", "INFORMATION", 5);
                 app.close();
             } else if (e.parameter.source === normalizeHeader(r.ENABLE.s)) {
-                setNamedValue(ss, r.CURRENT_AD_HOC_EMAIL.s, r.PENDING.s);
+                setNamedValue(ss, r.CURRENT_PROCESS.s, r.AD_HOC_PROCESS.s);
+                setNamedValue(ss, r.LAST_PROCESS_INDEX.s, r.NOT_STARTED.s);
                 ss.toast("Ad Hoc Email has been queued.", "INFORMATION", 5);
                 app.close();
             } else if (e.parameter.source === normalizeHeader(r.AD_HOC_EMAIL.s)) {
@@ -1267,6 +1275,10 @@ try {
             adHocEmail: adHocEmail,
             selectionNotification: selectionNotification,
 
+            selectionNotificationAcceptedTemplate: selectionNotificationAcceptedTemplate,
+            selectionNotificationNotAcceptedTemplate: selectionNotificationNotAcceptedTemplate,
+            adHocEmailTemplate: adHocEmailTemplate,
+
             // button actions and server handlers
             buttonAction: buttonAction,
             templatesButtonAction: templatesButtonAction,
@@ -1278,7 +1290,7 @@ try {
 
         return ui_interface;
 
-    }(sfss.r, sfss.lg, sfss.u, sfss.smm));
+    }(sfss));
 } catch (e) {
     Logger.log(sfss.lg.catchToString(e));
 }

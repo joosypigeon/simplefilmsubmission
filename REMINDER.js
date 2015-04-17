@@ -46,7 +46,7 @@ try {
 
                 currentProcess = getNamedValue(ss, r.CURRENT_PROCESS.s),
                 lastProcessIndex = getNamedValue(ss, r.LAST_PROCESS_INDEX.s),
-                filmIdFormat = r.FILM_ID.s + pad(-1),
+                filmIdFormat = r.ID.s + pad(-1),
 
                 confirmationColumnIndex = indices[normalizeHeader(r.CONFIRMATION.s)],
                 lastContactColumnIndex = indices[normalizeHeader(r.LAST_CONTACT.s)];

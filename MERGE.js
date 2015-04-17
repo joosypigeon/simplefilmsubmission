@@ -2,17 +2,22 @@
 Logger.log('entering file merge');
 var sfss = sfss || {};
 try {
-    sfss.merge = (function (r, lg, u, smm) {
+    sfss.merge = (function (s) {
         'use strict';
 
 
-        var merge_interface, PROPERTIES = {},
+        var merge_interface, r = s.r,
+            lg = s.lg,
+            u = s.u,
+            smm = s.smm,
+
+            PROPERTIES = {},
             log = lg.log,
             catchToString = lg.catchToString,
-           
+
             normalizeHeader = smm.normalizeHeader,
             fillInTemplateFromObject = smm.fillInTemplateFromObject,
-            
+
             getNamedValue = u.getNamedValue,
             prettyPrintDate = u.prettyPrintDate;
 
@@ -77,7 +82,7 @@ try {
 
         return merge_interface;
 
-    }(sfss.r, sfss.lg, sfss.u, sfss.smm));
+    }(sfss));
 
 } catch (e) {
     Logger.log(e);

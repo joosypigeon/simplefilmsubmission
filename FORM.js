@@ -2,9 +2,12 @@
 Logger.log('entering file form');
 var sfss = sfss || {};
 try {
-    sfss.form = (function (r, lg, u, smm) {
+    sfss.form = (function (s) {
         'use strict';
-        var form_interface, log = lg.log,
+        var r = s.r,
+            lg = s.lg,
+            u = s.u,
+            form_interface, log = lg.log,
             catchToString = lg.catchToString,
             saveData = u.saveData;
 
@@ -109,7 +112,7 @@ try {
         };
 
         return form_interface;
-    }(sfss.r, sfss.lg, sfss.u, sfss.smm));
+    }(sfss));
 } catch (e) {
     Logger.log(sfss.lg.catchToString(e));
 }

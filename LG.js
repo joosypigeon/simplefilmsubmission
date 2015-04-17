@@ -2,10 +2,13 @@
 Logger.log('entering file log');
 var sfss = sfss || {};
 try {
-    sfss.lg = (function (r, smm) {
+    sfss.lg = (function (s) {
         'use strict';
 
-        var log_interface, normalizeHeader = smm.normalizeHeader,
+        var log_interface, r = s.r,
+            smm = s.smm,
+
+            normalizeHeader = smm.normalizeHeader,
             logFile, logDoc, logId = r.SCRIPT_PROPERTIES.d.getProperty(normalizeHeader(r.LOG_FILE.s)),
             logDoc;
 
@@ -62,7 +65,7 @@ try {
 
         return log_interface;
 
-    }(sfss.r, sfss.smm));
+    }(sfss));
 
 } catch (e) {
     Logger.log(e);

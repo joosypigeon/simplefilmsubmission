@@ -7,7 +7,7 @@ try {
 
         var sfss_interface, testing,
 
-            lg = s.lg,
+        lg = s.lg,
             u = s.u,
             ui = s.ui,
             i = s.init,
@@ -53,6 +53,10 @@ try {
             editAndSaveTemplates = ui.editAndSaveTemplates,
             adHocEmail = ui.adHocEmail,
             selectionNotification = ui.selectionNotification,
+
+            selectionNotificationAcceptedTemplate = ui.selectionNotificationAcceptedTemplate,
+            selectionNotificationNotAcceptedTemplate = ui.selectionNotificationNotAcceptedTemplate,
+            adHocEmailTemplate = ui.adHocEmailTemplate,
 
             // button actions and server handlers
             buttonAction = ui.buttonAction,
@@ -101,6 +105,10 @@ try {
             editAndSaveTemplates: editAndSaveTemplates,
             adHocEmail: adHocEmail,
             selectionNotification: selectionNotification,
+
+            selectionNotificationAcceptedTemplate: selectionNotificationAcceptedTemplate,
+            selectionNotificationNotAcceptedTemplate: selectionNotificationNotAcceptedTemplate,
+            adHocEmailTemplate: adHocEmailTemplate,
 
             // button actions and server handlers
             buttonAction: buttonAction,
@@ -186,6 +194,20 @@ function adHocEmail() {
 function selectionNotification() {
     sfss.s.selectionNotification();
 }
+
+
+function selectionNotificationAcceptedTemplate() {
+    sfss.s.selectionNotificationAcceptedTemplate();
+}
+
+function selectionNotificationNotAcceptedTemplate() {
+    sfss.s.selectionNotificationNotAcceptedTemplate();
+}
+
+function adHocEmailTemplate() {
+    sfss.s.adHocEmailTemplate();
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // end of spreadsheet menu items
 ////////////////////////////////////////////////////////////////////////////

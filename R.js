@@ -111,8 +111,8 @@ try {
                 //value for ENABLE_REMINDER and ENABLE_CONFIRMATION
                 "ENABLED", "NOT_ENABLED",
 
-                //values for CURRENT_SELECTION_NOTIFICATION, CURRENT_AD_HOC_EMAIL
-                "NOT_STARTED", "PENDING",
+                //values for LAST_PROCESS_INDEX
+                "NOT_STARTED",
 
                 //states
                 "NO_MEDIA", "MEDIA_PRESENT", "PROBLEM", "SELECTED", "NOT_SELECTED", "CONFIRMED", "NOT_CONFIRMED",
@@ -415,8 +415,6 @@ try {
                 ['INTERNALS', [
                     [r.FIRST_FILM_ID.s, [r.FIRST_FILM_ID.s, 2]],
                     [r.CURRENT_FILM_ID.s, [r.CURRENT_FILM_ID.s, -1]],
-                    [r.CURRENT_SELECTION_NOTIFICATION.s, [r.CURRENT_SELECTION_NOTIFICATION.s, r.NOT_STARTED.s]],
-                    [r.CURRENT_AD_HOC_EMAIL.s, [r.CURRENT_AD_HOC_EMAIL.s, r.NOT_STARTED.s]],
                     [r.CURRENT_PROCESS.s, [r.CURRENT_PROCESS.s, r.DEFAULT_PROCESS.s]],
                     [r.LAST_PROCESS_INDEX.s, [r.LAST_PROCESS_INDEX.s, r.NOT_STARTED.s]]
                 ]],

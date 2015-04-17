@@ -2,13 +2,13 @@
 Logger.log('entering file init');
 var sfss = sfss || {};
 try {
-    sfss.init = (function (r, lg, u, f, smm) {
+    sfss.init = (function (s) {
         'use strict';
-        var init_interface, log = lg.log,
+        var r = s.r, lg = s.lg, ui = s.ui, f = s.form, init_interface, log = lg.log,
             catchToString = lg.catchToString,
             buildFormAndSpreadsheet = f.buildFormAndSpreadsheet,
             buildLogFile = lg.buildLogFile,
-            settingsOptions = f.settingsOptions;
+            settingsOptions = ui.settingsOptions;
 
         function setup() {
             try {
@@ -50,7 +50,7 @@ try {
         };
 
         return init_interface;
-    }(sfss.r, sfss.lg, sfss.u, sfss.form, sfss.smm));
+    }(sfss));
 } catch (e) {
     Logger.log(sfss.lg.catchToString(e));
 }
