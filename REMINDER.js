@@ -35,10 +35,7 @@ try {
             log('hNewReminderConfirmation end');
         }
 
-        // filterMerge callback factory
         function callbackFactory(ss, filmSheet, indices, numberOfSubmissions) {
-            // r.DEFAULT_PROCESS.s r.AD_HOC_PROCESS.s r.SELECTION_NOTIFICATION_PROCESS.s
-            // r.NOT_STARTED.s
             var emailQuotaRemaining = MailApp.getRemainingDailyQuota(),
                 enabledReminder = getNamedValue(ss, r.ENABLE_REMINDER.s) === r.ENABLED.s,
                 enableConfirmation = getNamedValue(ss, r.ENABLE_CONFIRMATION.s) === r.ENABLED.s,

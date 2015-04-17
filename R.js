@@ -3,7 +3,8 @@ Logger.log('entering file r');
 var sfss = sfss || {};
 try {
     sfss.r = (function () {
-        var r = {}; // Resource storage.
+        var r = {},
+            types; // Resource storage.
 
         // The resource constructor
         function R(name) {
@@ -12,7 +13,7 @@ try {
         }
 
         // getters & setters for resource object
-        var types = ['n', 'b', 's', 'd'];
+        types = ['n', 'b', 's', 'd'];
         types.forEach(function (t) {
             Object.defineProperty(R.prototype, t, {
                 get: function () {
@@ -32,12 +33,47 @@ try {
             });
         });
 
+        // expect that name consists of uppercase characters and underscores
+        R.stringValue = (function () {
+            var upperCase;
+
+            function filterCB(char) {
+                if (char === "_") {
+                    upperCase = true;
+                    return ' ';
+                }
+
+                if (upperCase) {
+                    upperCase = false;
+                    char = char.toUpperCase();
+                } else {
+                    char = char.toLowerCase();
+                }
+
+                return char;
+            }
+
+            return function (name) {
+                upperCase = true;
+                return name.split('').map(filterCB).join('');
+            };
+        }());
+
         // class/static method to register a resource
         R.addResource = function (item) {
-            var name = item[0],
-                value = item[1],
-                type = typeof value,
-                o = r[name]; // Reasource storage from closure
+            var name, value, type, o;
+
+            type = typeof item;
+            if (type === 'string') {
+                name = item;
+                value = R.stringValue(name);
+            } else {
+                name = item[0];
+                value = item[1];
+            }
+
+            type = typeof value;
+            o = r[name]; // Reasource storage from closure
             if (!o) {
                 o = new R(name);
                 r[name] = o;
@@ -55,151 +91,53 @@ try {
         };
 
         (function () {
-            var resourceData00 = [
-                ["FILM_SUBMISSION", "Film Submission"],
-                ["ID", "ID"],
+            var resourceData00 = ["FILM_SUBMISSION", ["ID", "ID"],
 
-                // the 3 spreadsheet sheets
-                ["FILM_SUBMISSIONS_SHEET", "Film Submissions"],
+            // the 3 spreadsheet sheets
+            ["FILM_SUBMISSIONS_SHEET", "Film Submissions"],
                 ["TEMPLATE_SHEET", "Templates"],
                 ["OPTIONS_SETTINGS_SHEET", "Options & Settings"],
 
                 //named ranges
-                ["FESTIVAL_NAME", "Festival Name"],
-                ["FESTIVAL_WEBSITE", "Festival Website"],
-                ["CLOSE_OF_SUBMISSION", "Close Of Submission"],
-                ["EVENT_DATE", "Event Date"],
-                ["RELEASE_LINK", "Release Link"],
-                ["FIRST_FILM_ID", "First ID"],
-                ["CURRENT_FILM_ID", "Current Film ID"],
-                ["DAYS_BEFORE_REMINDER", "Days Before Reminder"],
-                ["TEST_FIRST_NAME", "Test First Name"],
-                ["TEST_LAST_NAME", "Test Last Name"],
-                ["TEST_TITLE", "Test Title"],
-                ["TEST_EMAIL", "Test Email"],
-                ["COLOR_DATA", "Color Data"],
-                ["FESTIVAL_DATA", "Festival Data"],
-                ["TEMPLATE_DATA", "Template Data"],
-                ["TEST_DATA", "Test Data"],
-                ["INTERNALS", "Internals"],
-                ['TEMPLATE_TYPE', 'Template Type'],
-                ["NO_TEMPLATE", "No Template"],
-                ["SUBMISSION_CONFIRMATION", "Submission Confirmation"],
-                ["SUBMISSION_CONFIRMATION_SUBJECT_LINE", "Submission Confirmation Subject Line"],
-                ["SUBMISSION_CONFIRMATION_BODY", "Submission Confirmation Body"],
-                ["RECEIPT_CONFIMATION", "Receipt Confimation"],
-                ["RECEIPT_CONFIMATION_SUBJECT_LINE", "Receipt Confimation Subject Line"],
-                ["RECEIPT_CONFIMATION_BODY", "Receipt Confimation Body"],
-                ["REMINDER", "Reminder"],
-                ["REMINDER_SUBJECT_LINE", "Reminder Subject Line"],
-                ["REMINDER_BODY", "Reminder Body"],
-                ["SELECTION_NOTIFICATION", "Selection Notification"],
-                ["NOT_ACCEPTED", "Not Accepted"],
-                ["NOT_ACCEPTED_SUBJECT_LINE", "Not Accepted Subject Line"],
-                ["NOT_ACCEPTED_BODY", "Not Accepted Body"],
-                ["ACCEPTED", "Accepted"],
-                ["ACCEPTED_SUBJECT_LINE", "Accepted Subject Line"],
-                ["ACCEPTED_BODY", "Accepted Body"],
-                ["AD_HOC_EMAIL", "Ad Hoc Email"],
-                ["AD_HOC_EMAIL_SUBJECT_LINE", "Ad Hoc Email Subject Line"],
-                ["AD_HOC_EMAIL_BODY", "Ad Hoc Email Body"],
-                ["SUBJECT_LINE", 'Subject Line'],
-                ["ENABLE_REMINDER", "Enable Reminder"],
-                ["ENABLE_CONFIRMATION", "Enable Confirmation"],
-                ["CURRENT_AD_HOC_EMAIL", "Current Ad Hoc Email"],
-                ["CURRENT_SELECTION_NOTIFICATION", "Current Selection Notification"],
-                ["SUBJECT", "Subject"],
-                ["BODY", "Body"],
-                ["AVAILABLE_TAGS", "Available Tags"],
-                ["SEND_TEST_EMAIL", "Send Test Email"],
+                "FESTIVAL_NAME", ["FESTIVAL_WEBSITE", "Festival Website"], "CLOSE_OF_SUBMISSION", "EVENT_DATE", "RELEASE_LINK", ["FIRST_FILM_ID", "First ID"],
+                ["CURRENT_FILM_ID", "Current Film ID"], "DAYS_BEFORE_REMINDER", "TEST_FIRST_NAME", "TEST_LAST_NAME", "TEST_TITLE", "TEST_EMAIL", "COLOR_DATA", "FESTIVAL_DATA", "TEMPLATE_DATA", "TEST_DATA", "INTERNALS", 'TEMPLATE_TYPE', "NO_TEMPLATE", "SUBMISSION_CONFIRMATION", "SUBMISSION_CONFIRMATION_SUBJECT_LINE", "SUBMISSION_CONFIRMATION_BODY", "RECEIPT_CONFIMATION", "RECEIPT_CONFIMATION_SUBJECT_LINE", "RECEIPT_CONFIMATION_BODY", "REMINDER", "REMINDER_SUBJECT_LINE", "REMINDER_BODY", "SELECTION_NOTIFICATION", "NOT_ACCEPTED", "NOT_ACCEPTED_SUBJECT_LINE", "NOT_ACCEPTED_BODY", "ACCEPTED", "ACCEPTED_SUBJECT_LINE", "ACCEPTED_BODY", "AD_HOC_EMAIL", "AD_HOC_EMAIL_SUBJECT_LINE", "AD_HOC_EMAIL_BODY", "SUBJECT_LINE", "ENABLE_REMINDER", "ENABLE_CONFIRMATION", "CURRENT_AD_HOC_EMAIL", "CURRENT_SELECTION_NOTIFICATION", "SUBJECT", "BODY", "AVAILABLE_TAGS", "SEND_TEST_EMAIL",
 
                 //sufix and prefix for ID
-                ["HELP", "Help"],
-                ["LABEL", "Label"],
-                ["TEST", "Test"],
-                ["BUTTON", "Button"],
-                ["HIDDEN", "Hidden"],
-                ["PLABEL", "PLable"],
+                "HELP", "LABEL", "TEST", "BUTTON", "HIDDEN", "PLABEL",
 
                 //IDs
-                ["NEXT", "Next"],
-                ["PREVIOUS", "Previous"],
-                ["SAVE", "Save"],
-                ["OK", "OK"],
-                ["ENABLE", "Enable"],
-                ["UNENABLE", "Unenable"],
-                ["CANCEL", "Cancel"],
-                ["WAIT", "Wait"],
-                ["STATUS_HTML", "Status HTML"],
-                ["STATUS_WARNING_HTML", "Status Warning HTML"],
-                ["TEST_PROCESSING_LABEL", "Test Processing Label"],
-                ["DATE_DIFF", "Date Diff"],
-                ["FESTIVAL_DATA_NAMES", "Festival Data Names"],
-                ["TEMPLATE_DATA_NAMES", "Template Data Names"],
-                ["TEST_DATA_NAMES", "Test Data Names"],
-                ["TAGS", "Tags"],
+                "NEXT", "PREVIOUS", "SAVE", "OK", "ENABLE", "UNENABLE", "CANCEL", "WAIT", "STATUS_HTML", "STATUS_WARNING_HTML", "TEST_PROCESSING_LABEL", "DATE_DIFF", "FESTIVAL_DATA_NAMES", "TEMPLATE_DATA_NAMES", "TEST_DATA_NAMES", "TAGS",
 
                 //value for ENABLE_REMINDER and ENABLE_CONFIRMATION
-                ["ENABLED", "Enabled"],
-                ["NOT_ENABLED", "Not Enabled"],
+                "ENABLED", "NOT_ENABLED",
 
                 //values for CURRENT_SELECTION_NOTIFICATION, CURRENT_AD_HOC_EMAIL
-                ["NOT_STARTED", "Not Started"],
-                ["PENDING", "Pending"],
+                "NOT_STARTED", "PENDING",
 
                 //states
-                ["NO_MEDIA", "No Media"],
-                ["MEDIA_PRESENT", "Media Present"],
-                ["PROBLEM", "Problem"],
-                ["SELECTED", "Selected"],
-                ["NOT_SELECTED", "Not Selected"],
-                ["CONFIRMED", "Confirmed"],
-                ["NOT_CONFIRMED", "Not Confirmed"],
+                "NO_MEDIA", "MEDIA_PRESENT", "PROBLEM", "SELECTED", "NOT_SELECTED", "CONFIRMED", "NOT_CONFIRMED",
 
-                ["DO_NOT_CHANGE", "Do Not Change"],
+                "DO_NOT_CHANGE",
 
                 // Process resource
-                ["CURRENT_PROCESS", "Current Process"],
-                ["LAST_PROCESS_INDEX", "Last Process Index"],
+                "CURRENT_PROCESS", "LAST_PROCESS_INDEX",
 
-                ["DEFAULT_PROCESS", "Default Process"],
-                ["SELECTION_NOTIFICATION_PROCESS", "Selection Notification Process"],
-                ["AD_HOC_PROCESS", "Ad Hoc Process"],
+                "DEFAULT_PROCESS", "SELECTION_NOTIFICATION_PROCESS", "AD_HOC_PROCESS",
 
-                ["HEADERS_OF_INTEREST", "Headers Of Interest"],
+                "HEADERS_OF_INTEREST",
 
                 // form data
-                ["FIRST_NAME", "First Name"],
-                ["LAST_NAME", "Last Name"],
-                ["EMAIL", "Email"],
-                ["TITLE", "Title"],
-                ["LENGTH", "Length"],
-                ["COUNTRY", "Country"],
-                ["YEAR", "Year"],
-                ["GENRE", "Genre"],
-                ["WEBSITE", "Website"],
-                ["SYNOPSIS", "Synopsis"],
-                ["CAST_AND_CREW", "Cast & Crew"],
-                ["FESTIVAL_SELECTION_AND_AWARDS", "Festival Selection & Awards"],
+                "FIRST_NAME", "LAST_NAME", "EMAIL", "TITLE", "LENGTH", "COUNTRY", "YEAR", "GENRE", "WEBSITE", "SYNOPSIS", "CAST_AND_CREW", "FESTIVAL_SELECTION_AND_AWARDS",
 
-                ["CONFIRM", "Confirm"],
+                "CONFIRM",
 
                 // Timestamp column
-                ["TIMESTAMP", "Timestamp"],
+                "TIMESTAMP",
 
                 // Additional FILM_SUBMISSIONS_SHEET Columns
-                ["COMMENTS", "Comments"],
-                ["FILM_ID", "ID"],
-                ["SCORE", "Score"],
-                ["CONFIRMATION", "Confirmation"],
-                ["SELECTION", "Selection"],
-                ["STATUS", "Status"],
-                ["LAST_CONTACT", "Last Contact"],
-                ["FORM_TITLE", "Online Film Submissions Form"],
-                ["FORM_RESPONSE", "You now need to download, print off and sign the permission slip. A link to the permission slip has been emailed to you. The permission slip must be mailed together with a DVD of your film, to the address given on the slip. We cannot screen your film without a signed permission slip. If you do not receive this email, please check your spam folder. If you still cannot find the email please email us at " + Session.getActiveUser().getEmail() + " ."],
+                "COMMENTS", "FILM_ID", "SCORE", "CONFIRMATION", "SELECTION", "STATUS", "LAST_CONTACT", "FORM_TITLE", ["FORM_RESPONSE", "You now need to download, print off and sign the permission slip. A link to the permission slip has been emailed to you. The permission slip must be mailed together with a DVD of your film, to the address given on the slip. We cannot screen your film without a signed permission slip. If you do not receive this email, please check your spam folder. If you still cannot find the email please email us at " + Session.getActiveUser().getEmail() + " ."],
                 //columns for TEMPLATE_SHEET
-                ["TEMPLATE_NAME", "Name"],
-                ["TEMPLATE", "Template"],
+                ["TEMPLATE_NAME", "Name"], "TEMPLATE",
 
                 // Sets number of numerical places on film ID so an example of a film ID were the PAD_NUMBER were set to 3 would be ID029.
                 // Legal values are 3,4,5,6
@@ -208,11 +146,10 @@ try {
 
                 // Will stop sending emails for the day when email quota is reported as less than or equal to MIN_QUOTA.
                 // Will attempt to send unsent emails the next day.
-                ["MIN_QUOTA", 50],
-                ["REMAINING_EMAIL_QUOTA", "Remaining Email Quota"],
+                ["MIN_QUOTA", 50], "REMAINING_EMAIL_QUOTA",
 
                 // one contact value
-                ["NO_CONTACT", "No Contact"],
+                "NO_CONTACT",
 
                 // name of log file
                 ["LOG_FILE", "Submissions Processing Log File"],
@@ -224,14 +161,13 @@ try {
                 ["SAVE_AND_RETURN_TO", "Save and return To:"],
 
                 // For Tesing
-                ["TEMPLATES_TESTING", "Templates Testing"],
+                "TEMPLATES_TESTING",
 
-                ["INITIALISE", "Initialise"],
+                "INITIALISE",
 
                 ['currentDate', new Date()],
 
-                ['TESTING', false],
-                ['TEMPLATES_TESTING', 'Templates Testing'],
+                ['TESTING', false], 'TEMPLATES_TESTING',
 
                 ['SCRIPT_PROPERTIES', PropertiesService.getScriptProperties()]
             ];
