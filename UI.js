@@ -1,4 +1,4 @@
-/*global DocumentApp, ScriptApp, FormApp, DriveApp, Session, LockService, PropertiesService, MailApp, UiApp, SpreadsheetApp, Logger */
+/*global HtmlService, DocumentApp, ScriptApp, FormApp, DriveApp, Session, LockService, PropertiesService, MailApp, UiApp, SpreadsheetApp, Logger */
 Logger.log('entering file ui');
 var sfss = sfss || {};
 
@@ -682,8 +682,6 @@ try {
             }
         }
 
-
-
         function templatesButtonAction(e) {
             function saveTestAndTemplateData() {
                 var range = ss.getRangeByName(normalizeHeader(r.TEST_DATA.s)),
@@ -786,188 +784,6 @@ try {
             return app;
         }
 
-        function settingsOptions() {
-            try {
-                var ss = SpreadsheetApp.getActiveSpreadsheet();
-
-                pleaseWait(ss);
-
-                var festivaDataNames = loadData(ss, r.FESTIVAL_DATA.s),
-                    app = UiApp.createApplication(),
-                    festivaDataNamesHidden = app.createHidden(normalizeHeader(r.FESTIVAL_DATA_NAMES.s), festivaDataNames.join(',')),
-                    gridData = [{
-                        namedValue: r.FESTIVAL_NAME.s,
-                        type: 'createTextBox',
-                        width: '300px',
-                        help: 'Required: please give the full name of the festival.',
-                        error: 'You must give the full festival name.',
-                        validate: {
-                            validateLength: {
-                                min: 1,
-                                max: null
-                            }
-                        }
-                    }, {
-                        namedValue: r.FESTIVAL_WEBSITE.s,
-                        type: 'createTextBox',
-                        width: '300px',
-                        help: 'Not required.'
-                    }, {
-                        namedValue: r.CLOSE_OF_SUBMISSION.s,
-                        type: 'createDateBox',
-                        width: '75px',
-                        help: 'Required (default ' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + ').',
-                        validate: {
-                            valadateDateDependance: {}
-                        }
-                    }, {
-                        namedValue: r.EVENT_DATE.s,
-                        type: 'createDateBox',
-                        width: '75px',
-                        help: 'Required (default ' + prettyPrintDate(getNamedValue(ss, r.EVENT_DATE.s)) + ').',
-                        validate: {
-                            valadateDateDependance: {}
-                        }
-                    }, {
-                        namedValue: r.RELEASE_LINK.s,
-                        type: 'createTextBox',
-                        width: '300px',
-                        help: 'Not required.'
-                    }, {
-                        namedValue: r.DAYS_BEFORE_REMINDER.s,
-                        type: 'createTextBox',
-                        width: '30px',
-                        help: 'Required: please give days before reminder email is sent.',
-                        error: 'Must be whole positive number. No spaces.',
-                        validate: {
-                            validateRange: {
-                                min: 1,
-                                max: null
-                            },
-                            validateInteger: {}
-                        }
-                    }, {
-                        namedValue: r.ENABLE_REMINDER.s,
-                        type: 'createListBox',
-                        width: '100px',
-                        help: 'Required (default ' + getNamedValue(ss, r.ENABLE_REMINDER.s) + ').',
-                        list: [r.NOT_ENABLED.s, r.ENABLED.s]
-                    }, {
-                        namedValue: r.ENABLE_CONFIRMATION.s,
-                        type: 'createListBox',
-                        width: '100px',
-                        help: 'Required (default ' + getNamedValue(ss, r.ENABLE_REMINDER.s) + ').',
-                        list: [r.NOT_ENABLED.s, r.ENABLED.s]
-                    }, {
-                        namedValue: r.FIRST_FILM_ID.s,
-                        type: 'createHidden'
-                    }],
-                    handler = app.createServerHandler("settingsOptionsButtonAction"),
-                    save = app.createButton(r.SAVE.s, handler).setId(normalizeHeader(r.SAVE.s)),
-                    cancel = app.createButton(r.CANCEL.s, handler).setId(normalizeHeader(r.CANCEL.s)),
-                    cPanel = app.createCaptionPanel("Settings and Options").setId('cPanel'),
-                    vPanel = app.createVerticalPanel(),
-                    buttonGrid = app.createGrid(1, 3);
-
-                var grid = app.createGrid(2 * gridData.length, 2),
-                    item = {},
-                    label = {},
-                    back = {},
-                    itemName, itemValue, correct, wrong, i;
-
-                // build GUI
-                for (i = 0; i < gridData.length; i++) {
-                    itemName = normalizeHeader(gridData[i].namedValue);
-                    itemValue = getNamedValue(ss, gridData[i].namedValue);
-                    if (gridData[i].type === 'createHidden') {
-                        vPanel.add(app.createHidden(itemName, itemValue));
-                        continue;
-                    }
-                    grid.setWidget(2 * (+i), 0, app.createLabel(gridData[i].namedValue + ': '));
-                    if (gridData[i].type === 'createListBox') {
-                        item[itemName] = app.createListBox();
-                        for (var j = 0; j < gridData[i].list.length; j++) {
-                            item[itemName].addItem(gridData[i].list[j]);
-                        }
-                        item[itemName].setSelectedIndex(gridData[i].list.indexOf(itemValue));
-                        grid.setWidget(2 * (+i), 1, item[itemName]);
-                    } else {
-                        item[itemName] = app[gridData[i].type]().setValue(itemValue);
-                        grid.setWidget(2 * (+i), 1, item[itemName]);
-                    }
-                    back[itemName] = i;
-                    item[itemName].setWidth(gridData[i].width).setId(itemName).setName(itemName);
-
-                    label[itemName] = app.createLabel('').setStyleAttribute("fontSize", "50%").setId(itemName + r.HELP.s);
-                    grid.setWidget(2 * (+i) + 1, 1, label[itemName]);
-
-                    if (gridData[i].help) {
-                        label[itemName].setText(gridData[i].help);
-                    }
-                }
-
-                // add validators to GUI
-                for (i in gridData) {
-                    if (gridData[i].validate) {
-                        itemName = normalizeHeader(gridData[i].namedValue);
-                        if (gridData[i].validate.valadateDateDependance) {
-                            item[itemName].addValueChangeHandler(app.createServerHandler("validateDates").addCallbackElement(vPanel));
-                        }
-                        if (gridData[i].validate.validateLength) {
-                            wrong = app.createClientHandler().validateNotLength(item[itemName], gridData[i].validate.validateLength.min, gridData[i].validate.validateLength.max).forTargets(label[itemName]).setText(gridData[i].error).setStyleAttribute("color", "red").forTargets(save).setEnabled(false);
-                            item[itemName].addKeyUpHandler(wrong);
-                            correct = app.createClientHandler().validateLength(item[itemName], gridData[i].validate.validateLength.min, gridData[i].validate.validateLength.max).forTargets(label[itemName]).setText(gridData[i].help).setStyleAttribute("color", "black");
-                            item[itemName].addKeyUpHandler(correct);
-                        }
-                        if (gridData[i].validate.validateRange) {
-                            wrong = app.createClientHandler().validateNotRange(item[itemName], gridData[i].validate.validateRange.min, gridData[i].validate.validateRange.max).forTargets(label[itemName]).setText(gridData[i].error).setStyleAttribute("color", "red").forTargets(save).setEnabled(false);
-                            item[itemName].addKeyUpHandler(wrong);
-                            correct = app.createClientHandler().validateRange(item[itemName], gridData[i].validate.validateRange.min, gridData[i].validate.validateRange.max).forTargets(label[itemName]).setText(gridData[i].help).setStyleAttribute("color", "black");
-                            item[itemName].addKeyUpHandler(correct);
-                        }
-                        if (gridData[i].validate.validateInteger) {
-                            wrong = app.createClientHandler().validateNotInteger(item[itemName]).forTargets(label[itemName]).setText(gridData[i].error).setStyleAttribute("color", "red").forTargets(save).setEnabled(false);
-                            item[itemName].addKeyUpHandler(wrong);
-                            correct = app.createClientHandler().validateInteger(item[itemName]).forTargets(label[itemName]).setText(gridData[i].help).setStyleAttribute("color", "black");
-                            item[itemName].addKeyUpHandler(correct);
-                        }
-                    }
-                }
-                var dateDiff = app.createHidden().setValue(diffDays(getNamedValue(ss, r.EVENT_DATE.s), getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s))).setId(normalizeHeader(r.DATE_DIFF.s));
-
-                var allCorrect = app.createClientHandler().validateLength(item[normalizeHeader(r.FESTIVAL_NAME.s)], 1, null).validateRange(dateDiff, 1, null).validateRange(item[normalizeHeader(r.DAYS_BEFORE_REMINDER.s)], 1, null).forTargets(save).setEnabled(true);
-                item[normalizeHeader(r.FESTIVAL_NAME.s)].addKeyUpHandler(allCorrect);
-                item[normalizeHeader(r.DAYS_BEFORE_REMINDER.s)].addKeyUpHandler(allCorrect);
-                //dateDiff.addValueChangeHandler(allCorrect); this does not work :(
-                vPanel.add(app.createHTML('<p>Please enter the settings and options for your film festival below.</p>'));
-                vPanel.add(grid);
-                vPanel.add(dateDiff);
-
-                label = app.createLabel(r.PROCESSING.s).setId(normalizeHeader(r.WAIT.s)).setVisible(false);
-                handler.addCallbackElement(vPanel);
-                buttonGrid.setWidget(0, 0, save);
-                buttonGrid.setWidget(0, 1, cancel);
-                buttonGrid.setWidget(0, 2, label);
-
-                var clientHandler = app.createClientHandler().forTargets([save, cancel]).setEnabled(false).forTargets(label).setVisible(true);
-                save.addClickHandler(clientHandler);
-                cancel.addClickHandler(clientHandler);
-
-                vPanel.add(buttonGrid);
-                vPanel.add(festivaDataNamesHidden);
-
-                handler.addCallbackElement(vPanel);
-
-                cPanel.add(vPanel);
-                app.add(cPanel);
-
-                app.setHeight('560');
-
-                ss.show(app);
-            } catch (e) {
-                log('settingsOptions:error:' + catchToString(e));
-            }
-        }
 
         function validateDates(e) {
             var app = UiApp.getActiveApplication(),
@@ -1018,57 +834,6 @@ try {
             return app;
         }
 
-        function settingsOptionsButtonAction(e) {
-            var app = UiApp.getActiveApplication(),
-                ss = SpreadsheetApp.getActiveSpreadsheet(),
-                eventDate = e.parameter[normalizeHeader(r.EVENT_DATE.s)],
-                cosDate = e.parameter[normalizeHeader(r.CLOSE_OF_SUBMISSION.s)],
-                eventLabel = app.getElementById(normalizeHeader(r.EVENT_DATE.s + ' ' + r.HELP.s)),
-                cosLabel = app.getElementById(normalizeHeader(r.CLOSE_OF_SUBMISSION.s + ' ' + r.HELP.s)),
-                save = app.getElementById(normalizeHeader(r.SAVE.s)),
-                cancel = app.getElementById(normalizeHeader(r.CANCEL.s)),
-                wait = app.getElementById(normalizeHeader(r.WAIT.s));
-
-            if (e.parameter.source === normalizeHeader(r.SAVE.s)) {
-                // need to check that dates are not wrong before saving
-                if (!(eventDate instanceof Date)) {
-                    eventLabel.setText('Not a valid date').setStyleAttribute("color", "red");
-                    save.setEnabled(false);
-                    cancel.setEnabled(true);
-                    wait.setVisible(false);
-                    return app; // do not close the dialog
-                }
-                if (!(cosDate instanceof Date)) {
-                    cosLabel.setText('Not a valid date').setStyleAttribute("color", "red");
-                    save.setEnabled(false);
-                    cancel.setEnabled(true);
-                    wait.setVisible(false);
-                    return app; // do not close the dialog
-                }
-                //if we got here, the dates should indeed be dates!
-                if (eventDate < cosDate) {
-                    // error condition
-                    cosLabel.setText('"' + r.CLOSE_OF_SUBMISSION.s + '" must be before "' + r.EVENT_DATE.s + '".').setStyleAttribute("color", "red");
-                    eventLabel.setText('"' + r.CLOSE_OF_SUBMISSION.s + '" must be before "' + r.EVENT_DATE.s + '".').setStyleAttribute("color", "red");
-                    save.setEnabled(false);
-                    cancel.setEnabled(true);
-                    wait.setVisible(false);
-                    return app; // do not close the dialog
-                }
-
-
-                var festivaDataNames = e.parameter[normalizeHeader(r.FESTIVAL_DATA_NAMES.s)].split(','),
-                    range = ss.getRangeByName(normalizeHeader(r.FESTIVAL_DATA.s)),
-                    values = festivaDataNames.map(function (itemName) {
-                        return [itemName, e.parameter[normalizeHeader(itemName)]];
-                    });
-                range.setValues(values);
-            } else {
-                ss.toast("Canceling operation.", "WARNING", 5);
-            }
-
-            return app.close();
-        }
 
 
 
@@ -1260,6 +1025,138 @@ try {
             return app;
         }
 
+        function settingsOptions() {
+            var ss = SpreadsheetApp.getActiveSpreadsheet(),
+                festivaDataNames = u.loadData(ss, r.FESTIVAL_DATA.s).join(',');
+        
+            setNamedValue(ss, r.FESTIVAL_DATA_NAMES.s, festivaDataNames);
+            
+            var  gridData = [{
+                    namedValue: r.FESTIVAL_DATA_NAMES.s,
+                    type: 'hidden'
+                },{
+                    namedValue: r.FESTIVAL_NAME.s,
+                    type: 'text',
+                    help: 'required, please give the full name of the festival',
+                    rules: {
+                        required: true,
+                        minlength: 1
+                    },
+                    messages: {
+                        required: 'Festival Name required!',
+                        minlength: 'Festival Name required!'
+                    }
+                }, {
+                    namedValue: r.FESTIVAL_WEBSITE.s,
+                    type: 'text',
+                    help: 'not required',
+                    rules: {
+                        required: false
+                    }
+                }, {
+                    namedValue: r.CLOSE_OF_SUBMISSION.s,
+                    type: 'date',
+                    help: 'current value ' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)),
+                    rules: {
+                        required: true,
+                        dateISO: true,
+                        before: normalizeHeader(r.EVENT_DATE.s)
+                    },
+                    messages: {
+                        required: 'Close of Submission required!',
+                        dateISO: 'ISO format date required yyyy-mm-dd!',
+                        before: 'Close of Submission must be before event!'
+                    }
+                }, {
+                    namedValue: r.EVENT_DATE.s,
+                    type: 'date',
+                    help: 'current value ' + prettyPrintDate(getNamedValue(ss, r.EVENT_DATE.s)),
+                    rules: {
+                        required: true,
+                        dateISO: true,
+                        after: normalizeHeader(r.CLOSE_OF_SUBMISSION.s)
+                    },
+                    messages: {
+                        required: 'Event date required!',
+                        dateISO: 'ISO format date required yyyy-mm-dd!',
+                        after: 'Event must be after Close of Submission!'
+                    }
+                }, {
+                    namedValue: r.RELEASE_LINK.s,
+                    type: 'text',
+                    help: 'not required',
+                    rules: {
+                        required: false
+                    }
+                }, {
+                    namedValue: r.DAYS_BEFORE_REMINDER.s,
+                    type: 'text',
+                    help: 'please give days before reminder email is sent',
+                    rules: {
+                        required: true,
+                        min: 1
+                    },
+                    messages: {
+                        required: 'Days Before Reminder required',
+                        min: 'Must be whole positive number'
+                    }
+                }, {
+                    namedValue: r.ENABLE_REMINDER.s,
+                    type: 'list',
+                    help: 'current value ' + getNamedValue(ss, r.ENABLE_REMINDER.s),
+                    rules: {
+                        required: true
+                    },
+                    list: [r.NOT_ENABLED.s, r.ENABLED.s]
+                }, {
+                    namedValue: r.ENABLE_CONFIRMATION.s,
+                    type: 'list',
+                    help: 'current value ' + getNamedValue(ss, r.ENABLE_REMINDER.s),
+                    rules: {
+                        required: true
+                    },
+                    list: [r.NOT_ENABLED.s, r.ENABLED.s]
+                }],
+                template, html;
+
+            gridData.formId = normalizeHeader(r.OPTIONS_SETTINGS_SHEET.s);
+            gridData.legend = r.OPTIONS_SETTINGS_SHEET.s;
+            gridData.height = 700;
+            gridData.width = 680;
+            
+            template = HtmlService.createTemplateFromFile('Options');
+            template.gridData = gridData;
+            template.sfss = sfss;
+            template.ss = ss;
+            
+            html = template.evaluate().setHeight(gridData.height).setWidth(gridData.width).setSandboxMode(HtmlService.SandboxMode.IFRAME);
+            SpreadsheetApp.getUi().showModalDialog(html, ' ');
+        }
+
+        function settingsOptionsAction(f) {
+            var ss = SpreadsheetApp.getActiveSpreadsheet(),
+                eventDate, cosDate;
+            if (f.cancel) {
+               ss.toast("Canceling operation.", "WARNING", 5);
+            } else {
+               eventDate = new Date(f.eventDate.replace(/-/g, '/')), cosDate = new Date(f.closeOfSubmission.replace(/-/g, '/'));
+               if (isNaN(eventDate.getTime()) || isNaN(cosDate.getTime()) || eventDate < cosDate) {
+                  throw {
+                     message: 'Expected Close of Submission to be before the event date!'
+                  };
+               }
+
+               var festivaDataNames = f[normalizeHeader(r.FESTIVAL_DATA_NAMES.s)].split(','),
+                   range = ss.getRangeByName(normalizeHeader(r.FESTIVAL_DATA.s)),
+                   values = festivaDataNames.map(function (itemName) {
+                       return [itemName, f[normalizeHeader(itemName)]];
+                   });
+                range.setValues(values);
+                
+                ss.toast("Saved!", "INFORMATION", 5);
+            }
+        }
+
 
         ui_interface = {
             onOpen: onOpen,
@@ -1282,10 +1179,10 @@ try {
             // button actions and server handlers
             buttonAction: buttonAction,
             templatesButtonAction: templatesButtonAction,
-            settingsOptionsButtonAction: settingsOptionsButtonAction,
+            settingsOptionsAction: settingsOptionsAction,
             selectionNotificationButtonAction: selectionNotificationButtonAction,
             adHocEmailButtonAction: adHocEmailButtonAction,
-            validateDates: validateDates
+            validateDates: validateDates,
         };
 
         return ui_interface;

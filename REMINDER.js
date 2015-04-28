@@ -30,9 +30,9 @@ try {
 
 
         function hReminderConfirmation() {
-            log('hNewReminderConfirmation start');
+            log('hReminderConfirmation start');
             touchSpreadsheet(reminderConfirmation);
-            log('hNewReminderConfirmation end');
+            log('hReminderConfirmation end');
         }
 
         function callbackFactory(ss, filmSheet, indices, numberOfSubmissions) {

@@ -5,9 +5,7 @@ try {
     sfss.s = (function (s) {
         'use strict';
 
-        var sfss_interface, testing,
-
-        lg = s.lg,
+        var sfss_interface, testing, lg = s.lg,
             u = s.u,
             ui = s.ui,
             i = s.init,
@@ -15,7 +13,6 @@ try {
             p = s.process,
             re = s.reminder,
             smm = s.smm,
-
 
             normalizeHeader = smm.normalizeHeader,
 
@@ -61,10 +58,15 @@ try {
             // button actions and server handlers
             buttonAction = ui.buttonAction,
             templatesButtonAction = ui.templatesButtonAction,
-            settingsOptionsButtonAction = ui.settingsOptionsButtonAction,
+            settingsOptionsAction = ui.settingsOptionsAction,
             selectionNotificationButtonAction = ui.selectionNotificationButtonAction,
             adHocEmailButtonAction = ui.adHocEmailButtonAction,
-            validateDates = ui.validateDates;
+            validateDates = ui.validateDates,
+            
+            testtestAction = ui.testtestAction,
+            
+            // workling on HTML Service
+            testtest = ui.testtest;
 
         testing = {
             normaliseAndValidateDuration: normaliseAndValidateDuration,
@@ -113,7 +115,7 @@ try {
             // button actions and server handlers
             buttonAction: buttonAction,
             templatesButtonAction: templatesButtonAction,
-            settingsOptionsButtonAction: settingsOptionsButtonAction,
+            settingsOptionsAction: settingsOptionsAction,
             selectionNotificationButtonAction: selectionNotificationButtonAction,
             adHocEmailButtonAction: adHocEmailButtonAction,
             validateDates: validateDates,
@@ -223,8 +225,8 @@ function templatesButtonAction(e) {
     return sfss.s.templatesButtonAction(e);
 }
 
-function settingsOptionsButtonAction(e) {
-    return sfss.s.settingsOptionsButtonAction(e);
+function settingsOptionsAction(e) {
+    return sfss.s.settingsOptionsAction(e);
 }
 
 function selectionNotificationButtonAction(e) {

@@ -30,6 +30,12 @@ try {
             }
         }
 
+        function toISOSting(d) {
+            var ISODateString = d.toISOString();
+            ISODateString = ISODateString.slice(0, ISODateString.indexOf('T'));
+            return ISODateString;
+        }
+
         function normaliseAndValidateDuration(length) {
             log('normaliseAndValidateDuration:start:length:"' + length + '"');
 
@@ -151,7 +157,7 @@ try {
                     for (var i = 0; i < values.length; i++) {
                         item = values[i];
                         items.push(item[0]);
-                        CACHE[normalizeHeader(item[0])] = item[1];
+                        setNamedValueInCache(normalizeHeader(item[0]), item[1]);
                     }
                     setNamedValueInCache(name, true);
                 } else {
@@ -260,6 +266,7 @@ try {
 
         utils_interface = {
             prettyPrintDate: prettyPrintDate,
+            toISOSting: toISOSting,
             normaliseAndValidateDuration: normaliseAndValidateDuration,
             pad: pad,
             setPadNumber: setPadNumber,

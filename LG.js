@@ -13,7 +13,11 @@ try {
             logDoc;
 
         if (logId && !r.TESTING.b) {
-            logDoc = DocumentApp.openById(logId);
+            try {
+                logDoc = DocumentApp.openById(logId);
+            } catch (e) {
+                Logger.log(catchToString(e));
+            }
         }
 
         function buildLogFile(ss) {
