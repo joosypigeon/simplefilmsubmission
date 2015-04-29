@@ -19,20 +19,25 @@ try {
             normalizeHeader = smm.normalizeHeader;
 
         function prettyPrintDate(date) {
-            if (!date) {
-                return null;
-            } else {
-                return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()] + " the " + (function (d) {
+            if (typeof date.getTime === 'function' && !isNaN(date.getTime())) {
+                return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()]
+                        + " the " + (function (d) {
                     var s = d.toString(),
                         l = s[s.length - 1];
                     return s + (['th', 'th', 'th'][d - 11] || ['st', 'nd', 'rd'][l - 1] || 'th');
-                })(date.getDate()) + " of " + ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][date.getMonth()] + ", " + date.getFullYear();
+                })(date.getDate())
+                        + " of " + ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][date.getMonth()] + ", " + date.getFullYear();
+            } else {
+                return '???';
             }
         }
 
-        function toISOSting(d) {
-            var ISODateString = d.toISOString();
-            ISODateString = ISODateString.slice(0, ISODateString.indexOf('T'));
+        function toISOString(d) {
+            var ISODateString = '???';
+            if (typeof d.getTime === 'function' && !isNaN(d.getTime())) {
+                ISODateString = d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+            }
+
             return ISODateString;
         }
 
@@ -266,7 +271,7 @@ try {
 
         utils_interface = {
             prettyPrintDate: prettyPrintDate,
-            toISOSting: toISOSting,
+            toISOString: toISOString,
             normaliseAndValidateDuration: normaliseAndValidateDuration,
             pad: pad,
             setPadNumber: setPadNumber,

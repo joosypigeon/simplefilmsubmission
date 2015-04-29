@@ -1135,11 +1135,32 @@ try {
 
         function settingsOptionsAction(f) {
             var ss = SpreadsheetApp.getActiveSpreadsheet(),
-                eventDate, cosDate;
+                eventDate = new Date(), cosDate = new Date(), eventString, cosString;
             if (f.cancel) {
                ss.toast("Canceling operation.", "WARNING", 5);
             } else {
-               eventDate = new Date(f.eventDate.replace(/-/g, '/')), cosDate = new Date(f.closeOfSubmission.replace(/-/g, '/'));
+               // The data should be correctly formatted at this point,
+               // so throw exception if it is not.
+               
+               // At present 2015-04-29  GAS does not understand ISO formatted dates
+               eventString = f.eventDate;
+               cosString = f.closeOfSubmission;
+               [{'s':eventString, 'd': eventDate}, {'s':cosString, 'd': cosDate}].forEach(function(item){
+                  var s = item.s, d = item.d;
+                  if(!s.match(/\d{4}-\d\d-\d\d/)) {
+                     throw {
+                        message: 'Expected date in ISO format!'
+                     };
+                  }
+                  d.setFullYear(s.slice(0,4));
+                  d.setMonth(s.slice(5,7) - 1);
+                  d.setDate(s.slice(8,10));
+                  d.setHours(0);
+                  d.setMinutes(0);
+                  d.setSeconds(0);
+                  log('d, s:'+d+','+s);
+               });
+               
                if (isNaN(eventDate.getTime()) || isNaN(cosDate.getTime()) || eventDate < cosDate) {
                   throw {
                      message: 'Expected Close of Submission to be before the event date!'

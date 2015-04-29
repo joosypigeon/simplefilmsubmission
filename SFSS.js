@@ -61,9 +61,6 @@ try {
             settingsOptionsAction = ui.settingsOptionsAction,
             selectionNotificationButtonAction = ui.selectionNotificationButtonAction,
             adHocEmailButtonAction = ui.adHocEmailButtonAction,
-            validateDates = ui.validateDates,
-            
-            testtestAction = ui.testtestAction,
             
             // workling on HTML Service
             testtest = ui.testtest;
@@ -118,8 +115,7 @@ try {
             settingsOptionsAction: settingsOptionsAction,
             selectionNotificationButtonAction: selectionNotificationButtonAction,
             adHocEmailButtonAction: adHocEmailButtonAction,
-            validateDates: validateDates,
-
+            
             // testing
             testing: testing
         };
@@ -235,10 +231,6 @@ function selectionNotificationButtonAction(e) {
 
 function adHocEmailButtonAction(e) {
     return sfss.s.adHocEmailButtonAction(e);
-}
-
-function validateDates(e) {
-    return sfss.s.validateDates(e);
 }
 ////////////////////////////////////////////////////////////////////////////
 // end of button actions and server handlers

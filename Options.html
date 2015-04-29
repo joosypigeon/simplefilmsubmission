@@ -1,7 +1,7 @@
 <?
 var normalizeHeader = sfss.smm.normalizeHeader,
     getNamedValue = sfss.u.getNamedValue,
-    toISOSting = sfss.u.toISOSting,
+    toISOString = sfss.u.toISOString,
     log = sfss.lg.log;
 ?>
 <!DOCTYPE html>
@@ -145,7 +145,7 @@ var normalizeHeader = sfss.smm.normalizeHeader,
                     <? if (type === 'text') { ?>
                         <input id="<?= nameCC ?>"  type="text" name="<?= nameCC ?>" value="<?= value ?>">
                     <? } else if (type === 'date') {?>
-                        <input id="<?= nameCC ?>" class="datepicker" type="text" name="<?= nameCC ?>" value="<?= toISOSting(value) ?>">
+                        <input id="<?= nameCC ?>" class="datepicker" type="text" name="<?= nameCC ?>" value="<?= toISOString(value) ?>">
                     <? } else if (type === 'list') { ?>
                         <select id="<?= nameCC ?>"  name="<?= nameCC ?>"> 
                             <?
