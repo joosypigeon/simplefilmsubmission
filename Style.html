@@ -1,0 +1,110 @@
+<style>
+    *, *:before, *:after {
+        -webkit-box-sizing: border-box; 
+        -moz-box-sizing: border-box; 
+        box-sizing: border-box;
+    }
+    div.ui-datepicker {
+        font-size:66.6%;
+    }
+    .panel {
+        background: #eeeeee; /* Old browsers */
+        background: -moz-linear-gradient(top,  #eeeeee 0%, #cccccc 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#cccccc)); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top,  #eeeeee 0%,#cccccc 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(top,  #eeeeee 0%,#cccccc 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(top,  #eeeeee 0%,#cccccc 100%); /* IE10+ */
+        background: linear-gradient(to bottom,  #eeeeee 0%,#cccccc 100%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#cccccc',GradientType=0 ); /* IE6-9 */
+        margin:auto;
+        overflow:auto;
+        font-family: Tahoma, Geneva, sans-serif;
+        font-size: 14px;
+        line-height: 24px;
+        font-weight: bold;
+        color: #333;
+        text-decoration: none;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+        padding:10px;
+        border: 1px solid #999;
+        border: inset 1px solid #333;
+        -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        -moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+    }
+    .block-label {
+        display: block;
+    }
+    input[type='text'], select {
+        width:300px;
+        display:inline;
+        border: 2px solid;
+        height: 27px;
+        padding-left: 5px;
+        margin-right: 10px;
+        font-size: 12px;
+        font-weight: bold;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        -moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+    }
+    select {
+        width: auto;
+    }
+    select:focus, input:focus {
+        border: 2px solid #346efa;
+    }
+    .form-item {
+        margin-bottom: 10px;
+    }
+    .help {
+        font-size: small;
+        font-weight: normal;
+    }
+    .datepicker {
+        width: 75px;
+    } 
+    .button{
+        width: auto;
+        float: right;
+        font-size: 14px;
+        font-family: Tahoma, Geneva, sans-serif;
+        height:34px;
+        -webkit-border-radius: 15px;
+        -moz-border-radius: 15px;
+        border-radius: 15px;
+        border: 2px solid;
+        margin-right: 10px;
+    }
+    .save-enable {
+        background:#346efa;
+        color:#fff; 
+        border-color: #064cf5;
+    }
+    .cancel-enable {
+        background:#d5d5d5;
+        color:#333;  
+        border-color: #bcbcbc;
+    }
+    .save-enable:hover, .cancel-enable:hover {
+        background:#fff;
+        color:#346efa;
+    }
+    [disabled]{
+        background:#666;
+        color:#333;  
+        border-color: #333;
+    }
+    .error {
+        border-color: red;
+        color: red;
+    }
+    label.error {
+        display: inline;
+    }
+</style>

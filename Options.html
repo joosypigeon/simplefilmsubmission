@@ -2,6 +2,7 @@
 var normalizeHeader = sfss.smm.normalizeHeader,
     getNamedValue = sfss.u.getNamedValue,
     toISOString = sfss.u.toISOString,
+    include = sfss.u.include,
     log = sfss.lg.log;
 ?>
 <!DOCTYPE html>
@@ -9,115 +10,12 @@ var normalizeHeader = sfss.smm.normalizeHeader,
     <head>
         <title>Options & Settings</title>
         <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-        <style>
-            *, *:before, *:after {
-                -webkit-box-sizing: border-box; 
-                -moz-box-sizing: border-box; 
-                box-sizing: border-box;
-            }
-            div.ui-datepicker {
-                font-size:66.6%;
-            }
-            form {
-                background: -webkit-gradient(linear, bottom, left 200px, from(#CCCCCC), to(#EEEEEE));
-                background: -moz-linear-gradient(bottom, #CCCCCC, #EEEEEE 200px);
-                margin:auto;
-                overflow:auto;
-                font-family: Tahoma, Geneva, sans-serif;
-                font-size: 14px;
-                line-height: 24px;
-                font-weight: bold;
-                color: #333;
-                text-decoration: none;
-                -webkit-border-radius: 10px;
-                -moz-border-radius: 10px;
-                border-radius: 10px;
-                padding:10px;
-                border: 1px solid #999;
-                border: inset 1px solid #333;
-                -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
-                -moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
-                box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
-            }
-            label {
-                display: block;
-            }
-            input[type='text'], select {
-                width:300px;
-                display:inline;
-                border: 2px solid;
-                height: 27px;
-                padding-left: 5px;
-                margin-right: 10px;
-                font-size: 12px;
-                font-weight: bold;
-                -webkit-border-radius: 5px;
-                -moz-border-radius: 5px;
-                border-radius: 5px;
-                -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
-                -moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
-                box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
-            }
-            select {
-                width: auto;
-            }
-            select:focus, input:focus {
-                border: 2px solid #346efa;
-            }
-            .form-item {
-                margin-bottom: 10px;
-            }
-            .help {
-                font-size: small;
-                font-weight: normal;
-            }
-            .datepicker {
-                width: 75px;
-            } 
-            .button{
-                width: auto;
-                float: right;
-                font-size: 14px;
-                font-family: Tahoma, Geneva, sans-serif;
-                height:34px;
-                -webkit-border-radius: 15px;
-                -moz-border-radius: 15px;
-                border-radius: 15px;
-                border: 2px solid;
-                margin-right: 10px;
-            }
-            .save-enable {
-                background:#346efa;
-                color:#fff; 
-                border-color: #064cf5;
-            }
-            .cancel-enable {
-                background:#d5d5d5;
-                color:#333;  
-                border-color: #bcbcbc;
-            }
-            .save-enable:hover, .cancel-enable:hover {
-                background:#fff;
-                color:#346efa;
-            }
-            [disabled]{
-                background:#666;
-                color:#333;  
-                border-color: #333;
-            }
-            .error {
-                border-color: red;
-                color: red;
-            }
-            label.error {
-                display: inline;
-            }
-        </style>
+        <?!= include('Style'); ?>
     </head>
     <body> 
-        <form id="<?= gridData.formId ?>">
+        <form id="<?= gridData.formId ?>" class="panel">
             <h1><?= gridData.legend ?> <span style='font-size:60%;'>enter data about your film festival below</span></h1>
-            <p>PLEASE NOTE: Do not worry if you save the wrong data. You can always select 'Options&nbsp;&&nbsp;Settings' from the 'Film&nbsp;Submission' menu, to visit this dialog again.</p>
+            <p>PLEASE NOTE: Do not worry if you save the wrong data. You can always select 'Options&nbsp;Settings' from the 'Film&nbsp;Submission' menu, to visit this dialog again.</p>
             <?
             var item, name, nameCC, value, type, help, rules, messages, allRules = {}, allMessages ={};
             for(var itemIndex = 0, length = gridData.length; itemIndex < length; itemIndex += 1) {
@@ -139,7 +37,7 @@ var normalizeHeader = sfss.smm.normalizeHeader,
 
                 <div class="form-item">
                     <? if (type !== 'hidden') { ?>
-                    <label for="<?= nameCC ?>"><?= name ?><span class="help">&nbsp;(<?= help ?>):</span></label>
+                    <label class="block-label" for="<?= nameCC ?>"><?= name ?><span class="help">&nbsp;(<?= help ?>):</span></label>
                     <? } ?>
 
                     <? if (type === 'text') { ?>
@@ -209,7 +107,7 @@ var normalizeHeader = sfss.smm.normalizeHeader,
                     onfocusout: function(element) { $(element).valid(); }
                 });
                 cancel.click(function() {
-                    google.script.run.settingsOptionsAction({'cancel': true});
+                    google.script.run.cancelAction({'cancel': true});
                     setTimeout(google.script.host.close, 100);
                 });
                 enable();

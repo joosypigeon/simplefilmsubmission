@@ -56,14 +56,13 @@ try {
             adHocEmailTemplate = ui.adHocEmailTemplate,
 
             // button actions and server handlers
-            buttonAction = ui.buttonAction,
+            bbuttonAction = ui.bbuttonAction,
             templatesButtonAction = ui.templatesButtonAction,
             settingsOptionsAction = ui.settingsOptionsAction,
             selectionNotificationButtonAction = ui.selectionNotificationButtonAction,
             adHocEmailButtonAction = ui.adHocEmailButtonAction,
+            cancelAction = ui.cancelAction;
             
-            // workling on HTML Service
-            testtest = ui.testtest;
 
         testing = {
             normaliseAndValidateDuration: normaliseAndValidateDuration,
@@ -110,11 +109,12 @@ try {
             adHocEmailTemplate: adHocEmailTemplate,
 
             // button actions and server handlers
-            buttonAction: buttonAction,
+            bbuttonAction: bbuttonAction,
             templatesButtonAction: templatesButtonAction,
             settingsOptionsAction: settingsOptionsAction,
             selectionNotificationButtonAction: selectionNotificationButtonAction,
             adHocEmailButtonAction: adHocEmailButtonAction,
+            cancelAction: cancelAction, 
             
             // testing
             testing: testing
@@ -213,8 +213,8 @@ function adHocEmailTemplate() {
 ////////////////////////////////////////////////////////////////////////////
 // start of button actions and server handlers
 ////////////////////////////////////////////////////////////////////////////
-function buttonAction(e) {
-    return sfss.s.buttonAction(e);
+function bbuttonAction(e) {
+    return sfss.s.bbuttonAction(e);
 }
 
 function templatesButtonAction(e) {
@@ -231,6 +231,10 @@ function selectionNotificationButtonAction(e) {
 
 function adHocEmailButtonAction(e) {
     return sfss.s.adHocEmailButtonAction(e);
+}
+
+function cancelAction(f) {
+    return sfss.s.cancelAction(f);
 }
 ////////////////////////////////////////////////////////////////////////////
 // end of button actions and server handlers

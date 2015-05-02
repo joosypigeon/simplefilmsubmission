@@ -1,0 +1,75 @@
+<?
+var normalizeHeader = sfss.smm.normalizeHeader,
+    getNamedValue = sfss.u.getNamedValue,
+    toISOString = sfss.u.toISOString,
+    include = sfss.u.include,
+    log = sfss.lg.log;
+?>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Options & Settings</title>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+        <?!= include('Style'); ?>
+        <?!= include('ManualStyle'); ?>
+    </head>
+    <body> 
+        <form id="form" class="panel">
+            <h1><?= gridData.title ?></h1>
+            <p>The status of a submission is given by the value of three fields which are 'Status', 'Confirmation' and 'Selection'.</p>
+            <p>For full details on what the various setting mean, please refer to documentation.</p>
+            <?
+            var item, name, nameCC, listItem;
+            for(var itemIndex = 0, length = gridData.length; itemIndex < length; itemIndex += 1) {
+                item = gridData[itemIndex];
+                name = item.namedValue;
+                nameCC = normalizeHeader(name);
+            ?>
+                
+                <div class="form-item">
+                    <label for="<?= nameCC ?>"><?= name ?></label>
+                    <select id="<?= nameCC ?>"  name="<?= nameCC ?>"> 
+                        <?
+                        for(var listIndex = 0, listLength = item.list.length; listIndex < listLength; listIndex += 1) {
+                            listItem = item.list[listIndex];
+                            ?>
+                            <option value = "<?= listItem ?>"  ><?= listItem ?></option>
+                        <? } ?>
+                    </select>
+                </div>
+            <? } ?>
+            <input id="cancel" class="button" name="cancel" type="button" value="Cancel" disabled>
+            <input id="save" class="button" name="save" type="submit" value="Save" disabled>
+        </form>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script>
+            $(function() {
+                var save = $('#save'), cancel = $('#cancel'), buttons = $('#save, #cancel'), form = $("#form")[0];
+                function enable () {
+                    buttons.removeAttr('disabled');
+                    save.addClass('save-enable');
+                    cancel.addClass('cancel-enable');
+                }
+                function disable () {
+                    buttons.removeClass('save-enable, cancel-enable')
+                        .attr('disabled',true);
+                }
+                save.click(function(){
+                    disable ();
+                    google.script.run
+                        .withSuccessHandler(google.script.host.close)
+                        .withFailureHandler(function (error) {
+                                enable();
+                                alert(error.message);
+                            })
+                        .bbuttonAction(form);
+                });
+                cancel.click(function() {
+                    google.script.run.cancelAction({'cancel': true});
+                    setTimeout(google.script.host.close, 100);
+                });
+                enable();
+            });
+        </script>
+    </body>
+</html>

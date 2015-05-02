@@ -1,0 +1,66 @@
+<?
+var normalizeHeader = sfss.smm.normalizeHeader,
+    include = sfss.u.include;
+?>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><?= data.title ?></title>
+        <?!= include('Style'); ?>
+    </head>
+    <body>
+        <form id="form" class="panel">
+             <h1>Set Status <span style='font-size:60%;'><?= data.title ?></span></h1>
+            <?!= data.html  ?>
+            <? 
+            var statusId = normalizeHeader(r.STATUS.s),
+                confirmationId = normalizeHeader(r.CONFIRMATION.s),
+                selectionId = normalizeHeader(r.SELECTION.s),
+                saveId = normalizeHeader(r.SAVE.s),
+                cancelId = normalizeHeader(r.CANCEL.s),
+                inhibitId = normalizeHeader(r.INHIBIT.s)
+                status = data[statusId], 
+                confirmation = data[confirmationId],
+                selection = data[selectionId]; 
+            ?>
+            <input id="<?= statusId ?>"  type="hidden" name="<?= statusId ?>" value="<?= status ?>">
+            <input id="<?= confirmationId ?>"  type="hidden" name="<?= confirmationId ?>" value="<?= confirmation ?>">
+            <input id="<?= selectionId ?>"  type="hidden" name="<?= selectionId ?>" value="<?= selection ?>">
+
+            <input id="<?= cancelId ?>" class="button" name="<?= cancelId ?>" type="button" value="<?= cancelId ?>" disabled>
+            <input id="<?= saveId ?>" class="button" name="<?= saveId ?>" type="submit" value="<?= saveId ?>" disabled>
+            <label for="<?= inhibitId ?>">Do not show me this dialog again.</label><input id="<?= inhibitId ?>" type="checkbox" name="<?= inhibitId ?>" value="true">
+        </form>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script>
+            $(function() {
+                var save = $("#" + "<?= saveId ?>"), cancel = $("#" + "<?= cancelId ?>"), buttons = $("#" + "<?= saveId ?>, #" + "<?= cancelId ?>"), form = $("#form")[0];
+                function enable () {
+                    buttons.removeAttr('disabled');
+                    save.addClass('save-enable');
+                    cancel.addClass('cancel-enable');
+                }
+                function disable () {
+                    buttons.removeClass('save-enable, cancel-enable')
+                        .attr('disabled',true);
+                }
+                save.click(function(){
+                    disable ();
+                    google.script.run
+                        .withSuccessHandler(google.script.host.close)
+                        .withFailureHandler(function (error) {
+                                enable();
+                                alert(error.message);
+                            })
+                        .bbuttonAction(form);
+                });
+                cancel.click(function() {
+                    disable ();
+                    google.script.run.cancelAction(form);
+                    setTimeout(google.script.host.close, 100);
+                });
+                enable();
+            });
+        </script>
+    </body>
+</html>

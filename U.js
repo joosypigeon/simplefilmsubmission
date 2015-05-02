@@ -20,13 +20,11 @@ try {
 
         function prettyPrintDate(date) {
             if (typeof date.getTime === 'function' && !isNaN(date.getTime())) {
-                return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()]
-                        + " the " + (function (d) {
+                return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()] + " the " + (function (d) {
                     var s = d.toString(),
                         l = s[s.length - 1];
                     return s + (['th', 'th', 'th'][d - 11] || ['st', 'nd', 'rd'][l - 1] || 'th');
-                })(date.getDate())
-                        + " of " + ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][date.getMonth()] + ", " + date.getFullYear();
+                })(date.getDate()) + " of " + ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][date.getMonth()] + ", " + date.getFullYear();
             } else {
                 return '???';
             }
@@ -35,7 +33,7 @@ try {
         function toISOString(d) {
             var ISODateString = '???';
             if (typeof d.getTime === 'function' && !isNaN(d.getTime())) {
-                ISODateString = d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+                ISODateString = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
             }
 
             return ISODateString;
@@ -249,6 +247,10 @@ try {
             };
         }
 
+        function include(filename) {
+            return HtmlService.createHtmlOutputFromFile(filename).setSandboxMode(HtmlService.SandboxMode.IFRAME).getContent();
+        }
+
         function touchSpreadsheet(callback) {
             log('touchSpreadsheet start');
             try {
@@ -285,6 +287,8 @@ try {
             saveData: saveData,
 
             setTesting: setTesting,
+            
+            include: include,
 
             touchSpreadsheet: touchSpreadsheet
         };

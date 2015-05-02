@@ -106,7 +106,7 @@ try {
                 "HELP", "LABEL", "TEST", "BUTTON", "HIDDEN", "PLABEL",
 
                 //IDs
-                "NEXT", "PREVIOUS", "SAVE", "OK", "ENABLE", "UNENABLE", "CANCEL", "WAIT", "STATUS_HTML", "STATUS_WARNING_HTML", "TEST_PROCESSING_LABEL", "DATE_DIFF", "FESTIVAL_DATA_NAMES", "TEMPLATE_DATA_NAMES", "TEST_DATA_NAMES", "TAGS",
+                "NEXT", "PREVIOUS", "SAVE", "OK", "ENABLE", "UNENABLE", "CANCEL", "WAIT", "STATUS_HTML", "STATUS_WARNING_HTML", "TEST_PROCESSING_LABEL", "DATE_DIFF", "FESTIVAL_DATA_NAMES", "TEMPLATE_DATA_NAMES", "TEST_DATA_NAMES", "TAGS", "INHIBIT",
 
                 //value for ENABLE_REMINDER and ENABLE_CONFIRMATION
                 "ENABLED", "NOT_ENABLED",
@@ -164,6 +164,9 @@ try {
                 "TEMPLATES_TESTING",
 
                 "INITIALISE",
+                
+                // name for manual setting dialog
+                "MANUAL",
 
                 ['currentDate', new Date()],
 
