@@ -56,7 +56,7 @@ try {
             adHocEmailTemplate = ui.adHocEmailTemplate,
 
             // button actions and server handlers
-            bbuttonAction = ui.bbuttonAction,
+            buttonAction = ui.buttonAction,
             templatesButtonAction = ui.templatesButtonAction,
             settingsOptionsAction = ui.settingsOptionsAction,
             selectionNotificationButtonAction = ui.selectionNotificationButtonAction,
@@ -109,7 +109,7 @@ try {
             adHocEmailTemplate: adHocEmailTemplate,
 
             // button actions and server handlers
-            bbuttonAction: bbuttonAction,
+            buttonAction: buttonAction,
             templatesButtonAction: templatesButtonAction,
             settingsOptionsAction: settingsOptionsAction,
             selectionNotificationButtonAction: selectionNotificationButtonAction,
@@ -213,8 +213,8 @@ function adHocEmailTemplate() {
 ////////////////////////////////////////////////////////////////////////////
 // start of button actions and server handlers
 ////////////////////////////////////////////////////////////////////////////
-function bbuttonAction(e) {
-    return sfss.s.bbuttonAction(e);
+function buttonAction(e) {
+    return sfss.s.buttonAction(e);
 }
 
 function templatesButtonAction(e) {

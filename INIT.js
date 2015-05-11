@@ -4,11 +4,12 @@ var sfss = sfss || {};
 try {
     sfss.init = (function (s) {
         'use strict';
-        var r = s.r, lg = s.lg, ui = s.ui, f = s.form, init_interface, log = lg.log,
-            catchToString = lg.catchToString,
-            buildFormAndSpreadsheet = f.buildFormAndSpreadsheet,
-            buildLogFile = lg.buildLogFile,
-            settingsOptions = ui.settingsOptions;
+        var r = s.r,
+            lg = s.lg,
+            ui = s.ui,
+            f = s.form,
+            init_interface, log = lg.log,
+            catchToString = lg.catchToString;
 
         function setup() {
             try {
@@ -18,17 +19,22 @@ try {
                     }
 
                     Logger.log("setup start.");
-                    var ss = SpreadsheetApp.getActiveSpreadsheet();
+                    var ss = r.SS.d;
                     if (!r.TESTING.b) {
-                        buildLogFile(ss);
+                        lg.buildLogFile(ss);
                     }
-                    buildFormAndSpreadsheet(ss);
+                    f.buildFormAndSpreadsheet(ss);
+
+                    if (r.MONITOR.b) {
+                        r.initMonitor();
+                    }
+
 
                     // update menu
                     if (!r.TESTING.b) {
                         ss.updateMenu(r.FILM_SUBMISSION.s, r.MENU_ENTRIES.d);
 
-                        settingsOptions(); // let user set options and settings
+                        ui.settingsOptions(); // let user set options and settings
 
                         // enable film submission processing on form submission
                         ScriptApp.newTrigger("hProcessSubmission").forSpreadsheet(ss).onFormSubmit().create();

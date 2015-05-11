@@ -40,7 +40,7 @@ try {
 
         function processSubmission(event) {
             log('processSubmission start:' + event);
-            var ss = SpreadsheetApp.getActiveSpreadsheet();
+            var ss = r.SS.d;
 
             // load data in advance
             loadData(ss, r.FESTIVAL_DATA.s);

@@ -31,7 +31,7 @@ try {
         function onOpen() {
             // spreadsheet menu
             try {
-                var ss = SpreadsheetApp.getActiveSpreadsheet(),
+                var ss = r.SS.d,
                     initialised = r.SCRIPT_PROPERTIES.d.getProperty("initialised");
 
                 if (initialised) {
@@ -85,27 +85,27 @@ try {
         }
 
         function mediaPresentNotConfirmed() {
-            var ss = SpreadsheetApp.getActiveSpreadsheet();
+            var ss = r.SS.d;
             statusDialog(r.MEDIA_PRESENT.s, r.NOT_CONFIRMED.s, r.DO_NOT_CHANGE.s, 650, 'Media Present, Not Confirmed', '<p>The state of a submission is given by the value of three fields, <b>' + r.STATUS.s + '</b>, <b>' + r.CONFIRMATION.s + '</b> and <b>' + r.SELECTION.s + '</b>.</p><p>Setting a submission to ' + r.STATUS.s + ': <b>' + r.MEDIA_PRESENT.s + '</b>, ' + r.CONFIRMATION.s + ': <b>' + r.NOT_CONFIRMED.s + '</b> (and leaving ' + r.SELECTION.s + ' unchanged) means the filmmaker will be automatically emailed after midnight to confirm the receipt of the Physical Media and the Permission Slip at the festival office, provided that:<ul><li>close of submission on ' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + ' has not been reached at the time that the email confirmation is attempted</li><li>and that confirmations are currently enabled.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, r.ENABLE_CONFIRMATION.s) + '.</p><p>If you re-set the submission to a new different state before midnight, the receipt confirmation email will not be sent.</p><p>After the receipt confirmation email is sent the state of the submission will be set to ' + r.STATUS.s + ': <b>' + r.MEDIA_PRESENT.s + '</b>, ' + r.CONFIRMATION.s + ': <b>' + r.CONFIRMED.s + '</b>.</p><p>To continue with setting the submission state to ' + r.STATUS.s + ': <b>' + r.MEDIA_PRESENT.s + '</b>, ' + r.CONFIRMATION.s + ': <b>' + r.NOT_CONFIRMED.s + '</b> press OK, to not do this press CANCEL.</p><br/>');
         }
 
         function problem() {
-            var ss = SpreadsheetApp.getActiveSpreadsheet();
+            var ss = r.SS.d;
             statusDialog(r.PROBLEM.s, r.DO_NOT_CHANGE.s, r.DO_NOT_CHANGE.s, 480, 'Problem', '<p>The state of a submission is given by the value of three fields, <b>' + r.STATUS.s + '</b>, <b>' + r.CONFIRMATION.s + '</b> and <b>' + r.SELECTION.s + '</b>.</p><p>Setting a submission to ' + r.STATUS.s + ': <b>' + r.PROBLEM.s + '</b> (and leaving ' + r.CONFIRMATION.s + ' and ' + r.SELECTION.s + ' unchanged) means the filmmaker will be sent no reminder or receipt confirmation emails from now on. They will however, receive the final selection advisory email after close of submissions(' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + '), when it is sent.</p><p>If you set a submission to ' + r.STATUS.s + ': <b>' + r.PROBLEM.s + '</b>, please update the submission comment field with the details of the problem.</p><p>To continue with setting the submission state to ' + r.STATUS.s + ': <b>' + r.PROBLEM.s + '</b> press OK, to not do this press CANCEL.</p><br/>');
         }
 
         function selected() {
-            var ss = SpreadsheetApp.getActiveSpreadsheet();
+            var ss = r.SS.d;
             statusDialog(r.DO_NOT_CHANGE.s, r.DO_NOT_CHANGE.s, r.SELECTED.s, 680, 'Selected', '<p>The state of a submission is given by the value of three fields, <b>' + r.STATUS.s + '</b>, <b>' + r.CONFIRMATION.s + '</b> and <b>' + r.SELECTION.s + '</b>.</p><p>A submission set to ' + r.SELECTION.s + ': <b>' + r.SELECTED.s + '</b> (and leaving ' + r.STATUS.s + ' and ' + r.CONFIRMATION.s + ' unchanged) will still receive reminder and receipt confirmation emails dependent on its <b>' + r.STATUS.s + '</b> and <b>' + r.CONFIRMATION.s + '</b> provided that:<ul><li>it is at least ' + getNamedValue(ss, r.DAYS_BEFORE_REMINDER.s) + ' days before the close of submission on ' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + ' at the time that the email is attempted</li><li>and that receipt confirmations are currently enabled for receipt confirmation,</li><li>and that reminders are currently enabled for reminders.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, r.ENABLE_CONFIRMATION.s) + '.</p><p>Note: reminders are currently ' + getNamedValue(ss, r.ENABLE_REMINDER.s) + '.</p><p>Submissions set to ' + r.SELECTION.s + ': <b>' + r.SELECTED.s + '</b> will receive the festival submission acceptance email after close of submissions(' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + '), when it is sent.</p><p>You will usually only set this state after the close of submissions.</p><p>To continue with setting the submission state to ' + r.SELECTION.v + ': <b>' + r.SELECTED.v + '</b> press OK, to not do this press CANCEL.</p><br/>');
         }
 
         function notSelected() {
-            var ss = SpreadsheetApp.getActiveSpreadsheet();
+            var ss = r.SS.d;
             statusDialog(r.DO_NOT_CHANGE.s, r.DO_NOT_CHANGE.s, r.NOT_SELECTED.s, 700, 'Not Selected', '<p>The state of a submission is given by the value of three fields, <b>' + r.STATUS.s + '</b>, <b>' + r.CONFIRMATION.s + '</b> and <b>' + r.SELECTION.s + '</b>.</p><p>A submission set to ' + r.SELECTION.s + ': <b>' + r.NOT_SELECTED.s + '</b> (and leaving ' + r.STATUS.s + ' and ' + r.CONFIRMATION.s + ' unchanged) will still receive reminder and receipt confirmation emails dependent on its <b>' + r.STATUS.s + '</b> and <b>' + r.CONFIRMATION.s + '</b> provided that:<ul><li>it is at least ' + getNamedValue(ss, r.DAYS_BEFORE_REMINDER.s) + ' days before the close of submission on ' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + ' at the time that the email is attempted</li><li>and that receipt confirmations are currently enabled for receipt confirmation,</li><li>and that reminders are currently enabled for reminders.</li></ul></p><p>Note: receipt confirmations are currently ' + getNamedValue(ss, r.ENABLE_CONFIRMATION.s) + '.</p><p>Note: reminders are currently ' + getNamedValue(ss, r.ENABLE_REMINDER.s) + '.</p><p>Submissions set to ' + r.SELECTION.s + ': <b>' + r.NOT_SELECTED.s + '</b> will receive the festival submission not acceptanced email after close of submissions(' + prettyPrintDate(getNamedValue(ss, r.CLOSE_OF_SUBMISSION.s)) + '), when it is sent.</p><p>You will usually only set this state after the close of submissions.</p><p>To continue with setting the submission state to ' + r.SELECTION.s + ': <b>' + r.NOT_SELECTED.s + '</b> press OK, to not do this press CANCEL.</p><br/>');
         }
 
         function manual() {
-        var ss = SpreadsheetApp.getActiveSpreadsheet(),
+        var ss = r.SS.d,
             gridData = [{
                 namedValue: r.STATUS.s,
                 type: 'list',
@@ -132,64 +132,12 @@ try {
         template.ss = ss;
 
         dialog = template.evaluate().setHeight(gridData.height).setWidth(gridData.width).setSandboxMode(HtmlService.SandboxMode.IFRAME);
-        SpreadsheetApp.getUi().showModalDialog(dialog, ' ');
-        /*{
-            var ss = SpreadsheetApp.getActiveSpreadsheet(),
-                app = UiApp.createApplication().setTitle('Set state of selection');
-
-            var grid = app.createGrid(3, 2);
-            grid.setWidget(0, 0, app.createLabel(r.STATUS.s + ':'));
-            var statusListBox = app.createListBox(false).setName(r.STATUS.s);
-            statusListBox.addItem(r.DO_NOT_CHANGE.s);
-            statusListBox.addItem(r.NO_MEDIA.s);
-            statusListBox.addItem(r.MEDIA_PRESENT.s);
-            statusListBox.addItem(r.PROBLEM.s);
-            grid.setWidget(0, 1, statusListBox);
-            grid.setWidget(1, 0, app.createLabel(r.CONFIRMATION.s + ':'));
-            var confirmationListBox = app.createListBox(false).setName(r.CONFIRMATION.s);
-            confirmationListBox.addItem(r.DO_NOT_CHANGE.s);
-            confirmationListBox.addItem(r.NOT_CONFIRMED.s);
-            confirmationListBox.addItem(r.CONFIRMED.s);
-            grid.setWidget(1, 1, confirmationListBox);
-            grid.setWidget(2, 0, app.createLabel(r.SELECTION.s + ':'));
-            var selectionListBox = app.createListBox(false).setName(r.SELECTION.s);
-            selectionListBox.addItem(r.DO_NOT_CHANGE.s);
-            selectionListBox.addItem(r.NOT_SELECTED.s);
-            selectionListBox.addItem(r.SELECTED.s);
-            grid.setWidget(2, 1, selectionListBox);
-
-            var cPanel = app.createCaptionPanel("Set State Of Range").setId('cPanel'),
-                vPanel = app.createVerticalPanel();
-            vPanel.add(app.createHTML('<p>The status of a submission is given by the value of three fields which are <b>' + r.STATUS.s + '</b>, <b>' + r.CONFIRMATION.s + '</b> and <b>' + r.SELECTION.s + '</b>.</p><p>For full details on what the various setting mean, please refer to documentation.</p>'));
-            vPanel.add(grid);
-
-            var handler = app.createServerHandler("buttonAction"),
-                buttonGrid = app.createGrid(1, 3),
-                ok = app.createButton(r.OK.s, handler).setId(r.OK.s),
-                cancel = app.createButton(r.CANCEL.s, handler).setId(r.CANCEL.s),
-                label = app.createLabel(r.PROCESSING.s).setVisible(false);
-            handler.addCallbackElement(vPanel);
-            buttonGrid.setWidget(0, 0, ok);
-            buttonGrid.setWidget(0, 1, cancel);
-            buttonGrid.setWidget(0, 2, label);
-
-            var clientHandler = app.createClientHandler().forTargets([ok, cancel]).setEnabled(false).forTargets(label).setVisible(true);
-            ok.addClickHandler(clientHandler);
-            cancel.addClickHandler(clientHandler);
-
-            vPanel.add(buttonGrid);
-            handler.addCallbackElement(vPanel);
-
-            cPanel.add(vPanel);
-            app.add(cPanel);
-
-            ss.show(app);
-            */
+        SpreadsheetApp.getUi().showModalDialog(dialog, ' ');    
     }
 
-    function bbuttonAction(f) {
+    function buttonAction(f) {
         try {
-            var ss = SpreadsheetApp.getActiveSpreadsheet(),
+            var ss = r.SS.d,
                 status = f[normalizeHeader(r.STATUS.s)],
                 confirmation = f[normalizeHeader(r.CONFIRMATION.s)],
                 selection = f[normalizeHeader(r.SELECTION.s)],
@@ -199,14 +147,14 @@ try {
 
             setStatus(status, confirmation, selection);
         } catch (e) {
-            log('There has been an error in bbuttonAction:' + e);
+            log('There has been an error in buttonAction:' + e);
         }
     }
 
     function setStatus(status, confirmation, selection) {
         try {
             log('setStatus:(status, confirmation, selection):(' + status + ',' + confirmation + ',' + selection + ')');
-            var ss = SpreadsheetApp.getActiveSpreadsheet();
+            var ss = r.SS.d;
             if (ss.getSheetName() === r.FILM_SUBMISSIONS_SHEET.s) {
                 var activeRange = SpreadsheetApp.getActiveRange(),
                     filmSheet = ss.getSheetByName(r.FILM_SUBMISSIONS_SHEET.s),
@@ -311,7 +259,7 @@ try {
             var returnTo = template;
             template = template || r.SUBMISSION_CONFIRMATION.s;
 
-            var ss = SpreadsheetApp.getActiveSpreadsheet();
+            var ss = r.SS.d;
             pleaseWait(ss);
 
             loadData(ss, r.TEST_DATA.s);
@@ -705,7 +653,7 @@ try {
         }
         try {
             var app = UiApp.getActiveApplication(),
-                ss = SpreadsheetApp.getActiveSpreadsheet(),
+                ss = r.SS.d,
                 testDataNames = e.parameter[normalizeHeader(r.TEST_DATA_NAMES.s)].split(','),
                 templates = e.parameter[normalizeHeader(r.TEMPLATE_DATA_NAMES.s)].split(','),
                 testButtonNames = templates.map(function (x) {
@@ -793,7 +741,7 @@ try {
 
     function selectionNotification() {
         try {
-            var ss = SpreadsheetApp.getActiveSpreadsheet();
+            var ss = r.SS.d;
 
             pleaseWait(ss);
 
@@ -872,7 +820,7 @@ try {
 
     function selectionNotificationButtonAction(e) {
         var app = UiApp.getActiveApplication(),
-            ss = SpreadsheetApp.getActiveSpreadsheet();
+            ss = r.SS.d;
 
         if (e.parameter.source === r.ENABLE.s) {
             log(r.SELECTION_NOTIFICATION.s + ' set to:' + r.PENDING.s);
@@ -896,7 +844,7 @@ try {
 
     function adHocEmail() {
         try {
-            var ss = SpreadsheetApp.getActiveSpreadsheet();
+            var ss = r.SS.d;
 
             pleaseWait(ss);
 
@@ -950,7 +898,7 @@ try {
 
     function adHocEmailButtonAction(e) {
         var app = UiApp.getActiveApplication(),
-            ss = SpreadsheetApp.getActiveSpreadsheet();
+            ss = r.SS.d;
         log('adHocEmailButtonAction:e.parameter.source:' + e.parameter.source);
         if (e.parameter.source === normalizeHeader(r.UNENABLE.s)) {
             setNamedValue(ss, r.CURRENT_PROCESS.s, r.DEFAULT_PROCESS.s);
@@ -972,7 +920,7 @@ try {
     }
 
     function settingsOptions() {
-        var ss = SpreadsheetApp.getActiveSpreadsheet(),
+        var ss = r.SS.d,
             festivaDataNames = u.loadData(ss, r.FESTIVAL_DATA.s).join(',');
 
         setNamedValue(ss, r.FESTIVAL_DATA_NAMES.s, festivaDataNames);
@@ -1080,7 +1028,7 @@ try {
     }
 
     function settingsOptionsAction(f) {
-        var ss = SpreadsheetApp.getActiveSpreadsheet(),
+        var ss = r.SS.d,
             eventDate = new Date(),
             cosDate = new Date(),
             eventString, cosString;
@@ -1132,7 +1080,7 @@ try {
     }
 
     function cancelAction(f) {
-        var ss = SpreadsheetApp.getActiveSpreadsheet(),
+        var ss = r.SS.d,
             status = f[normalizeHeader(r.STATUS.s)],
             confirmation = f[normalizeHeader(r.CONFIRMATION.s)],
             selection = f[normalizeHeader(r.SELECTION.s)],
@@ -1166,7 +1114,7 @@ try {
         adHocEmailTemplate: adHocEmailTemplate,
 
         // button actions and server handlers
-        bbuttonAction: bbuttonAction,
+        buttonAction: buttonAction,
         templatesButtonAction: templatesButtonAction,
         settingsOptionsAction: settingsOptionsAction,
         selectionNotificationButtonAction: selectionNotificationButtonAction,

@@ -78,7 +78,7 @@ try {
         testFolder.addFile(ssFile);
 
         ss.setSpreadsheetTimeZone('GMT');
-        SpreadsheetApp.setActiveSpreadsheet(ss);
+        r.SS.d = ss;
 
         SpreadsheetApp.flush();
 

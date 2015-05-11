@@ -1,19 +1,25 @@
-/*global smm, Session, PropertiesService */
+/*global Logger, smm, SpreadsheetApp, Session, PropertiesService */
 Logger.log('entering file r');
 var sfss = sfss || {};
 try {
-    sfss.r = (function () {
+    sfss.r = (function (that) {
         var r = {},
-            types; // Resource storage.
+            types = ['n', 'b', 's', 'd'],
+            p, properties = [],
+            sheet, numberOfGlobals = 0;
 
         // The resource constructor
         function R(name) {
+            var that = this;
             this.name = name;
             this.values = {};
+            this.count = {};
+            types.forEach(function (type) {
+                that.count[type] = 0;
+            });
         }
 
         // getters & setters for resource object
-        types = ['n', 'b', 's', 'd'];
         types.forEach(function (t) {
             Object.defineProperty(R.prototype, t, {
                 get: function () {
@@ -24,6 +30,8 @@ try {
                             name: this.name,
                             type: t
                         };
+                    } else {
+                        this.count[t] += 1;
                     }
                     return value;
                 },
@@ -77,6 +85,7 @@ try {
             if (!o) {
                 o = new R(name);
                 r[name] = o;
+                numberOfGlobals += 1;
             }
 
             if (type === 'number') {
@@ -91,10 +100,14 @@ try {
         };
 
         (function () {
-            var resourceData00 = ["FILM_SUBMISSION", ["ID", "ID"],
+            var resourceData00 = [
 
-            // the 3 spreadsheet sheets
-            ["FILM_SUBMISSIONS_SHEET", "Film Submissions"],
+                ["SS", SpreadsheetApp.getActiveSpreadsheet()],
+
+                "FILM_SUBMISSION", ["ID", "ID"],
+
+                // the 3 spreadsheet sheets
+                ["FILM_SUBMISSIONS_SHEET", "Film Submissions"],
                 ["TEMPLATE_SHEET", "Templates"],
                 ["OPTIONS_SETTINGS_SHEET", "Options & Settings"],
 
@@ -164,13 +177,19 @@ try {
                 "TEMPLATES_TESTING",
 
                 "INITIALISE",
-                
+
                 // name for manual setting dialog
                 "MANUAL",
 
                 ['currentDate', new Date()],
 
-                ['TESTING', false], 'TEMPLATES_TESTING',
+                ['TESTING', false],
+
+                // set MONITOR to true before initialization, to monitor the use
+                // of globals
+                'MONITOR', ['MONITOR', true],
+
+                'TEMPLATES_TESTING',
 
                 ['SCRIPT_PROPERTIES', PropertiesService.getScriptProperties()]
             ];
@@ -479,10 +498,74 @@ try {
             resourceData03.forEach(R.addResource);
         }());
 
+        // build sheet to track global usage
+        r.initMonitor = function () {
+            var values = [],
+                i, j;
+
+            for (p in r) {
+                if (r.hasOwnProperty(p) && typeof r[p] !== 'function') {
+                    properties.push(r[p].name);
+                }
+            }
+            properties.sort();
+            properties = properties.map(function (item) {
+                return [item];
+            });
+            sheet = r.SS.d.insertSheet(r.MONITOR.s);
+            sheet.getRange(1, 2, 1, types.length).setValues([types]);
+            sheet.getRange(2, 1, properties.length, 1).setValues(properties);
+
+            for (i = 0; i < properties.length; i += 1) {
+                values[i] = [];
+                for (j = 0; j < types.length; j += 1) {
+                    values[i][j] = 0;
+                }
+            }
+
+            sheet.getRange(2, 2, properties.length, types.length).setValues(values);
+        };
+
+        r.wrap = function () {
+            function upDate() {
+                var values, property, range;
+                sheet = r.SS.d.getSheetByName(r.MONITOR.s);
+                range = sheet.getRange(2, 1, numberOfGlobals, types.length + 1);
+                values = range.getValues();
+
+                values.forEach(function (row, i) {
+                    property = row[0];
+                    types.forEach(function (t, j) {
+                        row[j + 1] = row[j + 1] + r[property].count[t];
+                    });
+                });
+                range.setValues(values);
+            }
+
+            function wrap(functionName) {
+                var fn = that[functionName];
+                return function () {
+                    var returnValue = fn.apply(that, arguments);
+                    Logger.log('hello this is a test');
+                    upDate();
+                    return returnValue;
+                };
+            }
+
+            r.MENU_ENTRIES.d.forEach(function (item) {
+                if (item && item.functionName) {
+                    that[item.functionName] = wrap(item.functionName);
+                }
+            });
+
+            that['hProcessSubmission'] = wrap('hProcessSubmission');
+            that['hReminderConfirmation'] = wrap('hReminderConfirmation');
+        };
+
         Object.freeze(r);
 
         return r; // Pass out resource storage
-    }());
+    }(this));
 } catch (e) {
     Logger.log(e);
 }

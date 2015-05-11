@@ -222,7 +222,7 @@ try {
 
         function reminderConfirmation() {
             log('newReminderConfirmation start');
-            var ss = SpreadsheetApp.getActiveSpreadsheet(),
+            var ss = r.SS.d,
                 filmSheet = ss.getSheetByName(r.FILM_SUBMISSIONS_SHEET.s),
                 callback, submissionData, submissions, indices;
 
